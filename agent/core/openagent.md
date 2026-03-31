@@ -528,15 +528,26 @@ OpenAgent: TechLead executes implementation
             ```javascript
             task(
               subagent_type="ProductManager",
-              description="Create user story for {feature}",
-              prompt="Transform this requirement into a structured user story:
+              description="Create user stories for {feature}",
+              prompt="Analyze the following requirement and create structured user stories.
+                      
+                      IMPORTANT: If the input contains MULTIPLE epics, features, or functional areas,
+                      you MUST create ONE SEPARATE story file per epic/feature (STORY-001, STORY-002, etc.).
+                      NEVER combine all epics into a single giant story.
+                      Each story must have ≤8 acceptance criteria and ≤21 story points.
+                      
+                      Requirement:
                       {user's requirement description}
                       
-                      Save to docs/stories/STORY-XXX.md"
+                      Save each story to docs/stories/STORY-XXX.md
+                      Save backlog summary to docs/stories/BACKLOG-SUMMARY.md (if multiple stories)"
             )
             ```
          
-         2. **Technical Planning** - Delegate to Architect:
+         2. **Technical Planning** - Delegate to Architect (per story):
+            - If ProductManager created multiple stories, read `docs/stories/BACKLOG-SUMMARY.md` first
+            - Process stories in dependency order (stories with no blockers first)
+            - For each story:
             ```javascript
             task(
               subagent_type="Architect",
@@ -547,7 +558,7 @@ OpenAgent: TechLead executes implementation
             )
             ```
          
-         3. **Execution** - Delegate to TechLead:
+         3. **Execution** - Delegate to TechLead (per story, in dependency order):
             ```javascript
             task(
               subagent_type="TechLead",
@@ -632,8 +643,11 @@ OpenAgent: TechLead executes implementation
      <route to="ProductManager" when="story_creation_needed">
        <trigger>Vague requirement, feature request, bug report that needs structured story format</trigger>
        <delegation_prompt>
-         "Transform this requirement into a structured user story with acceptance criteria.
-          Save to docs/stories/STORY-XXX.md.
+         "Analyze this requirement and create structured user stories with acceptance criteria.
+          IMPORTANT: If the input contains MULTIPLE epics/features, create ONE story per epic/feature.
+          NEVER combine multiple epics into a single story. Each story ≤8 acceptance criteria, ≤21 points.
+          Save each story to docs/stories/STORY-XXX.md.
+          Save backlog summary to docs/stories/BACKLOG-SUMMARY.md (if multiple stories).
           Ensure Definition of Ready is met before handoff to Architect."
        </delegation_prompt>
      </route>
