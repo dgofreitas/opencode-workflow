@@ -1,0 +1,9 @@
+{
+  "name": "new-opencode-workflow",
+  "version": "1.0.0",
+  "description": "Multi-agent SDLC workflow for OpenCode with 41 agents, 12 commands, and full pipeline support",
+  "private": true,
+  "dependencies": {
+    "@opencode-ai/plugin": "1.3.3"
+  }
+}
