@@ -1,314 +1,387 @@
 #!/bin/bash
 
+# ==============================================================================
 # New OpenCode Workflow Installer
+# ==============================================================================
 # Compatible with: Debian, Ubuntu, Linux Mint
-# Usage: bash install.sh [--global|--local|--hybrid]
+# Usage: bash install.sh [--global|--local|--hybrid] [--dest <path>]
+# ==============================================================================
 
-set -e
+set -euo pipefail
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# ==============================================================================
+# CONFIGURAÇÃO - Constantes globais (SNAKE_CASE)
+# ==============================================================================
+readonly SCRIPT_VERSION="1.0.0"
+readonly SCRIPT_NAME="OpenCode Workflow Installer"
 
-# Script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WORKFLOW_DIR="$SCRIPT_DIR"
+# SCRIPT_DIR pode ser sobrescrito pelo stub de auto-extração
+if [[ -z "${SCRIPT_DIR:-}" ]]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
 
-# Default installation type
+# Cores para output
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly CYAN='\033[0;36m'
+readonly NC='\033[0m'
+
+# Diretórios padrão
+readonly DEFAULT_GLOBAL_DIR="$HOME/.config/opencode"
+readonly DEFAULT_LOCAL_DIR=".opencode"
+
+# Variáveis de estado (modificadas durante execução)
 INSTALL_TYPE=""
+INSTALL_DEST=""
+VERBOSE=false
 
-# Parse arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --global|-g)
-            INSTALL_TYPE="global"
-            shift
-            ;;
-        --local|-l)
-            INSTALL_TYPE="local"
-            shift
-            ;;
-        --hybrid|-h)
-            INSTALL_TYPE="hybrid"
-            shift
-            ;;
-        --help)
-            echo "Usage: bash install.sh [OPTION]"
-            echo ""
-            echo "Options:"
-            echo "  --global, -g    Install globally to ~/.config/opencode/"
-            echo "  --local, -l     Install locally to .opencode/ in current project"
-            echo "  --hybrid, -h    Install hybrid (global core + local project)"
-            echo "  --help          Show this help message"
-            echo ""
-            echo "If no option is provided, runs in interactive mode."
-            exit 0
-            ;;
-        *)
-            echo -e "${RED}Unknown option: $1${NC}"
-            echo "Run 'bash install.sh --help' for usage."
-            exit 1
-            ;;
-    esac
-done
+# ==============================================================================
+# FUNÇÕES DE LOG - Timestamp ISO-8601 + nível + mensagem
+# ==============================================================================
 
-# Print banner
-print_banner() {
+logInfo() {
+    local timestamp
+    timestamp=$(date '+%Y-%m-%dT%H:%M:%S%z')
+    echo -e "${CYAN}[${timestamp}] [INFO]${NC} $*"
+}
+
+logWarn() {
+    local timestamp
+    timestamp=$(date '+%Y-%m-%dT%H:%M:%S%z')
+    echo -e "${YELLOW}[${timestamp}] [WARN]${NC} $*" >&2
+}
+
+logError() {
+    local timestamp
+    timestamp=$(date '+%Y-%m-%dT%H:%M:%S%z')
+    echo -e "${RED}[${timestamp}] [ERROR]${NC} $*" >&2
+}
+
+logSuccess() {
+    local timestamp
+    timestamp=$(date '+%Y-%m-%dT%H:%M:%S%z')
+    echo -e "${GREEN}[${timestamp}] [OK]${NC} $*"
+}
+
+logStep() {
+    local timestamp
+    timestamp=$(date '+%Y-%m-%dT%H:%M:%S%z')
+    echo -e "${BLUE}[${timestamp}] [STEP]${NC} $*"
+}
+
+# ==============================================================================
+# FUNÇÕES DE UI - Banner e Menu padronizados
+# ==============================================================================
+
+printBanner() {
     echo -e "${BLUE}"
-    echo "╔═══════════════════════════════════════════════════════════╗"
-    echo "║       New OpenCode Workflow - Installer                 ║"
-    echo "║       41 Agents | 12 Commands | Full SDLC Pipeline     ║"
-    echo "╚═══════════════════════════════════════════════════════════╝"
+    echo "╔════════════════════════════════════════════════════════════════╗"
+    echo "║        🚀 OpenCode Workflow - Instalador v${SCRIPT_VERSION}                ║"
+    echo "║        42 Agents | 12 Commands | Full SDLC Pipeline            ║"
+    echo "╚════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 }
 
-# Check prerequisites
-check_prerequisites() {
-    echo -e "${BLUE}Checking prerequisites...${NC}"
+printMenu() {
+    echo -e "${CYAN}"
+    echo "╔════════════════════════════════════════════════════════════════╗"
+    echo "║                    📋 TIPO DE INSTALAÇÃO                       ║"
+    echo "╠════════════════════════════════════════════════════════════════╣"
+    echo "║                                                                ║"
+    echo "║  1️⃣  Global                                                     ║"
+    echo "║      Instalar em ~/.config/opencode/                           ║"
+    echo "║      Disponível em todos os projetos                           ║"
+    echo "║                                                                ║"
+    echo "║  2️⃣  Local                                                      ║"
+    echo "║      Instalar em .opencode/ no diretório do projeto            ║"
+    echo "║      Específico do projeto, compartilhável via Git             ║"
+    echo "║                                                                ║"
+    echo "║  3️⃣  Híbrido (Recomendado)                                      ║"
+    echo "║      Global: core agents + Local: inteligência do projeto      ║"
+    echo "║      Ideal para equipes                                        ║"
+    echo "║                                                                ║"
+    echo "╠════════════════════════════════════════════════════════════════╣"
+    echo "║  0️⃣  🚪 Sair                                                    ║"
+    echo "╚════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+}
+
+printHelp() {
+    echo "Uso: bash install.sh [OPÇÃO]"
+    echo ""
+    echo "Opções:"
+    echo "  -g, --global          Instalar globalmente em ~/.config/opencode/"
+    echo "  -l, --local [DIR]     Instalar localmente (DIR opcional, padrão: .opencode)"
+    echo "  -H, --hybrid          Instalar modo híbrido"
+    echo "  -d, --dest <path>     Diretório destino para instalação local"
+    echo "  -v, --verbose         Modo verboso"
+    echo "  -h, --help            Mostrar esta ajuda"
+    echo "  --version             Mostrar versão"
+    echo ""
+    echo "Se nenhuma opção for fornecida, executa em modo interativo."
+}
+
+# ==============================================================================
+# FUNÇÕES DE VALIDAÇÃO
+# ==============================================================================
+
+checkPrerequisites() {
+    logStep "Verificando pré-requisitos..."
     
-    local missing=()
+    local -a missing=()
     
-    # Check OpenCode CLI
-    if ! command -v opencode &> /dev/null; then
+    # Verificar OpenCode CLI
+    if ! command -v opencode > /dev/null 2>&1; then
         missing+=("opencode")
-        echo -e "  ${YELLOW}⚠ OpenCode CLI not found${NC}"
-        echo -e "    Install from: ${BLUE}https://opencode.ai/docs${NC}"
+        logWarn "OpenCode CLI não encontrado"
+        logInfo "  Instale em: https://opencode.ai/docs"
     else
-        echo -e "  ${GREEN}✓ OpenCode CLI: $(opencode --version 2>/dev/null || echo 'installed')${NC}"
+        local version
+        version=$(opencode --version 2>/dev/null || echo "instalado")
+        logSuccess "OpenCode CLI: ${version}"
     fi
     
-    # Check Bun
-    if ! command -v bun &> /dev/null; then
+    # Verificar Bun
+    if ! command -v bun > /dev/null 2>&1; then
         missing+=("bun")
-        echo -e "  ${YELLOW}⚠ Bun not found${NC}"
-        echo -e "    Install with: ${BLUE}curl -fsSL https://bun.sh/install | bash${NC}"
+        logWarn "Bun não encontrado"
+        logInfo "  Instale com: curl -fsSL https://bun.sh/install | bash"
     else
-        echo -e "  ${GREEN}✓ Bun: $(bun --version)${NC}"
+        logSuccess "Bun: $(bun --version)"
     fi
     
-    # Check Git (optional but recommended)
-    if ! command -v git &> /dev/null; then
-        echo -e "  ${YELLOW}⚠ Git not found (recommended for team workflows)${NC}"
+    # Verificar Git (opcional)
+    if ! command -v git > /dev/null 2>&1; then
+        logWarn "Git não encontrado (recomendado para workflows em equipe)"
     else
-        echo -e "  ${GREEN}✓ Git: $(git --version | cut -d' ' -f3)${NC}"
+        logSuccess "Git: $(git --version | cut -d' ' -f3)"
     fi
     
     if [[ ${#missing[@]} -gt 0 ]]; then
-        echo ""
-        echo -e "${RED}Missing required dependencies: ${missing[*]}${NC}"
-        echo "Please install them before continuing."
-        exit 1
+        logError "Dependências faltando: ${missing[*]}"
+        return 1
     fi
     
-    echo ""
+    return 0
 }
 
-# Interactive mode - ask user for installation type
-ask_install_type() {
-    echo -e "${BLUE}Choose installation type:${NC}"
-    echo ""
-    echo "  1) Global     - Install to ~/.config/opencode/"
-    echo "                 Use in all your projects"
-    echo ""
-    echo "  2) Local     - Install to .opencode/ in current directory"
-    echo "                 Project-specific, share with team via Git"
-    echo ""
-    echo "  3) Hybrid    - Global core + Local project intelligence"
-    echo "                 Best for teams (recommended)"
-    echo ""
+# ==============================================================================
+# FUNÇÕES DE INSTALAÇÃO - Cada função ≤45 linhas
+# ==============================================================================
+
+copyWorkflowFiles() {
+    local targetDir="$1"
+    logStep "Copiando arquivos para: ${targetDir}"
     
-    read -p "Enter choice [1-3]: " choice
+    mkdir -p "${targetDir}"
     
-    case $choice in
-        1) INSTALL_TYPE="global" ;;
-        2) INSTALL_TYPE="local" ;;
-        3) INSTALL_TYPE="hybrid" ;;
-        *)
-            echo -e "${RED}Invalid choice. Exiting.${NC}"
-            exit 1
-            ;;
-    esac
+    cp -r "${SCRIPT_DIR}/agent" "${targetDir}/"
+    cp -r "${SCRIPT_DIR}/command" "${targetDir}/"
+    cp -r "${SCRIPT_DIR}/config" "${targetDir}/"
+    cp -r "${SCRIPT_DIR}/context" "${targetDir}/"
+    cp -r "${SCRIPT_DIR}/skills" "${targetDir}/"
+    cp -r "${SCRIPT_DIR}/tool" "${targetDir}/"
+    cp "${SCRIPT_DIR}/package.json" "${targetDir}/"
     
-    echo ""
+    logSuccess "Arquivos copiados"
 }
 
-# Install globally
-install_global() {
-    local TARGET_DIR="$HOME/.config/opencode"
+installDependencies() {
+    local targetDir="$1"
+    logStep "Instalando dependências em: ${targetDir}"
     
-    echo -e "${BLUE}Installing globally to: ${TARGET_DIR}${NC}"
-    echo ""
-    
-    # Create directory if not exists
-    mkdir -p "$TARGET_DIR"
-    
-    # Check if already installed
-    if [[ -d "$TARGET_DIR/agent" ]]; then
-        echo -e "${YELLOW}Existing installation found at ${TARGET_DIR}${NC}"
-        read -p "Overwrite? [y/N]: " overwrite
-        if [[ ! "$overwrite" =~ ^[Yy]$ ]]; then
-            echo "Installation cancelled."
-            exit 0
-        fi
-        echo "Removing existing installation..."
-        rm -rf "$TARGET_DIR/agent" "$TARGET_DIR/command" "$TARGET_DIR/config" \
-               "$TARGET_DIR/context" "$TARGET_DIR/skills" "$TARGET_DIR/tool" \
-               "$TARGET_DIR/package.json" "$TARGET_DIR/node_modules"
-    fi
-    
-    # Copy files
-    echo "Copying files..."
-    cp -r "$WORKFLOW_DIR/agent" "$TARGET_DIR/"
-    cp -r "$WORKFLOW_DIR/command" "$TARGET_DIR/"
-    cp -r "$WORKFLOW_DIR/config" "$TARGET_DIR/"
-    cp -r "$WORKFLOW_DIR/context" "$TARGET_DIR/"
-    cp -r "$WORKFLOW_DIR/skills" "$TARGET_DIR/"
-    cp -r "$WORKFLOW_DIR/tool" "$TARGET_DIR/"
-    cp "$WORKFLOW_DIR/package.json" "$TARGET_DIR/"
-    
-    # Install dependencies
-    echo "Installing dependencies..."
-    cd "$TARGET_DIR"
+    cd "${targetDir}"
     bun install
+    cd - > /dev/null
     
-    echo ""
-    echo -e "${GREEN}✓ Global installation complete!${NC}"
-    echo ""
-    echo "To use, run:"
-    echo -e "  ${BLUE}opencode --agent OpenAgent${NC}"
-    echo ""
+    logSuccess "Dependências instaladas"
 }
 
-# Install locally
-install_local() {
-    local TARGET_DIR="$(pwd)/.opencode"
+removeExistingInstallation() {
+    local targetDir="$1"
+    logStep "Removendo instalação existente: ${targetDir}"
     
-    echo -e "${BLUE}Installing locally to: ${TARGET_DIR}${NC}"
-    echo ""
+    rm -rf "${targetDir}/agent" "${targetDir}/command" "${targetDir}/config" \
+           "${targetDir}/context" "${targetDir}/skills" "${targetDir}/tool" \
+           "${targetDir}/package.json" "${targetDir}/node_modules"
     
-    # Check if already in a project
-    if [[ ! -f "$(pwd)/package.json" && ! -d "$(pwd)/.git" ]]; then
-        echo -e "${YELLOW}Warning: Current directory doesn't appear to be a project root.${NC}"
-        read -p "Continue anyway? [y/N]: " continue_anyway
-        if [[ ! "$continue_anyway" =~ ^[Yy]$ ]]; then
-            echo "Installation cancelled."
-            exit 0
-        fi
+    logSuccess "Instalação anterior removida"
+}
+
+confirmOverwrite() {
+    local targetDir="$1"
+    
+    if [[ ! -d "${targetDir}/agent" ]]; then
+        return 0
     fi
     
-    # Check if already installed
-    if [[ -d "$TARGET_DIR/agent" ]]; then
-        echo -e "${YELLOW}Existing installation found at ${TARGET_DIR}${NC}"
-        read -p "Overwrite? [y/N]: " overwrite
-        if [[ ! "$overwrite" =~ ^[Yy]$ ]]; then
-            echo "Installation cancelled."
-            exit 0
-        fi
-        echo "Removing existing installation..."
-        rm -rf "$TARGET_DIR/agent" "$TARGET_DIR/command" "$TARGET_DIR/config" \
-               "$TARGET_DIR/context" "$TARGET_DIR/skills" "$TARGET_DIR/tool" \
-               "$TARGET_DIR/package.json" "$TARGET_DIR/node_modules"
+    logWarn "Instalação existente encontrada em: ${targetDir}"
+    read -p "Sobrescrever? [y/N]: " -r overwrite
+    
+    if [[ ! "${overwrite}" =~ ^[Yy]$ ]]; then
+        logInfo "Instalação cancelada pelo usuário"
+        return 1
     fi
     
-    # Create directory
-    mkdir -p "$TARGET_DIR"
+    return 0
+}
+
+askLocalDestination() {
+    local defaultDest="${INSTALL_DEST:-$(pwd)/${DEFAULT_LOCAL_DIR}}"
     
-    # Copy files
-    echo "Copying files..."
-    cp -r "$WORKFLOW_DIR/agent" "$TARGET_DIR/"
-    cp -r "$WORKFLOW_DIR/command" "$TARGET_DIR/"
-    cp -r "$WORKFLOW_DIR/config" "$TARGET_DIR/"
-    cp -r "$WORKFLOW_DIR/context" "$TARGET_DIR/"
-    cp -r "$WORKFLOW_DIR/skills" "$TARGET_DIR/"
-    cp -r "$WORKFLOW_DIR/tool" "$TARGET_DIR/"
-    cp "$WORKFLOW_DIR/package.json" "$TARGET_DIR/"
+    logInfo "Diretório destino padrão: ${defaultDest}"
+    read -p "Informe o diretório destino [ENTER para padrão]: " -r userDest
     
-    # Install dependencies
-    echo "Installing dependencies..."
-    cd "$TARGET_DIR"
-    bun install
-    
-    # Update .gitignore
-    cd "$(dirname "$TARGET_DIR")"
-    if [[ -f ".gitignore" ]]; then
-        if ! grep -q ".opencode/node_modules" .gitignore 2>/dev/null; then
-            echo "" >> .gitignore
-            echo "# OpenCode workflow" >> .gitignore
-            echo ".opencode/node_modules/" >> .gitignore
-            echo "Added .opencode/node_modules/ to .gitignore"
+    if [[ -n "${userDest}" ]]; then
+        # Converter caminho relativo para absoluto
+        if [[ "${userDest}" != /* ]]; then
+            INSTALL_DEST="$(pwd)/${userDest}"
+        else
+            INSTALL_DEST="${userDest}"
         fi
     else
-        echo ".opencode/node_modules/" > .gitignore
-        echo "Created .gitignore"
+        INSTALL_DEST="${defaultDest}"
     fi
     
-    echo ""
-    echo -e "${GREEN}✓ Local installation complete!${NC}"
-    echo ""
-    echo "To share with your team:"
-    echo -e "  ${BLUE}git add .opencode/${NC}"
-    echo -e "  ${BLUE}git commit -m 'Add OpenCode workflow'${NC}"
-    echo -e "  ${BLUE}git push${NC}"
-    echo ""
-    echo "To use, run from project root:"
-    echo -e "  ${BLUE}opencode --agent OpenAgent${NC}"
-    echo ""
+    logInfo "Diretório destino: ${INSTALL_DEST}"
 }
 
-# Install hybrid
-install_hybrid() {
-    local GLOBAL_DIR="$HOME/.config/opencode"
-    local LOCAL_DIR="$(pwd)/.opencode"
+# ==============================================================================
+# FUNÇÕES DE INSTALAÇÃO - Global, Local, Híbrido
+# ==============================================================================
+
+installGlobal() {
+    local targetDir="${DEFAULT_GLOBAL_DIR}"
     
-    echo -e "${BLUE}Installing hybrid mode...${NC}"
-    echo ""
-    echo "  Global: $GLOBAL_DIR (core agents, standards)"
-    echo "  Local:  $LOCAL_DIR (project intelligence)"
-    echo ""
+    logStep "Instalação GLOBAL em: ${targetDir}"
     
-    # Install global part
-    echo -e "${BLUE}[1/2] Installing global components...${NC}"
-    mkdir -p "$GLOBAL_DIR"
+    if ! confirmOverwrite "${targetDir}"; then
+        return 1
+    fi
     
-    # Check existing global
-    if [[ -d "$GLOBAL_DIR/agent" ]]; then
-        echo -e "${YELLOW}Existing global installation found${NC}"
-        read -p "Overwrite global? [y/N]: " overwrite_global
-        if [[ "$overwrite_global" =~ ^[Yy]$ ]]; then
-            rm -rf "$GLOBAL_DIR/agent" "$GLOBAL_DIR/command" "$GLOBAL_DIR/config" \
-                   "$GLOBAL_DIR/context" "$GLOBAL_DIR/skills" "$GLOBAL_DIR/tool" \
-                   "$GLOBAL_DIR/package.json" "$GLOBAL_DIR/node_modules"
+    if [[ -d "${targetDir}/agent" ]]; then
+        removeExistingInstallation "${targetDir}"
+    fi
+    
+    copyWorkflowFiles "${targetDir}"
+    installDependencies "${targetDir}"
+    
+    logSuccess "Instalação global concluída!"
+    logInfo "Para usar: opencode --agent OpenAgent"
+}
+
+installLocal() {
+    # Perguntar diretório destino se não especificado
+    if [[ -z "${INSTALL_DEST}" ]]; then
+        askLocalDestination
+    fi
+    
+    local targetDir="${INSTALL_DEST}"
+    
+    # Validar se é um diretório de projeto
+    local projectRoot
+    projectRoot=$(dirname "${targetDir}")
+    
+    if [[ ! -f "${projectRoot}/package.json" && ! -d "${projectRoot}/.git" ]]; then
+        logWarn "Diretório não parece ser um projeto (sem package.json ou .git)"
+        read -p "Continuar mesmo assim? [y/N]: " -r continueAnyway
+        if [[ ! "${continueAnyway}" =~ ^[Yy]$ ]]; then
+            logInfo "Instalação cancelada"
+            return 1
         fi
     fi
     
-    # Copy global files
-    echo "Copying global files..."
-    cp -r "$WORKFLOW_DIR/agent" "$GLOBAL_DIR/" 2>/dev/null || true
-    cp -r "$WORKFLOW_DIR/command" "$GLOBAL_DIR/" 2>/dev/null || true
-    cp -r "$WORKFLOW_DIR/config" "$GLOBAL_DIR/" 2>/dev/null || true
-    cp -r "$WORKFLOW_DIR/context/core" "$GLOBAL_DIR/context/" 2>/dev/null || true
-    cp -r "$WORKFLOW_DIR/skills" "$GLOBAL_DIR/" 2>/dev/null || true
-    cp -r "$WORKFLOW_DIR/tool" "$GLOBAL_DIR/" 2>/dev/null || true
-    cp "$WORKFLOW_DIR/package.json" "$GLOBAL_DIR/" 2>/dev/null || true
+    logStep "Instalação LOCAL em: ${targetDir}"
     
-    # Install global dependencies
-    echo "Installing global dependencies..."
-    cd "$GLOBAL_DIR"
-    bun install
+    if ! confirmOverwrite "${targetDir}"; then
+        return 1
+    fi
     
-    echo ""
+    if [[ -d "${targetDir}/agent" ]]; then
+        removeExistingInstallation "${targetDir}"
+    fi
     
-    # Install local part
-    echo -e "${BLUE}[2/2] Setting up local project intelligence...${NC}"
+    copyWorkflowFiles "${targetDir}"
+    installDependencies "${targetDir}"
+    updateGitignore "${projectRoot}"
     
-    mkdir -p "$LOCAL_DIR/context/project-intelligence"
-    mkdir -p "$LOCAL_DIR/context/project"
+    logSuccess "Instalação local concluída!"
+    logInfo "Para compartilhar: git add .opencode/ && git commit -m 'Add OpenCode workflow'"
+}
+
+updateGitignore() {
+    local projectRoot="$1"
+    local gitignoreFile="${projectRoot}/.gitignore"
     
-    # Create project context template
-    cat > "$LOCAL_DIR/context/project/project-context.md" << 'EOF'
+    logStep "Atualizando .gitignore"
+    
+    if [[ -f "${gitignoreFile}" ]]; then
+        if grep -q ".opencode/node_modules" "${gitignoreFile}" 2>/dev/null; then
+            logInfo ".gitignore já contém entrada para .opencode/node_modules"
+            return 0
+        fi
+        echo "" >> "${gitignoreFile}"
+        echo "# OpenCode workflow" >> "${gitignoreFile}"
+        echo ".opencode/node_modules/" >> "${gitignoreFile}"
+    else
+        echo "# OpenCode workflow" > "${gitignoreFile}"
+        echo ".opencode/node_modules/" >> "${gitignoreFile}"
+    fi
+    
+    logSuccess ".gitignore atualizado"
+}
+
+# ==============================================================================
+# INSTALAÇÃO HÍBRIDA - Global + Local
+# ==============================================================================
+
+installHybrid() {
+    local globalDir="${DEFAULT_GLOBAL_DIR}"
+    local localDir="${INSTALL_DEST:-$(pwd)/${DEFAULT_LOCAL_DIR}}"
+    
+    logStep "Instalação HÍBRIDA"
+    logInfo "  Global: ${globalDir} (core agents, standards)"
+    logInfo "  Local:  ${localDir} (inteligência do projeto)"
+    
+    # Parte 1: Global
+    logStep "[1/2] Instalando componentes globais..."
+    
+    if [[ -d "${globalDir}/agent" ]]; then
+        if ! confirmOverwrite "${globalDir}"; then
+            logInfo "Mantendo instalação global existente"
+        else
+            removeExistingInstallation "${globalDir}"
+            copyWorkflowFiles "${globalDir}"
+            installDependencies "${globalDir}"
+        fi
+    else
+        copyWorkflowFiles "${globalDir}"
+        installDependencies "${globalDir}"
+    fi
+    
+    # Parte 2: Local
+    logStep "[2/2] Configurando inteligência local do projeto..."
+    
+    setupLocalIntelligence "${localDir}"
+    updateGitignore "$(dirname "${localDir}")"
+    
+    logSuccess "Instalação híbrida concluída!"
+    logInfo "Próximos passos:"
+    logInfo "  1. Edite .opencode/context/project/project-context.md"
+    logInfo "  2. Commit .opencode/ para compartilhar com a equipe"
+    logInfo "  3. Execute: opencode --agent OpenAgent"
+}
+
+setupLocalIntelligence() {
+    local localDir="$1"
+    
+    mkdir -p "${localDir}/context/project-intelligence"
+    mkdir -p "${localDir}/context/project"
+    
+    # Criar template de contexto do projeto
+    cat > "${localDir}/context/project/project-context.md" << 'EOF'
 # Project Context
 
 > Fill in this file with your project's specific patterns and conventions.
@@ -330,8 +403,8 @@ install_hybrid() {
 <!-- Example: Input validation, authentication method -->
 EOF
     
-    # Create living notes template
-    cat > "$LOCAL_DIR/context/project-intelligence/living-notes.md" << 'EOF'
+    # Criar template de living notes
+    cat > "${localDir}/context/project-intelligence/living-notes.md" << 'EOF'
 # Living Notes
 
 > Document discoveries, patterns, and decisions as you work on this project.
@@ -346,133 +419,204 @@ EOF
 <!-- Document tricky parts and how to handle them -->
 EOF
     
-    # Update .gitignore
-    cd "$(dirname "$LOCAL_DIR")"
-    if [[ -f ".gitignore" ]]; then
-        if ! grep -q ".opencode/node_modules" .gitignore 2>/dev/null; then
-            echo "" >> .gitignore
-            echo "# OpenCode workflow" >> .gitignore
-            echo ".opencode/node_modules/" >> .gitignore
-        fi
-    else
-        echo ".opencode/node_modules/" > .gitignore
-    fi
-    
-    echo ""
-    echo -e "${GREEN}✓ Hybrid installation complete!${NC}"
-    echo ""
-    echo "Next steps:"
-    echo "  1. Edit .opencode/context/project/project-context.md with your project info"
-    echo "  2. Commit .opencode/ to share with your team"
-    echo "  3. Run: opencode --agent OpenAgent"
-    echo ""
+    logSuccess "Inteligência local configurada"
 }
 
-# Verify installation
-verify_installation() {
-    local TARGET_DIR="$1"
+# ==============================================================================
+# VERIFICAÇÃO DE INSTALAÇÃO
+# ==============================================================================
+
+verifyInstallation() {
+    local targetDir="$1"
     
-    echo -e "${BLUE}Verifying installation...${NC}"
+    logStep "Verificando instalação em: ${targetDir}"
     
     local errors=0
     
-    # Check agents
-    local agent_count=$(find "$TARGET_DIR/agent" -name "*.md" 2>/dev/null | wc -l)
-    if [[ $agent_count -eq 41 ]]; then
-        echo -e "  ${GREEN}✓ Agents: $agent_count${NC}"
+    # Verificar agents
+    local agentCount
+    agentCount=$(find "${targetDir}/agent" -name "*.md" 2>/dev/null | wc -l)
+    if [[ ${agentCount} -ge 41 ]]; then
+        logSuccess "Agents: ${agentCount}"
     else
-        echo -e "  ${RED}✗ Agents: $agent_count (expected 41)${NC}"
+        logError "Agents: ${agentCount} (esperado: ≥41)"
         ((errors++))
     fi
     
-    # Check commands
-    local command_count=$(find "$TARGET_DIR/command" -name "*.md" 2>/dev/null | wc -l)
-    if [[ $command_count -eq 12 ]]; then
-        echo -e "  ${GREEN}✓ Commands: $command_count${NC}"
+    # Verificar commands
+    local commandCount
+    commandCount=$(find "${targetDir}/command" -name "*.md" 2>/dev/null | wc -l)
+    if [[ ${commandCount} -ge 12 ]]; then
+        logSuccess "Commands: ${commandCount}"
     else
-        echo -e "  ${RED}✗ Commands: $command_count (expected 12)${NC}"
+        logError "Commands: ${commandCount} (esperado: ≥12)"
         ((errors++))
     fi
     
-    # Check config
-    if [[ -f "$TARGET_DIR/config/agent-metadata.json" ]]; then
-        echo -e "  ${GREEN}✓ Config: agent-metadata.json${NC}"
+    # Verificar config
+    if [[ -f "${targetDir}/config/agent-metadata.json" ]]; then
+        logSuccess "Config: agent-metadata.json"
     else
-        echo -e "  ${RED}✗ Config: missing${NC}"
+        logError "Config: não encontrado"
         ((errors++))
     fi
     
-    # Check context
-    if [[ -d "$TARGET_DIR/context/core" ]]; then
-        echo -e "  ${GREEN}✓ Context: core files present${NC}"
+    # Verificar context
+    if [[ -d "${targetDir}/context/core" ]]; then
+        logSuccess "Context: core presente"
     else
-        echo -e "  ${RED}✗ Context: missing${NC}"
+        logError "Context: não encontrado"
         ((errors++))
     fi
     
-    # Check node_modules
-    if [[ -d "$TARGET_DIR/node_modules" ]]; then
-        echo -e "  ${GREEN}✓ Dependencies: installed${NC}"
+    # Verificar node_modules
+    if [[ -d "${targetDir}/node_modules" ]]; then
+        logSuccess "Dependências: instaladas"
     else
-        echo -e "  ${RED}✗ Dependencies: not installed${NC}"
+        logError "Dependências: não instaladas"
         ((errors++))
     fi
     
-    echo ""
-    
-    if [[ $errors -eq 0 ]]; then
-        echo -e "${GREEN}Installation verified successfully!${NC}"
+    if [[ ${errors} -eq 0 ]]; then
+        logSuccess "Instalação verificada com sucesso!"
         return 0
     else
-        echo -e "${RED}Installation has $errors error(s)${NC}"
+        logError "Instalação com ${errors} erro(s)"
         return 1
     fi
 }
 
-# Main
+# ==============================================================================
+# MENU INTERATIVO
+# ==============================================================================
+
+showMenu() {
+    while true; do
+        printMenu
+        read -p "Escolha uma opção [0-3]: " -r choice
+        
+        case "${choice}" in
+            0)
+                logInfo "Saindo..."
+                exit 0
+                ;;
+            1)
+                INSTALL_TYPE="global"
+                break
+                ;;
+            2)
+                INSTALL_TYPE="local"
+                break
+                ;;
+            3)
+                INSTALL_TYPE="hybrid"
+                break
+                ;;
+            *)
+                logError "Opção inválida: ${choice}"
+                ;;
+        esac
+    done
+}
+
+# ==============================================================================
+# PARSING DE ARGUMENTOS
+# ==============================================================================
+
+parseArguments() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -g|--global)
+                INSTALL_TYPE="global"
+                shift
+                ;;
+            -l|--local)
+                INSTALL_TYPE="local"
+                shift
+                # Verificar se próximo argumento é um diretório
+                if [[ $# -gt 0 && ! "$1" =~ ^- ]]; then
+                    INSTALL_DEST="$1"
+                    shift
+                fi
+                ;;
+            -H|--hybrid)
+                INSTALL_TYPE="hybrid"
+                shift
+                ;;
+            -d|--dest)
+                if [[ -z "${2:-}" ]]; then
+                    logError "Opção --dest requer um caminho"
+                    exit 1
+                fi
+                INSTALL_DEST="$2"
+                shift 2
+                ;;
+            -v|--verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -h|--help)
+                printHelp
+                exit 0
+                ;;
+            --version)
+                echo "${SCRIPT_NAME} v${SCRIPT_VERSION}"
+                exit 0
+                ;;
+            *)
+                logError "Opção desconhecida: $1"
+                logInfo "Use --help para ver as opções disponíveis"
+                exit 1
+                ;;
+        esac
+    done
+}
+
+# ==============================================================================
+# MAIN - Ponto de entrada (toda execução aqui)
+# ==============================================================================
+
 main() {
-    print_banner
+    printBanner
     
-    check_prerequisites
-    
-    # If no install type specified, ask interactively
-    if [[ -z "$INSTALL_TYPE" ]]; then
-        ask_install_type
+    if ! checkPrerequisites; then
+        exit 1
     fi
     
-    echo -e "${BLUE}Installing: $INSTALL_TYPE${NC}"
-    echo ""
+    # Se nenhum tipo especificado, mostrar menu interativo
+    if [[ -z "${INSTALL_TYPE}" ]]; then
+        showMenu
+    fi
     
-    case $INSTALL_TYPE in
+    logStep "Tipo de instalação: ${INSTALL_TYPE}"
+    
+    case "${INSTALL_TYPE}" in
         global)
-            install_global
-            verify_installation "$HOME/.config/opencode"
+            installGlobal
+            verifyInstallation "${DEFAULT_GLOBAL_DIR}"
             ;;
         local)
-            install_local
-            verify_installation "$(pwd)/.opencode"
+            installLocal
+            if [[ -n "${INSTALL_DEST}" ]]; then
+                verifyInstallation "${INSTALL_DEST}"
+            fi
             ;;
         hybrid)
-            install_hybrid
-            echo ""
-            echo "Verifying global..."
-            verify_installation "$HOME/.config/opencode"
+            installHybrid
+            logStep "Verificando instalação global..."
+            verifyInstallation "${DEFAULT_GLOBAL_DIR}"
             ;;
     esac
     
     echo ""
-    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}  Installation complete!${NC}"
-    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
-    echo ""
-    echo "Quick start:"
-    echo -e "  ${BLUE}opencode --agent OpenAgent${NC}"
-    echo ""
-    echo "Documentation:"
-    echo "  - INSTALLATION.md"
-    echo "  - HOW_IT_WORKS.md"
-    echo "  - QUICK_REFERENCE.md"
-    echo ""
+    logSuccess "═══════════════════════════════════════════════════════════════"
+    logSuccess "  Instalação concluída!"
+    logSuccess "═══════════════════════════════════════════════════════════════"
+    logInfo "Para começar: opencode --agent OpenAgent"
 }
 
-main "$@"
+# ==============================================================================
+# PONTO DE ENTRADA
+# ==============================================================================
+parseArguments "$@"
+main
