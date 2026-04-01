@@ -1,52 +1,46 @@
-<!-- Context: development/navigation | Priority: critical | Version: 1.0 | Updated: 2026-02-15 -->
+<!-- Context: development/navigation | Priority: critical | Version: 1.1 | Updated: 2026-04-01 -->
 
 # Backend Development Navigation
 
 **Purpose**: Server-side development patterns
 
-**Status**: 🚧 Placeholder - Content coming soon
-
 ---
 
-## Planned Structure
+## Structure
 
 ```
 backend/
 ├── navigation.md
 │
-├── api-patterns/              # Approach-based
+├── nodejs/                    # Node.js tech-specific
+│   └── project-structure.md   # ✅ Mandatory project structure for new Node.js services
+│
+├── api-patterns/              # Approach-based [future]
 │   ├── rest-design.md
 │   ├── graphql-design.md
-│   ├── grpc-patterns.md
 │   └── trpc-patterns.md
 │
-├── nodejs/                    # Tech-specific
-│   ├── express-patterns.md
-│   ├── fastify-patterns.md
-│   └── nextjs-api-routes.md
-│
-├── python/
+├── python/                    # [future]
 │   ├── fastapi-patterns.md
 │   └── django-patterns.md
 │
-├── authentication/            # Functional concern
+├── authentication/            # [future]
 │   ├── jwt-patterns.md
-│   ├── oauth-patterns.md
-│   └── session-management.md
+│   └── oauth-patterns.md
 │
-└── middleware/
+└── middleware/                 # [future]
     ├── logging.md
-    ├── rate-limiting.md
     └── cors.md
 ```
 
 ---
 
-## For Now
+## Quick Routes
 
-Use specialized navigation: `../backend-navigation.md`
-
-Also see: `../principles/api-design.md`
+| Task | Path |
+|------|------|
+| **Node.js project structure** | `nodejs/project-structure.md` |
+| **API design principles** | `../principles/api-design.md` |
 
 ---
 
