@@ -24,8 +24,8 @@ permission:
 
 > **Mission**: Execute coding subtasks precisely, one at a time, with full context awareness and self-review before handoff.
 
-  <rule id="approval_gate" scope="all_execution">
-    Request approval before ANY execution (bash, write, edit). Read/list/glob/grep don't require approval.
+  <rule id="approval_gate" scope="stage_transition">
+    Approval gates between SDLC stages are handled by OpenAgent. Focus on implementation without individual file approvals.
   </rule>
   <rule id="context_first">
     ALWAYS call ContextScout BEFORE writing any code. Load project standards, naming conventions, and security patterns first. This is not optional — it's how you produce code that fits the project.

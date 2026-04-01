@@ -2,16 +2,36 @@
 
 ## Pipeline SDLC em 30 Segundos
 
+```mermaid
+graph LR
+    PM[ProductManager] --> G1{{"GATE #1"}}
+    G1 --> Arch[Architect]
+    Arch --> G2{{"GATE #2"}}
+    G2 --> TL["TechLead\n(full cycle)"]
+    TL --> G3{{"GATE #3"}}
+    G3 -->|next story| TL
 ```
-┌─────────┐    ┌──────────┐    ┌─────────┐    ┌──────────┐    ┌──────┐    ┌────┐
-│   PM    │ -> │ Architect│ -> │ TechLead│ -> │   Devs   │ -> │  QA  │ -> │ MR │
-│ /story  │    │  /plan   │    │/implement│   │ /review  │    │ /qa  │    │/mr │
-└─────────┘    └──────────┘    └─────────┘    └──────────┘    └──────┘    └────┘
-     │              │               │               │            │
-     ▼              ▼               ▼               ▼            ▼
-  Story.md     TechPlan.md    Implementation   CodeReview   QAReport
-                               Reports          Reports
+
+**TechLead orquestra o ciclo completo internamente** (sem gates entre sub-estágios):
+
+```mermaid
+graph TD
+    TL["TechLead recebe a story"] --> Impl["Impl: BackendDev + FrontendDev\n(NUNCA escreve código)"]
+    Impl --> Test["Test: TestEngineer\n(>=90% coverage)"]
+    Test --> QA["QA: QAAnalyst\n(valida acceptance criteria)"]
+    QA --> Review["Review: CodeReviewer\n(segurança + qualidade)"]
+    Review --> MR["MR: MergeRequestCreator\n(feat/STORY-XXX → main)"]
 ```
+
+## 3 Approval Gates
+
+| Gate | Transição | O que o usuário vê |
+|------|-----------|---------------------|
+| **#1** | ProductManager → Architect | Stories criadas. Lista + resumo. |
+| **#2** | Architect → TechLead | Plano técnico. Ordem de execução. |
+| **#3** | TechLead → próxima story | Story COMPLETA: impl, testes, QA, review, MR. |
+
+Gate #3 repete para **cada story** (ciclo per-story). Cada story = branch próprio (`feat/STORY-XXX → main`).
 
 ## Agentes por Função
 
@@ -25,10 +45,10 @@
 | Agente | Função | Output |
 |--------|--------|--------|
 | **ProductManager** | Transforma pedidos em stories | `docs/stories/STORY-XXX.md` |
-| **Architect** | Cria plano técnico | `docs/stories/STORY-XXX-technical-analysis.md` |
-| **TechLead** | Coordena implementação | Execução dos batches |
-| **QAAnalyst** | Valida aceitação | QA Report (APPROVE/REJECT) |
-| **MergeRequestCreator** | Cria MR/PR | PR no GitHub/GitLab |
+| **Architect** | Cria plano técnico (NUNCA implementa) | `docs/stories/STORY-XXX-technical-analysis.md` |
+| **TechLead** | Orquestra ciclo completo: impl→test→QA→review→MR (NUNCA escreve código) | Story completa com MR |
+| **QAAnalyst** | Valida acceptance criteria (invocado pelo TechLead) | QA Report (APPROVE/REJECT) |
+| **MergeRequestCreator** | Cria MR/PR (invocado pelo TechLead) | PR no GitHub/GitLab |
 
 ### Implementação (por linguagem)
 | Node.js/TS | Python | C |
@@ -58,7 +78,7 @@
 |---------|-----------|-----------------|
 | `/story <desc>` | Cria user story | ProductManager |
 | `/plan <story>` | Cria plano técnico | Architect |
-| `/implement <story>` | Executa implementação | TechLead |
+| `/implement <story>` | Executa ciclo completo | TechLead |
 | `/review [files]` | Code review | CodeReviewer* |
 | `/qa <story>` | Validação QA | QAAnalyst |
 | `/mr [base]` | Cria merge request | MergeRequestCreator |
@@ -75,55 +95,70 @@
 1. **ContextScout SEMPRE** - Todo agente carrega contexto antes de agir
 2. **ExternalScout para libs** - Documentação atualizada de bibliotecas
 3. **Testes >= 90%** - Cobertura obrigatória
-4. **Aprovação primeiro** - Nunca executar sem aprovação do usuário
+4. **3 Approval Gates** - Gates entre PM→Arch→TechLead→next story
+5. **TechLead delega, NUNCA implementa** - Coordena especialistas
 
-## Exemplo: "Criar app de finanças"
+## Exemplo: "Criar app de finanças" (múltiplas stories)
 
-```
-1. Você: "Criar app de finanças com dashboard e gráficos"
-   └─> OpenAgent recebe
+```mermaid
+sequenceDiagram
+    actor User as Você
+    participant OA as OpenAgent
+    participant PM as ProductManager
+    participant Arch as Architect
+    participant TL as TechLead
 
-2. OpenAgent: "Isso é uma Story complexa"
-   └─> Delega para ProductManager
+    User->>OA: "Criar app de finanças com dashboard e gráficos"
+    OA->>PM: Delega criação de stories
+    PM-->>OA: STORY-001.md, STORY-002.md
 
-3. ProductManager: Cria STORY-001.md com acceptance criteria
-   └─> Retorna para OpenAgent
+    rect rgb(255, 243, 224)
+        Note over User,OA: GATE #1 — Stories criadas
+        OA->>User: Prosseguir para Architect? [Y/n]
+        User->>OA: Aprova
+    end
 
-4. OpenAgent: "Story criada, preciso de arquitetura"
-   └─> Delega para Architect
+    OA->>Arch: Cria technical-analysis
+    Arch-->>OA: Planos técnicos prontos
 
-5. Architect: Detecta React + Node.js, cria plano com batches
-   └─> Retorna para OpenAgent
+    rect rgb(255, 243, 224)
+        Note over User,OA: GATE #2 — Plano técnico completo
+        OA->>User: Implementar STORY-001? [Y/n]
+        User->>OA: Aprova
+    end
 
-6. OpenAgent: "Plano pronto, executar"
-   └─> Delega para TechLead
+    OA->>TL: Execute STORY-001 (full cycle)
+    Note right of TL: branch feat/STORY-001<br/>Impl → Test → QA<br/>→ Review → MR
+    TL-->>OA: STORY-001 COMPLETA ✅
 
-7. TechLead: Executa batches
-   ├─> Batch 1 (paralelo): BackendDeveloper + FrontendDeveloperReact
-   ├─> Batch 2 (sequencial): Mais implementação
-   ├─> Batch 3: TestEngineer + CodeReviewer
-   └─> Batch 4: QAAnalyst
+    rect rgb(255, 243, 224)
+        Note over User,OA: GATE #3 — Story completa
+        OA->>User: Prosseguir para STORY-002? [Y/n]
+        User->>OA: Aprova
+    end
 
-8. QAAnalyst: Valida todos critérios
-   └─> APPROVE
+    OA->>TL: Execute STORY-002 (full cycle)
+    TL-->>OA: STORY-002 COMPLETA ✅
 
-9. MergeRequestCreator: Cria PR com tudo agregado
-   └─> PR criado no GitHub
+    rect rgb(255, 243, 224)
+        Note over User,OA: GATE #3 — Todas finalizadas
+    end
 
-10. FIM: App de finanças implementado, testado, e pronto para merge
+    Note right of OA: Resumo final:<br/>métricas, MRs, cobertura
 ```
 
 ## Detecção de Linguagem
 
 O sistema detecta automaticamente:
 
-```
-package.json + tsconfig.json  →  Node.js/TypeScript
-pyproject.toml                →  Python
-CMakeLists.txt                →  C
-package.json + "react"        →  React
-package.json + "vue"          →  Vue
-angular.json                  →  Angular
+```mermaid
+graph LR
+    A["package.json + tsconfig.json"] --> B["Node.js/TypeScript"]
+    C["pyproject.toml"] --> D["Python"]
+    E["CMakeLists.txt"] --> F["C"]
+    G["package.json + react"] --> H["React"]
+    I["package.json + vue"] --> J["Vue"]
+    K["angular.json"] --> L["Angular"]
 ```
 
 E roteia para os agentes corretos automaticamente!

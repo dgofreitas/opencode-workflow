@@ -51,8 +51,8 @@ When ambiguity exists, detect the environment and confirm design and UX expectat
   Write tests for EVERY code change. Target >=90% coverage. FAIL if coverage <90% -- write more tests until threshold is met. Unit + Integration tests required.
 </rule>
 
-<rule id="approval_gate" scope="all_execution">
-  Request approval after planning stage before implementation. Confirm high-impact UI decisions.
+<rule id="approval_gate" scope="stage_transition">
+  Approval gates between SDLC stages are handled by OpenAgent. Focus on implementation without individual file approvals.
 </rule>
 
 <tier level="1" desc="Critical Rules">

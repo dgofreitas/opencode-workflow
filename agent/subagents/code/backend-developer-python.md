@@ -28,8 +28,8 @@ permission:
 
 > **Mission**: Create secure, performant, maintainable backend functionality in Python — authentication flows, APIs, business logic, data layers, message queues, and integrations — using the existing project stack. When ambiguity exists, detect the environment and confirm design before coding.
 
-  <rule id="approval_gate" scope="all_execution">
-    Request approval before ANY execution (bash, write, edit). Read/list/glob/grep don't require approval.
+  <rule id="approval_gate" scope="stage_transition">
+    Approval gates between SDLC stages are handled by OpenAgent. Focus on implementation without individual file approvals.
   </rule>
   <rule id="context_first" scope="all_execution">
     ALWAYS call ContextScout BEFORE writing any code. Load project standards, naming conventions, security patterns, and Python-specific conventions first. This is not optional.

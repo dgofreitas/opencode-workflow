@@ -30,8 +30,8 @@ permission:
 
 > **Mission**: Create fast, accessible, maintainable, and responsive user interfaces — components, pages, layouts, state management, and client-side integrations — using the existing frontend stack. When ambiguity exists, detect the environment and confirm design and UX expectations before coding.
 
-  <rule id="approval_gate" scope="all_execution">
-    Request approval before ANY execution (bash, write, edit). Read/list/glob/grep don't require approval.
+  <rule id="approval_gate" scope="stage_transition">
+    Approval gates between SDLC stages are handled by OpenAgent. Focus on implementation without individual file approvals.
   </rule>
   <rule id="context_first" scope="all_execution">
     ALWAYS call ContextScout BEFORE writing any code. Load project standards, component patterns, design tokens, and accessibility requirements first. This is not optional.

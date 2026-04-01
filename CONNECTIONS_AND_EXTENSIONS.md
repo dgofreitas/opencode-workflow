@@ -6,40 +6,23 @@ Este documento explica tecnicamente como os componentes se conectam, onde cada c
 
 ## Visão Geral das Conexões
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         SISTEMA DE CONEXÕES                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  USUÁRIO                                                                    │
-│     │                                                                       │
-│     ▼                                                                       │
-│  ┌──────────────┐                                                           │
-│  │  OpenAgent   │ ←── agent/core/openagent.md                               │
-│  │  (Core)      │                                                           │
-│  └──────────────┘                                                           │
-│     │                                                                       │
-│     ├──→ task(subagent_type="ProductManager")  ← Linha 318-322              │
-│     ├──→ task(subagent_type="Architect")       ← Linha 373-377              │
-│     ├──→ task(subagent_type="TechLead")        ← Linha 435-439              │
-│     ├──→ task(subagent_type="ContextScout")    ← Linha 317-326              │
-│     └──→ task(subagent_type="ExternalScout")   ← Quando detecta lib externa │
-│                                                                             │
-│  ┌──────────────┐                                                           │
-│  │ ContextScout │ ←── agent/subagents/core/contextscout.md                  │
-│  └──────────────┘                                                           │
-│     │                                                                       │
-│     └──→ read("context/core/navigation.md")   ← Linha 29                    │
-│     └──→ read("context/core/standards/*.md")  ← Descoberto via navigation   │
-│                                                                             │
-│  ┌──────────────┐                                                           │
-│  │ExternalScout │ ←── agent/subagents/core/externalscout.md                 │
-│  └──────────────┘                                                           │
-│     │                                                                       │
-│     └──→ skill("context7")                    ← Linha 16-17                 │
-│     └──→ webfetch("https://...")              ← Linha 41                    │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    User["USUÁRIO"] --> OA
+
+    OA["OpenAgent - Core<br/>agent/core/openagent.md<br/>Orquestra SDLC com 3 approval gates"]
+
+    OA -->|"task(PM) → GATE #1 → task(Arch)"| PM_Arch["ProductManager / Architect"]
+    OA -->|"GATE #2 → task(TechLead)"| TL["TechLead<br/>ciclo completo per-story"]
+    OA -->|"GATE #3"| Next["Próxima story ou resumo final"]
+    OA --> CS["ContextScout<br/>agent/subagents/core/contextscout.md"]
+    OA --> ES["ExternalScout<br/>agent/subagents/core/externalscout.md"]
+
+    CS -->|read| Nav["context/core/navigation.md"]
+    CS -->|read| Std["context/core/standards/*.md"]
+
+    ES -->|skill| C7["context7<br/>Docs de libs externas"]
+    ES -->|webfetch| Web["https://...<br/>Fallback web"]
 ```
 
 ---
@@ -100,16 +83,12 @@ task(
 
 **Fluxo:**
 
-```
-1. Agente chama ContextScout
-   ↓
-2. ContextScout lê context/navigation.md
-   ↓
-3. navigation.md aponta para sub-navigation files
-   ↓
-4. ContextScout retorna arquivos relevantes
-   ↓
-5. Agente lê os arquivos retornados
+```mermaid
+graph TD
+    A["1. Agente chama ContextScout"] --> B["2. ContextScout lê context/navigation.md"]
+    B --> C["3. navigation.md aponta para sub-navigation files"]
+    C --> D["4. ContextScout retorna arquivos relevantes"]
+    D --> E["5. Agente lê os arquivos retornados"]
 ```
 
 **Onde está definido:**
@@ -221,14 +200,11 @@ task(subagent_type="ProductManager", description="Create user story", prompt="..
 
 **Fluxo:**
 
-```
-Usuário digita: /story criar app
-       ↓
-OpenCode carrega: command/sdlc/story.md
-       ↓
-Comando invoca: task(subagent_type="ProductManager", ...)
-       ↓
-ProductManager executa
+```mermaid
+graph TD
+    A["Usuário digita: /story criar app"] --> B["OpenCode carrega: command/sdlc/story.md"]
+    B --> C["Comando invoca: task subagent_type=ProductManager"]
+    C --> D["ProductManager executa"]
 ```
 
 **Onde os comandos estão definidos:**
@@ -281,18 +257,20 @@ const config = loadEnv()
 | ContextScout | `agent/core/openagent.md` | 317-326 |
 | ExternalScout | `agent/core/openagent.md` | (detectado dinamicamente) |
 
-### TechLead → Agentes de Implementação
+### TechLead → Ciclo Completo (impl→test→QA→review→MR)
 
-| Agente | Arquivo | Linha da Tabela |
-|--------|---------|-----------------|
-| BackendDeveloper | `agent/subagents/sdlc/tech-lead.md` | 118-132 |
-| BackendDeveloperPython | `agent/subagents/sdlc/tech-lead.md` | 118-132 |
-| BackendDeveloperC | `agent/subagents/sdlc/tech-lead.md` | 118-132 |
-| FrontendDeveloperReact | `agent/subagents/sdlc/tech-lead.md` | 129-131 |
-| FrontendDeveloperVue | `agent/subagents/sdlc/tech-lead.md` | 130 |
-| FrontendDeveloperAngular | `agent/subagents/sdlc/tech-lead.md` | 131 |
-| TestEngineer | `agent/subagents/sdlc/tech-lead.md` | (delegação pós-implementação) |
-| CodeReviewer | `agent/subagents/sdlc/tech-lead.md` | (delegação pós-testes) |
+O TechLead **NUNCA escreve código diretamente**. Ele orquestra o ciclo completo de cada story:
+
+| Fase | Agente Delegado | Arquivo TechLead |
+|------|-----------------|-------------------|
+| Implementação | BackendDeveloper / FrontendDev* | `agent/subagents/sdlc/tech-lead.md` (routing table) |
+| Implementação | BackendDeveloperPython / C | `agent/subagents/sdlc/tech-lead.md` (routing table) |
+| Testes | TestEngineer / TestEngineerPython / C | `agent/subagents/sdlc/tech-lead.md` (always_do rule) |
+| QA | QAAnalyst | `agent/subagents/sdlc/tech-lead.md` (always_do rule) |
+| Review | CodeReviewer / CodeReviewerPython / C | `agent/subagents/sdlc/tech-lead.md` (always_do rule) |
+| MR | MergeRequestCreator | `agent/subagents/sdlc/tech-lead.md` (always_do rule) |
+
+*Selecionado automaticamente por detecção de linguagem/framework
 
 ### Agentes → ContextScout
 
@@ -362,8 +340,9 @@ permission:
   ALWAYS call ContextScout BEFORE any work.
 </rule>
 
-<rule id="approval_gate" scope="all_execution">
-  Request approval before ANY execution.
+<rule id="approval_gate" scope="stage_transition">
+  Approval gates between SDLC stages are handled by OpenAgent.
+  Focus on implementation without individual file approvals.
 </rule>
 
 <!-- Resto do agente... -->
@@ -615,30 +594,26 @@ import { minhaTool } from '../../tool/{nome}/index.js'
 
 ## 9. Resumo Visual
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    ONDE MUDAR PARA ESTENDER                                  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  NOVO AGENTE:                                                                │
-│  ├── agent/subagents/{categoria}/{nome}.md     ← Criar arquivo             │
-│  ├── config/agent-metadata.json               ← Registrar (linha ~50)      │
-│  └── agent/core/openagent.md                  ← Adicionar routing (~100)   │
-│                                                                              │
-│  NOVO CONTEXTO:                                                              │
-│  ├── context/{dominio}/{topico}.md            ← Criar arquivo             │
-│  └── context/{dominio}/navigation.md          ← Adicionar link (~20)      │
-│                                                                              │
-│  NOVO COMANDO:                                                               │
-│  └── command/{categoria}/{comando}.md          ← Criar arquivo             │
-│                                                                              │
-│  NOVA SKILL:                                                                 │
-│  ├── skills/{nome}/SKILL.md                   ← Criar definição            │
-│  └── agent/{agente}.md                        ← Adicionar permissão (~10)  │
-│                                                                              │
-│  NOVA TOOL:                                                                  │
-│  ├── tool/{nome}/index.ts                     ← Criar módulo              │
-│  └── skills/{skill}/scripts/*.ts              ← Importar                  │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Agente["NOVO AGENTE"]
+        A1["agent/subagents/categoria/nome.md"] --> A2["config/agent-metadata.json"]
+        A2 --> A3["agent/core/openagent.md<br/>Adicionar routing"]
+    end
+
+    subgraph Contexto["NOVO CONTEXTO"]
+        C1["context/dominio/topico.md"] --> C2["context/dominio/navigation.md<br/>Adicionar link"]
+    end
+
+    subgraph Comando["NOVO COMANDO"]
+        CM1["command/categoria/comando.md"]
+    end
+
+    subgraph Skill["NOVA SKILL"]
+        S1["skills/nome/SKILL.md"] --> S2["agent/agente.md<br/>Adicionar permissão"]
+    end
+
+    subgraph Tool["NOVA TOOL"]
+        T1["tool/nome/index.ts"] --> T2["skills/skill/scripts/*.ts<br/>Importar"]
+    end
 ```

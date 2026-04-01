@@ -39,36 +39,21 @@ opencode --agent OpenCoder
 | **Propósito** | Universal - faz tudo | Especializado em código |
 | **SDLC Pipeline** | Detecta automaticamente e inicia | Executa diretamente |
 | **Perguntas** | Responde diretamente | Redireciona para OpenAgent |
-| **Features completas** | PM → Architect → TechLead → ... | TechLead direto |
+| **Features completas** | PM → ⏸️ → Arch → ⏸️ → TechLead(full cycle) → ⏸️ | TechLead direto |
 | **Delegação** | Delega para qualquer subagent | Delega para agentes de código |
 | **Melhor para** | Início de qualquer tarefa | Implementação de código conhecido |
 
 ### Quando Usar Cada Um
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     QUAL AGENTE USAR?                            │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  "Quero criar um app de finanças"                               │
-│  → OpenAgent (detecta feature, inicia SDLC)                     │
-│                                                                  │
-│  "Como funciona o JWT?"                                         │
-│  → OpenAgent (responde pergunta)                                 │
-│                                                                  │
-│  "Implemente a função de login que planejamos"                   │
-│  → OpenCoder (implementação direta)                             │
-│                                                                  │
-│  "Corrija o bug no arquivo auth.ts"                             │
-│  → OpenCoder (correção de código)                               │
-│                                                                  │
-│  "Adicione testes para o módulo de pagamentos"                   │
-│  → OpenCoder (delega para TestEngineer)                         │
-│                                                                  │
-│  "Analise a arquitetura do projeto"                             │
-│  → OpenAgent (delega para Architect/CodeAnalyzer)               │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    Q{{"QUAL AGENTE USAR?"}}
+    Q -->|"Criar um app de finanças"| A1["OpenAgent<br/>detecta feature, inicia SDLC"]
+    Q -->|"Como funciona o JWT?"| A2["OpenAgent<br/>responde pergunta"]
+    Q -->|"Implemente a função de login"| A3["OpenCoder<br/>implementação direta"]
+    Q -->|"Corrija o bug em auth.ts"| A4["OpenCoder<br/>correção de código"]
+    Q -->|"Adicione testes"| A5["OpenCoder<br/>delega p/ TestEngineer"]
+    Q -->|"Analise a arquitetura"| A6["OpenAgent<br/>delega p/ Architect"]
 ```
 
 ---
@@ -87,26 +72,16 @@ opencode --agent OpenCoder
 ```
 
 **O que acontece:**
-```
-OpenAgent detecta: Feature request complexa
-    ↓
-ProductManager: Cria STORY-001.md
-    ↓
-Architect: Cria plano técnico
-    ↓
-TechLead: Coordena implementação
-    ↓
-BackendDeveloper + FrontendDeveloperReact: Implementam
-    ↓
-TestEngineer: Cria testes
-    ↓
-CodeReviewer: Revisa código
-    ↓
-QAAnalyst: Valida acceptance criteria
-    ↓
-MergeRequestCreator: Cria MR
-    ↓
-PR pronto para merge!
+```mermaid
+graph TD
+    Start["Pedido: 'Crie um site de investimento...'"] --> Detect["OpenAgent detecta: SDLC Pipeline"]
+    Detect --> PM["1. ProductManager<br/>Cria STORY-001.md com acceptance criteria"]
+    PM --> G1{{"GATE #1<br/>Você revê stories e aprova"}}
+    G1 --> Arch["2. Architect<br/>Cria technical-analysis.md com batches"]
+    Arch --> G2{{"GATE #2<br/>Você revê plano técnico e aprova"}}
+    G2 --> TL["3. TechLead - ciclo completo<br/>branch feat/STORY-001<br/>Impl → Test → QA → Review → MR"]
+    TL --> G3{{"GATE #3<br/>Story completa → próxima story?"}}
+    G3 -->|"sim"| TL
 ```
 
 ### Perguntas (Resposta Direta)
@@ -119,10 +94,10 @@ PR pronto para merge!
 ```
 
 **O que acontece:**
-```
-OpenAgent detecta: Pergunta informativa
-    ↓
-Resposta direta (sem execução)
+```mermaid
+graph TD
+    Start["Pedido: 'Como funciona o sistema de contexto?'"] --> Detect["OpenAgent detecta: Pergunta"]
+    Detect --> Resp["Resposta direta<br/>Sem execução, sem pipeline, sem aprovação"]
 ```
 
 ### Tarefas Simples (Execução Direta)
@@ -135,14 +110,11 @@ Resposta direta (sem execução)
 ```
 
 **O que acontece:**
-```
-OpenAgent detecta: Tarefa simples
-    ↓
-ContextScout: Carrega padrões
-    ↓
-Execução direta (sem SDLC completo)
-    ↓
-Aprovação → Implementação
+```mermaid
+graph TD
+    Start["Pedido: 'Mude a cor do botão para azul'"] --> Detect["OpenAgent detecta: Task simples"]
+    Detect --> CS["1. ContextScout<br/>Carrega padrões de styling"]
+    CS --> Exec["2. Execução direta<br/>Edita o arquivo (sem pipeline SDLC)"]
 ```
 
 ### Bugs (Diagnóstico e Correção)
@@ -154,16 +126,13 @@ Aprovação → Implementação
 ```
 
 **O que acontece:**
-```
-OpenAgent detecta: Bug report
-    ↓
-BugFixer[Language]: Diagnóstica
-    ↓
-Root cause analysis
-    ↓
-Propõe correção
-    ↓
-Aprovação → Correção → Testes
+```mermaid
+graph TD
+    Start["Pedido: 'O login não funciona, erro 500'"] --> Detect["OpenAgent/OpenCoder detecta: Bug"]
+    Detect --> BF["1. BugFixer<br/>Reproduz o bug + Root cause analysis"]
+    BF --> Prop["2. Proposta de correção<br/>Você aprova"]
+    Prop --> Fix["3. Correção<br/>Implementa fix + testes de regressão"]
+    Fix --> Val["4. Validação<br/>Testes passando, bug corrigido"]
 ```
 
 ---
@@ -194,28 +163,22 @@ opencode --agent OpenAgent
 # Passo 1: Criar story
 > /story criar sistema de notificações por email
 
-# OpenAgent: ProductManager cria STORY-001.md
-# Você: Revisa a story, ajusta se necessário
+# ProductManager cria STORY-001.md
+# ⏸️ GATE #1: Você revisa a story, aprova para prosseguir
 
 # Passo 2: Criar plano técnico
 > /plan STORY-001
 
-# OpenAgent: Architect cria technical-analysis.md
-# Você: Revisa o plano, ajusta se necessário
+# Architect cria technical-analysis.md
+# ⏸️ GATE #2: Você revisa o plano, aprova para implementar
 
-# Passo 3: Implementar
+# Passo 3: Implementar (ciclo completo!)
 > /implement STORY-001
 
-# OpenAgent: TechLead coordena implementação completa
-
-# Passo 4: Review (opcional, já foi feito no implement)
-> /review
-
-# Passo 5: QA (opcional, já foi feito no implement)
-> /qa STORY-001
-
-# Passo 6: Criar MR
-> /mr main
+# TechLead orquestra o ciclo completo:
+# impl → testes → QA → review → MR
+# (NÃO precisa de /review, /qa, /mr separados!)
+# ⏸️ GATE #3: Story completa, você aprova para próxima
 ```
 
 ### Fluxo com Linguagem Natural (Automático)
@@ -226,14 +189,13 @@ opencode --agent OpenAgent
 # Uma frase, pipeline completo
 > "Crie um sistema de notificações por email com templates, fila, e retry"
 
-# OpenAgent faz TUDO automaticamente:
-# - ProductManager cria story
-# - Architect cria plano
-# - TechLead implementa
-# - QA valida
-# - MR criado
-
-# Você só aprova nas etapas!
+# OpenAgent orquestra o SDLC com 3 approval gates:
+# 1. ProductManager cria stories
+#    ⏸️ GATE #1: Você aprova
+# 2. Architect cria plano
+#    ⏸️ GATE #2: Você aprova
+# 3. TechLead executa ciclo completo (impl→test→QA→review→MR)
+#    ⏸️ GATE #3: Story completa, próxima story?
 ```
 
 ---
@@ -253,7 +215,7 @@ opencode --agent OpenAgent
    - Login com email/senha"
 
 # OpenAgent detecta: Feature completa
-# Pipeline: PM → Architect → TechLead → BackendDeveloper + FrontendDeveloperReact → TestEngineer → CodeReviewer → QAAnalyst → MR
+# Pipeline: PM → ⏸️#1 → Architect → ⏸️#2 → TechLead(impl→test→QA→review→MR) → ⏸️#3
 ```
 
 ### Exemplo 2: Bug em Produção
@@ -317,91 +279,44 @@ opencode --agent OpenAgent
 
 ### Feature Nova Completa
 
-```
-Pedido: "Crie um sistema de X com Y e Z"
-    ↓
-OpenAgent detecta: SDLC Pipeline
-    ↓
-┌─────────────────────────────────────────────────────────────┐
-│  1. ProductManager                                           │
-│     → Cria STORY-XXX.md com acceptance criteria             │
-│                                                              │
-│  2. Architect                                                │
-│     → Cria technical-analysis.md com batches                │
-│                                                              │
-│  3. TechLead                                                 │
-│     → Coordena execução                                      │
-│     → Delega para BackendDeveloper + FrontendDeveloper       │
-│                                                              │
-│  4. TestEngineer                                             │
-│     → Cria testes (≥90% coverage)                           │
-│                                                              │
-│  5. CodeReviewer                                              │
-│     → Review de segurança e qualidade                       │
-│                                                              │
-│  6. QAAnalyst                                                │
-│     → Valida acceptance criteria                            │
-│                                                              │
-│  7. MergeRequestCreator                                      │
-│     → Cria MR com toda evidência                            │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    Start["Pedido: 'Crie um sistema de X com Y e Z'"] --> Detect["OpenAgent detecta: SDLC Pipeline"]
+    Detect --> PM["1. ProductManager<br/>Cria STORY-XXX.md com acceptance criteria"]
+    PM --> G1{{"GATE #1<br/>Você revê stories e aprova"}}
+    G1 --> Arch["2. Architect<br/>Cria technical-analysis.md com batches"]
+    Arch --> G2{{"GATE #2<br/>Você revê plano técnico e aprova"}}
+    G2 --> TL["3. TechLead - ciclo completo<br/>branch feat/STORY-XXX<br/>Impl → Test → QA → Review → MR"]
+    TL --> G3{{"GATE #3<br/>Story completa → próxima story?"}}
+    G3 -->|"sim"| TL
 ```
 
 ### Modificação Simples
 
-```
-Pedido: "Mude a cor do botão para azul"
-    ↓
-OpenAgent detecta: Task simples
-    ↓
-┌─────────────────────────────────────────────────────────────┐
-│  1. ContextScout                                             │
-│     → Carrega padrões de styling                            │
-│                                                              │
-│  2. Execução direta                                          │
-│     → Edita o arquivo                                        │
-│     → Sem pipeline SDLC                                      │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    Start["Pedido: 'Mude a cor do botão para azul'"] --> Detect["OpenAgent detecta: Task simples"]
+    Detect --> CS["1. ContextScout<br/>Carrega padrões de styling"]
+    CS --> Exec["2. Execução direta<br/>Edita o arquivo (sem pipeline SDLC)"]
 ```
 
 ### Bug
 
-```
-Pedido: "O login não funciona, erro 500"
-    ↓
-OpenAgent/OpenCoder detecta: Bug
-    ↓
-┌─────────────────────────────────────────────────────────────┐
-│  1. BugFixer[Language]                                       │
-│     → Reproduz o bug                                         │
-│     → Root cause analysis                                    │
-│                                                              │
-│  2. Proposta de correção                                     │
-│     → Você aprova                                            │
-│                                                              │
-│  3. Correção                                                 │
-│     → Implementa fix                                         │
-│     → Adiciona testes de regressão                          │
-│                                                              │
-│  4. Validação                                                │
-│     → Testes passando                                        │
-│     → Bug corrigido                                          │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    Start["Pedido: 'O login não funciona, erro 500'"] --> Detect["OpenAgent/OpenCoder detecta: Bug"]
+    Detect --> BF["1. BugFixer<br/>Reproduz o bug + Root cause analysis"]
+    BF --> Prop["2. Proposta de correção<br/>Você aprova"]
+    Prop --> Fix["3. Correção<br/>Implementa fix + testes de regressão"]
+    Fix --> Val["4. Validação<br/>Testes passando, bug corrigido"]
 ```
 
 ### Pergunta
 
-```
-Pedido: "Como funciona X?"
-    ↓
-OpenAgent detecta: Pergunta
-    ↓
-┌─────────────────────────────────────────────────────────────┐
-│  Resposta direta                                             │
-│  → Sem execução                                              │
-│  → Sem pipeline                                              │
-│  → Sem aprovação                                             │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    Start["Pedido: 'Como funciona X?'"] --> Detect["OpenAgent detecta: Pergunta"]
+    Detect --> Resp["Resposta direta<br/>Sem execução, sem pipeline, sem aprovação"]
 ```
 
 ---
@@ -442,7 +357,8 @@ Se quer revisar antes de prosseguir:
 Para features completas, use linguagem natural e deixe o OpenAgent gerenciar:
 ```
 "Crie um e-commerce completo com carrinho, checkout, e pagamentos"
-# OpenAgent faz tudo, você só aprova nas etapas
+# OpenAgent orquestra tudo com 3 gates:
+# ⏸️#1 após stories | ⏸️#2 após plano | ⏸️#3 após cada story completa
 ```
 
 ### 5. Para Bugs, Seja Preciso
@@ -459,7 +375,7 @@ Para features completas, use linguagem natural e deixe o OpenAgent gerenciar:
 
 | Situação | Agente | Como Pedir |
 |----------|--------|------------|
-| Feature completa | OpenAgent | Linguagem natural: "Crie um..." |
+| Feature completa | OpenAgent | Linguagem natural: "Crie um..." (3 gates) |
 | Pergunta | OpenAgent | Linguagem natural: "Como funciona...?" |
 | Bug | OpenAgent ou OpenCoder | "O bug X acontece quando..." |
 | Modificação simples | OpenAgent ou OpenCoder | "Mude X para Y" |

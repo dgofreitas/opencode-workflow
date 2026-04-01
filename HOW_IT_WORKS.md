@@ -6,50 +6,33 @@ Este documento explica a arquitetura completa, como os componentes se conectam, 
 
 ## Visão Geral da Arquitetura
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              USUÁRIO                                         │
-│                    "Criar um app de finanças"                                │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                      │
-                                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           OpenAgent (Core)                                   │
-│  - Agente primário universal                                                │
-│  - Recebe TODOS os pedidos do usuário                                       │
-│  - Classifica o tipo de pedido                                              │
-│  - Roteia para o agente/skill/comando apropriado                            │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                      │
-                    ┌─────────────────┼─────────────────┐
-                    │                 │                 │
-                    ▼                 ▼                 ▼
-              [SDLC Pipeline]   [Query/Info]      [Direct Task]
-                    │                 │                 │
-                    ▼                 ▼                 ▼
-            ProductManager      Resposta         OpenCoder
-                    │                                 │
-                    ▼                                 ▼
-               Architect                        CoderAgent
-                    │                                 │
-                    ▼                                 ▼
-                TechLead                         TestEngineer
-                    │                                 │
-                    ▼                                 ▼
-            ┌──────┴──────┐                   CodeReviewer
-            │             │                         │
-            ▼             ▼                         ▼
-      BackendDev    FrontendDev               BuildAgent
-            │             │                         │
-            └──────┬──────┘                         │
-                   ▼                                │
-              QAAnalyst                             │
-                   │                                │
-                   ▼                                │
-          MergeRequestCreator ◄─────────────────────┘
-                   │
-                   ▼
-                  MR/PR
+```mermaid
+graph TD
+    User["USUÁRIO<br/>'Criar um app de finanças'"] --> OA
+
+    OA["OpenAgent - Core<br/>Agente primário universal<br/>Orquestra SDLC com 3 APPROVAL GATES"]
+
+    OA --> SDLC[SDLC Pipeline]
+    OA --> QI["Query/Info<br/>→ Resposta direta"]
+    OA --> DT["Direct Task<br/>→ OpenCoder"]
+
+    SDLC --> PM[ProductManager]
+    PM --> G1{{"GATE #1"}}
+    G1 --> Arch[Architect]
+    Arch --> G2{{"GATE #2"}}
+    G2 --> TLBox
+
+    subgraph TLBox["TechLead — ciclo completo per-story"]
+        direction TB
+        I1["1. Impl → BackendDev + FrontendDev"] --> I2["2. Testes → TestEngineer"]
+        I2 --> I3["3. QA → QAAnalyst"]
+        I3 --> I4["4. Review → CodeReviewer"]
+        I4 --> I5["5. MR → MergeRequestCreator<br/>feat/STORY-XXX → main"]
+    end
+
+    TLBox --> G3{{"GATE #3"}}
+    G3 -->|"next story"| TLBox
+    G3 -->|"última story"| End["Resumo Final"]
 ```
 
 ---
@@ -62,7 +45,7 @@ Este documento explica a arquitetura completa, como os componentes se conectam, 
 
 | O que você diz | O que o OpenAgent faz |
 |----------------|----------------------|
-| "Crie um site de investimento com dashboard" | **SDLC automático**: PM → Architect → TechLead → Devs → QA → MR |
+| "Crie um site de investimento com dashboard" | **SDLC automático**: PM → ⏸️ → Arch → ⏸️ → TechLead(full cycle) → ⏸️ → next story |
 | "Build a user authentication system" | **SDLC automático**: Pipeline completo |
 | "Implemente um sistema de pagamentos" | **SDLC automático**: Pipeline completo |
 | "Fix this bug in auth.ts" | **Task direto**: Correção simples (sem SDLC) |
@@ -92,26 +75,31 @@ Você: "Crie um site de investimento com:
 
 OpenAgent: [Detecta feature request complexa]
            → ProductManager cria STORY-001.md
+           → ⏸️ GATE #1: "Prosseguir para Architect?"
            → Architect cria plano técnico
-           → TechLead coordena implementação
-           → Devs implementam (Backend + Frontend)
-           → QA valida
-           → CodeReviewer revisa
-           → MergeRequestCreator cria MR
-           → TUDO AUTOMÁTICO!
+           → ⏸️ GATE #2: "Implementar STORY-001?"
+           → TechLead orquestra ciclo COMPLETO:
+             ├─ Devs implementam (Backend + Frontend)
+             ├─ TestEngineer cria testes
+             ├─ QAAnalyst valida
+             ├─ CodeReviewer revisa
+             └─ MergeRequestCreator cria MR
+           → ⏸️ GATE #3: "Story completa. Próxima?"
+           → Você aprova em 3 momentos!
 
 # Opção 2: Comandos explícitos (controle passo a passo)
 Você: "/story criar site de investimento"
 OpenAgent: ProductManager cria STORY-001.md
-Você: [Revisa story]
+Você: [Revisa story] → aprova GATE #1
 Você: "/plan STORY-001"
 OpenAgent: Architect cria technical-analysis.md
-Você: [Revisa plano]
+Você: [Revisa plano] → aprova GATE #2
 Você: "/implement STORY-001"
-OpenAgent: TechLead executa implementação
+OpenAgent: TechLead executa ciclo completo (impl→test→QA→review→MR)
+Você: [Revisa resultado] → aprova GATE #3
 ```
 
-**Recomendação**: Use linguagem natural para features completas. Use comandos quando quiser controle passo a passo ou revisar antes de prosseguir.
+**Recomendação**: Use linguagem natural para features completas — o OpenAgent pede aprovação em 3 momentos-chave. Use comandos quando quiser granularidade extra.
 
 ---
 
@@ -365,9 +353,14 @@ O **ProductManager** (`agent/subagents/sdlc/product-manager.md`):
 4. **Salva** em `docs/stories/STORY-001.md`
 5. **Retorna** o caminho do arquivo
 
-### Passo 4: OpenAgent delega para Architect
+### Passo 4: ⏸️ GATE #1 — ProductManager → Architect
 
-O OpenAgent vê que a story foi criada e delega para o **Architect**:
+O OpenAgent **PARA** e apresenta ao usuário:
+- Stories criadas (lista de arquivos)
+- Resumo de cada story
+- Pergunta: "Stories criadas. Prosseguir para Architect? [Y/n]"
+
+**O usuário aprova**, e o OpenAgent delega para o **Architect**:
 
 ```javascript
 task(
@@ -427,39 +420,51 @@ O **Architect** (`agent/subagents/sdlc/architect.md`):
 
 5. **Salva** em `docs/stories/STORY-001-technical-analysis.md`
 
-### Passo 6: OpenAgent delega para TechLead
+### Passo 6: ⏸️ GATE #2 — Architect → TechLead
 
-O TechLead executa a implementação:
+O OpenAgent **PARA** e apresenta ao usuário:
+- Planos técnicos criados (lista de arquivos)
+- Resumo da abordagem técnica
+- Ordem de execução (se múltiplas stories)
+- Pergunta: "Plano técnico completo. Implementar STORY-001? [Y/n]"
+
+**O usuário aprova**, e o OpenAgent delega para o **TechLead**:
 
 ```javascript
 task(
   subagent_type="TechLead",
-  description="Implement finance app",
-  prompt="Execute full implementation for: docs/stories/STORY-001.md"
+  description="Execute STORY-001 (full cycle)",
+  prompt="Read story + technical analysis from docs/stories/.
+          Create branch feat/STORY-001.
+          Execute the FULL story cycle:
+          1. DELEGATE implementation to appropriate developers
+          2. Request TestEngineer for tests (>=90% coverage)
+          3. Request QAAnalyst to validate acceptance criteria
+          4. Request CodeReviewer for security and quality review
+          5. Request MergeRequestCreator to create MR
+          You coordinate — you NEVER write code directly."
 )
 ```
 
-### Passo 7: TechLead coordena a execução
+### Passo 7: TechLead orquestra o ciclo completo
 
-O **TechLead** (`agent/subagents/sdlc/tech-lead.md`):
+O **TechLead** (`agent/subagents/sdlc/tech-lead.md`) orquestra **todo o ciclo** de uma story internamente, sem gates intermediários:
 
 1. **Lê** a story e o plano técnico
-2. **Detecta** a linguagem (Node.js/TypeScript)
-3. **Executa** os batches:
+2. **Cria branch** `feat/STORY-001`
+3. **Detecta** a linguagem (Node.js/TypeScript)
+4. **Delega implementação** (NUNCA escreve código diretamente):
 
-**Batch 1 (Paralelo):**
 ```javascript
-// TechLead delega em paralelo
+// TechLead delega em paralelo (máx 2 concurrent)
 task(subagent_type="BackendDeveloper", description="Setup DB schema", prompt="...")
 task(subagent_type="FrontendDeveloperReact", description="Dashboard layout", prompt="...")
-task(subagent_type="BackendDeveloper", description="API structure", prompt="...")
 ```
 
-**Batch 2 (Sequencial, após Batch 1 completo):**
-```javascript
-task(subagent_type="BackendDeveloper", description="Categorization service", prompt="...")
-task(subagent_type="FrontendDeveloperReact", description="Charts components", prompt="...")
-```
+5. **Delega testes** ao TestEngineer (>=90% coverage)
+6. **Delega QA** ao QAAnalyst (valida acceptance criteria)
+7. **Delega review** ao CodeReviewer (segurança + qualidade)
+8. **Delega MR** ao MergeRequestCreator (feat/STORY-001 → main)
 
 ### Passo 8: Agentes de implementação trabalham
 
@@ -480,7 +485,7 @@ task(subagent_type="FrontendDeveloperReact", description="Charts components", pr
 4. **Escreve** testes com Vitest
 5. **Valida** acessibilidade e responsividade
 
-### Passo 9: Validação de qualidade
+### Passo 9: Validação de qualidade (orquestrada pelo TechLead)
 
 **TestEngineer** executa testes de integração e E2E.
 
@@ -508,9 +513,9 @@ task(subagent_type="FrontendDeveloperReact", description="Charts components", pr
 ## Recommendation: APPROVE
 ```
 
-### Passo 10: Merge Request
+### Passo 10: Merge Request (orquestrado pelo TechLead)
 
-**MergeRequestCreator** agrega tudo e cria o MR:
+**MergeRequestCreator** agrega tudo e cria o MR (branch `feat/STORY-001 → main`):
 
 ```markdown
 # MR: Implement Finance App (STORY-001)
@@ -541,59 +546,27 @@ Closes #STORY-001
 
 ## Diagrama de Delegação
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         OpenAgent                                │
-│  "O maestro - recebe pedidos, classifica, e orquestra"          │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-          ┌───────────────────┼───────────────────┐
-          │                   │                   │
-          ▼                   ▼                   ▼
-    ┌───────────┐       ┌───────────┐       ┌───────────┐
-    │    PM     │       │  Architect │       │ OpenCoder │
-    │ (Stories) │       │  (Plans)   │       │  (Code)   │
-    └───────────┘       └───────────┘       └───────────┘
-          │                   │                   │
-          │                   │                   │
-          └───────────────────┼───────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────┐
-                    │    TechLead     │
-                    │ "O executor -   │
-                    │  coordena devs" │
-                    └─────────────────┘
-                              │
-          ┌───────────────────┼───────────────────┐
-          │                   │                   │
-          ▼                   ▼                   ▼
-    ┌───────────┐       ┌───────────┐       ┌───────────┐
-    │ BackendDev│       │FrontendDev│       │TestEngineer│
-    │ (Node/Py/C)│      │(React/Vue)│       │(Jest/pytest)│
-    └───────────┘       └───────────┘       └───────────┘
-          │                   │                   │
-          └───────────────────┼───────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────┐
-                    │  CodeReviewer   │
-                    │ (Security/Quality)│
-                    └─────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────┐
-                    │    QAAnalyst    │
-                    │ (Acceptance)    │
-                    └─────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────┐
-                    │MergeRequestCreator│
-                    └─────────────────┘
-                              │
-                              ▼
-                           MR/PR
+```mermaid
+graph TD
+    OA["OpenAgent<br/>O maestro — orquestra o SDLC com 3 approval gates"]
+
+    OA --> PM["PM<br/>(Stories)"]
+    OA --> Arch["Architect<br/>(Plans)"]
+    OA --> OC["OpenCoder<br/>(Code)"]
+
+    PM -.->|"GATE #1"| Arch
+    Arch -.->|"GATE #2"| TL
+
+    subgraph TL["TechLead — ciclo completo per-story<br/>O orquestrador — NUNCA escreve código"]
+        BD["BackendDev<br/>(Node/Py/C)"]
+        FD["FrontendDev<br/>(React/Vue)"]
+        TE["TestEngineer<br/>(Jest/pytest)"]
+        CR["CodeReviewer<br/>(Sec/Quality)"]
+        QA["QAAnalyst<br/>(Acceptance)"]
+        MRC["MergeRequestCreator<br/>(MR/PR)"]
+    end
+
+    TL -.->|"GATE #3"| Next["Próxima story ou FIM"]
 ```
 
 ---
@@ -660,23 +633,13 @@ Closes #STORY-001
 
 **Como funciona:**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    APPROVAL GATE FLOW                           │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  1. Agente propõe: "Vou criar o arquivo X com o conteúdo Y"     │
-│                    ↓                                             │
-│  2. Agente pergunta: "Posso prosseguir? [y/n]"                 │
-│                    ↓                                             │
-│  3. Usuário aprova: "sim" ou "y"                                │
-│                    ↓                                             │
-│  4. Agente executa: write/edit/bash                             │
-│                                                                  │
-│  SE usuário negar: Agente NÃO executa                           │
-│  SE usuário pedir mudanças: Agente ajusta e pede de novo       │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    A["1. Agente propõe:<br/>'Vou criar o arquivo X com o conteúdo Y'"] --> B["2. Agente pergunta:<br/>'Posso prosseguir? [y/n]'"]
+    B --> C{Usuário decide}
+    C -->|"sim / y"| D["4. Agente executa:<br/>write / edit / bash"]
+    C -->|"não"| E["Agente NÃO executa"]
+    C -->|"pede mudanças"| F["Agente ajusta"] --> B
 ```
 
 **O que precisa de aprovação:**
@@ -700,25 +663,6 @@ Closes #STORY-001
 | CodeReviewer | Read-only, só sugere diffs |
 | BuildAgent | Bash limitado a build/type-check |
 | QAAnalyst | Bash limitado a testes |
-
-**Exemplo prático:**
-
-```
-Usuário: "Crie um componente de botão"
-
-OpenAgent: 
-  1. ContextScout carrega padrões
-  2. Propõe: "Vou criar src/components/Button.tsx com:
-     - Props: label, onClick, variant
-     - Estilos: Tailwind
-     - Testes: Vitest + Testing Library
-     
-     Posso prosseguir? [y/n]"
-     
-Usuário: "sim"
-
-OpenAgent: [EXECUTA - cria arquivos]
-```
 
 ### 5. MVI Principle (Token Efficiency)
 
@@ -783,15 +727,16 @@ O sistema detecta automaticamente a linguagem do projeto e roteia para os agente
 
 ## Resumo: Por que a "Mágica" Acontece
 
-1. **OpenAgent é o maestro** - recebe tudo, classifica, e orquestra
+1. **OpenAgent é o maestro** - recebe tudo, classifica, e orquestra com 3 approval gates
 2. **ContextScout é a memória** - carrega conhecimento do projeto
 3. **ExternalScout é a pesquisa** - busca documentação atualizada
-4. **SDLC Pipeline é o processo** - PM → Architect → TechLead → Devs → QA → MR
-5. **Linguagem é detectada** - roteamento automático para agentes certos
-6. **Testes são obrigatórios** - qualidade garantida por regras
-7. **Aprovação é necessária** - usuário sempre no controle
+4. **SDLC Pipeline é o processo** - PM → ⏸️ → Arch → ⏸️ → TechLead(full cycle) → ⏸️ → next story
+5. **TechLead orquestra** - delega impl→test→QA→review→MR (NUNCA escreve código)
+6. **Linguagem é detectada** - roteamento automático para agentes certos
+7. **Testes são obrigatórios** - qualidade garantida por regras
+8. **Per-story branches** - cada story = `feat/STORY-XXX → main`
 
 A "mágica" é **coordenação + contexto + qualidade**:
-- **Coordenação**: Agentes delegam entre si de forma estruturada
+- **Coordenação**: OpenAgent orquestra, TechLead coordena, especialistas implementam
 - **Contexto**: Conhecimento do projeto é carregado antes de cada ação
-- **Qualidade**: Regras rígidas garantem testes, review, e validação
+- **Qualidade**: Cada story passa por testes, QA, review, e MR antes de avançar
