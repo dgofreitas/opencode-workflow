@@ -235,6 +235,12 @@ askLocalDestination() {
     read -p "Informe o diretório destino [ENTER para padrão]: " -r userDest
     
     if [[ -n "${userDest}" ]]; then
+        # Expandir ~ para $HOME (read não expande tilde)
+        if [[ "${userDest}" == "~/"* ]]; then
+            userDest="${HOME}/${userDest#\~/}"
+        elif [[ "${userDest}" == "~" ]]; then
+            userDest="${HOME}"
+        fi
         # Converter caminho relativo para absoluto
         if [[ "${userDest}" != /* ]]; then
             INSTALL_DEST="$(pwd)/${userDest}"
