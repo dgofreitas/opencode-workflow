@@ -243,10 +243,10 @@ askLocalDestination() {
         fi
         # Converter caminho relativo para absoluto
         if [[ "${userDest}" != /* ]]; then
-            INSTALL_DEST="$(pwd)/${userDest}"
-        else
-            INSTALL_DEST="${userDest}"
+            userDest="$(pwd)/${userDest}"
         fi
+        # Usuário informa o projeto — adicionar subdiretório de instalação
+        INSTALL_DEST="${userDest}/${DEFAULT_LOCAL_DIR}"
     else
         INSTALL_DEST="${defaultDest}"
     fi
