@@ -66,52 +66,13 @@ DELETE /users/123
 
 **Standardize response structure**:
 ```json
-// Success response
-{
-  "data": {
-    "id": "123",
-    "name": "John Doe",
-    "email": "john@example.com"
-  },
-  "meta": {
-    "timestamp": "2024-01-01T00:00:00Z"
-  }
-}
-
-// Error response
-{
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Invalid input data",
-    "details": [
-      {
-        "field": "email",
-        "message": "Invalid email format"
-      }
-    ]
-  },
-  "meta": {
-    "timestamp": "2024-01-01T00:00:00Z",
-    "requestId": "abc-123"
-  }
-}
-
-// Collection response
+// Success: { "data": { ... }, "meta": { "timestamp": "..." } }
+// Error:   { "error": { "code": "...", "message": "...", "details": [...] }, "meta": { "timestamp", "requestId" } }
+// Collection:
 {
   "data": [...],
-  "meta": {
-    "total": 100,
-    "page": 1,
-    "pageSize": 20,
-    "totalPages": 5
-  },
-  "links": {
-    "self": "/users?page=1",
-    "next": "/users?page=2",
-    "prev": null,
-    "first": "/users?page=1",
-    "last": "/users?page=5"
-  }
+  "meta": { "total": 100, "page": 1, "pageSize": 20, "totalPages": 5 },
+  "links": { "self": "/users?page=1", "next": "/users?page=2", "prev": null, "first": "...", "last": "..." }
 }
 ```
 
@@ -202,30 +163,18 @@ input UserFilter {
 ```javascript
 const resolvers = {
   Query: {
-    user: async (_, { id }, { dataSources }) => {
-      return dataSources.userAPI.getUser(id);
-    },
-    users: async (_, { filter, page, pageSize }, { dataSources }) => {
-      return dataSources.userAPI.getUsers({ filter, page, pageSize });
-    }
+    user: async (_, { id }, { dataSources }) => dataSources.userAPI.getUser(id),
+    users: async (_, { filter, page, pageSize }, { dataSources }) =>
+      dataSources.userAPI.getUsers({ filter, page, pageSize })
   },
-  
   User: {
-    posts: async (user, _, { dataSources }) => {
-      // Use DataLoader to batch requests
-      return dataSources.postAPI.getPostsByUserId(user.id);
-    }
+    posts: async (user, _, { dataSources }) =>
+      dataSources.postAPI.getPostsByUserId(user.id) // Use DataLoader to batch
   },
-  
   Mutation: {
     createUser: async (_, { input }, { dataSources, user }) => {
-      // Check authorization
       if (!user) throw new AuthenticationError('Not authenticated');
-      
-      // Validate input
       const validatedInput = validateUserInput(input);
-      
-      // Create user
       return dataSources.userAPI.createUser(validatedInput);
     }
   }
@@ -280,7 +229,7 @@ function UsersList() {
     </div>
   );
 }
-
+```
 
 ## API Versioning
 

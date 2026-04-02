@@ -200,31 +200,11 @@ Build authentication system with login, registration, and password reset.
 
 ## Best Practices
 
-### Keep Tasks Small
-- 1-2 hours maximum per task
-- If larger, break it down further
-- Each task should be completable in one sitting
-
-### Make Dependencies Clear
-- Explicitly state what must be done first
-- Identify parallel work opportunities
-- Note blocking dependencies
-
-### Include Verification
-- How do you know the task is done?
-- What should work when complete?
-- How can it be tested?
-
-### Be Realistic with Estimates
-- Include time for testing
-- Account for unknowns
-- Add buffer for complexity
-- Better to overestimate than underestimate
-
-### Group Related Work
-- Organize by feature or component
-- Keep related tasks together
-- Make phases logical and cohesive
+- **Small tasks**: 1-2h max, completable in one sitting; break down further if larger
+- **Clear dependencies**: Explicitly state blockers, identify parallel work
+- **Verification**: Define how to know each task is done
+- **Realistic estimates**: Include testing time, add buffer for complexity, overestimate > underestimate
+- **Group related work**: Organize by feature/component, keep phases logical
 
 ## Common Patterns
 
@@ -252,19 +232,3 @@ Build authentication system with login, registration, and password reset.
 5. Clean up and optimize
 6. Update documentation
 
-## Quick Reference
-
-**Good breakdown:**
-- Small, focused tasks (1-2 hours)
-- Clear dependencies
-- Realistic estimates
-- Verification criteria
-- Logical phases
-
-**Breakdown checklist:**
-- [ ] All requirements captured
-- [ ] Tasks are small and focused
-- [ ] Dependencies identified
-- [ ] Estimates are realistic
-- [ ] Testing included
-- [ ] Verification criteria clear

@@ -79,73 +79,30 @@ Select option + category (e.g., 'B 1'):
 ```
 Would update development/errors/react-errors.md:
 
-Current (Line 45):
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+--- Current (Line 45) ---
 ## Error: Cannot read property 'X' of undefined
+Symptom: TypeError: Cannot read property 'X' of undefined
+Cause: Attempting to access property on undefined/null object.
+Solution: 1. Null check  2. Optional chaining (?.)  3. Default value
+Code: obj?.property ?? 'default'
+Prevention: Always validate data exists | Frequency: common
 
-**Symptom**:
-```
-TypeError: Cannot read property 'X' of undefined
-```
-
-**Cause**: Attempting to access property on undefined/null object.
-
-**Solution**:
-1. Add null check
-2. Use optional chaining (?.)
-3. Provide default value
-
-**Code**:
-```jsx
-// ❌ Before
-const value = obj.property
-
-// ✅ After
-const value = obj?.property ?? 'default'
-```
-
-**Prevention**: Always validate data exists
-**Frequency**: common
-**Reference**: [Link]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Proposed update:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+--- Proposed update (changes marked ← NEW) ---
 ## Error: Cannot read property 'X' of undefined
+Symptom:
+  TypeError: Cannot read property 'X' of undefined
+  TypeError: Cannot read property 'map' of undefined  ← NEW
+  TypeError: Cannot read property 'length' of undefined  ← NEW
+Cause: Attempting to access property on undefined/null object.
+  Common with array methods (map, filter) when data hasn't loaded.  ← NEW
+Solution: 1. Null check  2. Optional chaining  3. Default value (especially arrays)  ← UPDATED
+Code:
+  ❌ obj.property / data.map(item => item.name)  ← NEW
+  ✅ obj?.property ?? 'default' / (data || []).map(item => item.name)  ← NEW
+Prevention: Validate data exists. For arrays, provide empty array default.  ← UPDATED
+Frequency: common
 
-**Symptom**:
-```
-TypeError: Cannot read property 'X' of undefined
-TypeError: Cannot read property 'map' of undefined  ← NEW
-TypeError: Cannot read property 'length' of undefined  ← NEW
-```
-
-**Cause**: Attempting to access property on undefined/null object.
-Common with array methods (map, filter) when data hasn't loaded.  ← NEW
-
-**Solution**:
-1. Add null check
-2. Use optional chaining (?.)
-3. Provide default value (especially for arrays)  ← UPDATED
-
-**Code**:
-```jsx
-// ❌ Before
-const value = obj.property
-const items = data.map(item => item.name)  ← NEW
-
-// ✅ After
-const value = obj?.property ?? 'default'
-const items = (data || []).map(item => item.name)  ← NEW
-```
-
-**Prevention**: Always validate data exists. For arrays, provide empty array default.  ← UPDATED
-**Frequency**: common
-**Reference**: [Link]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-File size: 98 lines → 105 lines (under 150 limit ✓)
-
+File size: 98 → 105 lines (under 150 limit ✓)
 Approve? (yes/no/edit):
 ```
 

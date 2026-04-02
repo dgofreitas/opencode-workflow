@@ -259,71 +259,15 @@ Use OKLCH for perceptually uniform colors:
 
 ---
 
-## Shadow System
+## Shadow, Spacing & Border Radius
 
-### Shadow Scales
+Conrete values for shadows, spacing, and border radius are defined in each theme template above. Summary:
 
-Shadows create depth and hierarchy:
-
-- `--shadow-2xs`: Minimal elevation (1-2px)
-- `--shadow-xs`: Subtle lift (2-3px)
-- `--shadow-sm`: Small cards (3-4px)
-- `--shadow`: Default elevation (4-6px)
-- `--shadow-md`: Medium cards (6-8px)
-- `--shadow-lg`: Modals, dropdowns (8-12px)
-- `--shadow-xl`: Floating panels (12-16px)
-- `--shadow-2xl`: Maximum elevation (16-24px)
-
-### Shadow Styles
-
-**Soft Shadows** (Modern):
-```css
-box-shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10);
-```
-
-**Hard Shadows** (Neo-brutalism):
-```css
-box-shadow: 4px 4px 0px 0px hsl(0 0% 0% / 1.00);
-```
-
----
-
-## Spacing System
-
-### Base Unit
-
-Use `--spacing: 0.25rem` (4px) as base unit
-
-### Scale
-
-- 1x = 0.25rem (4px)
-- 2x = 0.5rem (8px)
-- 3x = 0.75rem (12px)
-- 4x = 1rem (16px)
-- 6x = 1.5rem (24px)
-- 8x = 2rem (32px)
-- 12x = 3rem (48px)
-- 16x = 4rem (64px)
-
----
-
-## Border Radius System
-
-### Radius Scales
-
-```css
---radius-sm: calc(var(--radius) - 4px);
---radius-md: calc(var(--radius) - 2px);
---radius-lg: var(--radius);
---radius-xl: calc(var(--radius) + 4px);
-```
-
-### Common Values
-
-- **Sharp** (Neo-brutalism): `--radius: 0px`
-- **Subtle** (Modern): `--radius: 0.375rem` (6px)
-- **Rounded** (Friendly): `--radius: 0.625rem` (10px)
-- **Pill** (Buttons): `--radius: 9999px`
+| System | Scale | Notes |
+|--------|-------|-------|
+| **Shadows** | `--shadow-2xs` to `--shadow-2xl` | Soft (modern) vs Hard (neo-brutalism) |
+| **Spacing** | Base `--spacing: 0.25rem` (4px), scale 1x-16x | 4px → 64px |
+| **Border radius** | `--radius-sm` to `--radius-xl` | Sharp (0px), Subtle (6px), Rounded (10px), Pill (9999px) |
 
 ---
 
@@ -357,19 +301,15 @@ Use `--spacing: 0.25rem` (4px) as base unit
 
 ## Best Practices
 
-✅ **Use CSS custom properties** for all theme values
-✅ **Test in light and dark modes** if applicable
-✅ **Validate color contrast** (WCAG AA minimum)
-✅ **Use semantic color names** (--primary, not --blue)
-✅ **Load fonts from Google Fonts** for reliability
-✅ **Apply consistent spacing** using the spacing scale
-✅ **Test responsive behavior** at all breakpoints
+For general UI styling best practices (responsive, accessibility, contrast), see `ui-styling-standards.md`.
 
-❌ **Don't hardcode colors** in components
-❌ **Don't use generic blue** (#007bff) without reason
-❌ **Don't mix color formats** (stick to OKLCH)
-❌ **Don't skip contrast testing**
-❌ **Don't use too many font families** (2-3 max)
+**Design-system-specific rules**:
+- ✅ Use CSS custom properties for all theme values
+- ✅ Start from a theme template, then customize
+- ✅ Stick to OKLCH color format — don't mix formats
+- ✅ Limit to 2-3 font families max
+- ❌ Don't hardcode colors in components — use variables
+- ❌ Don't skip contrast testing (WCAG AA minimum)
 
 ---
 

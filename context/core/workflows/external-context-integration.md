@@ -377,51 +377,6 @@ CoderAgent reads subtask JSON and:
 
 ---
 
-## Example: Complete Flow
-
-### User Request
-```
-"Set up Drizzle ORM with Better Auth in Next.js, using modular schema organization"
-```
-
-### Main Agent Flow
-
-1. **Analyze**: Detect Drizzle, Better Auth, Next.js
-2. **Discover**: Call ContextScout + ExternalScout
-3. **Propose**: Show plan with external context files
-4. **Approve**: User approves
-5. **Init Session**: Create context.md with external context section
-6. **Delegate**: Call TaskManager with session path
-7. **Validate**: Check tests pass
-8. **Complete**: Update docs, cleanup
-
-### ExternalScout Flow
-
-1. **Detect**: Drizzle, Better Auth, Next.js
-2. **Fetch**: Get docs from Context7 API
-3. **Filter**: Extract relevant sections
-4. **Persist**: Write to `.tmp/external-context/{package}/{topic}.md`
-5. **Update**: Add to `.manifest.json`
-6. **Return**: File paths to main agent
-
-### TaskManager Flow
-
-1. **Read**: Session context.md
-2. **Extract**: External context files
-3. **Create**: Subtasks with external_context field
-4. **Delegate**: Pass to CoderAgent
-
-### CoderAgent Flow
-
-1. **Read**: Subtask JSON
-2. **Load**: context_files (standards)
-3. **Reference**: reference_files (existing code)
-4. **Read**: external_context files (external docs)
-5. **Implement**: Following all standards and external docs
-6. **Complete**: Return implemented subtask
-
----
-
 ## Troubleshooting
 
 ### External Context Files Not Found

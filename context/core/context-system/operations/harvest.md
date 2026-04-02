@@ -166,29 +166,17 @@ Found 3 summary documents:
 2. Show extraction preview (APPROVAL REQUIRED):
 
 ```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Extraction Preview
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Extraction Preview:
 
 [A] → core/concepts/context-organization.md (CREATE, 45 lines)
-┌─────────────────────────────────────────────────────────┐
-│ # Concept: Context Organization                         │
-│                                                         │
-│ **Purpose**: Function-based knowledge organization      │
-│                                                         │
-│ ## Core Concept                                         │
-│ Organize context by function: concepts/, examples/...   │
-│ ...                                                     │
-└─────────────────────────────────────────────────────────┘
+  # Concept: Context Organization
+  **Purpose**: Function-based knowledge organization
+  ## Core Concept: Organize context by function: concepts/, examples/...
 
 [E] → development/errors/auth-errors.md (ADD to existing, 98 → 112 lines)
-┌─────────────────────────────────────────────────────────┐
-│ + ## Error: JWT Token Expiration Not Handled             │
-│ +                                                       │
-│ + **Symptom**: 401 after 1 hour                         │
-│ + **Cause**: No refresh token flow                      │
-│ + ...                                                   │
-└─────────────────────────────────────────────────────────┘
+  + ## Error: JWT Token Expiration Not Handled
+  + **Symptom**: 401 after 1 hour
+  + **Cause**: No refresh token flow
 
 ... ({remaining_count} more items)
 
@@ -208,27 +196,18 @@ Show all? [y/n] | Approve extraction? [y/n/edit]: _
 **Action**: Archive or delete source summary files
 
 ```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Cleanup: Source Files
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Successfully harvested from:
   CONTEXT-SYSTEM-OVERVIEW.md (4.2 KB)
   SESSION-auth-work.md (1.8 KB)
-
 Skipped (no valuable content):
   .tmp/IMPLEMENTATION-NOTES.md (800 bytes)
 
 How should we handle these source files?
-
-  1. Archive (safe) — move to .tmp/archive/harvested/{date}/
-     → Can restore later if needed
-
-  2. Delete — permanently remove harvested files
-     → Frees disk space, no undo
-
+  1. Archive (safe) — move to .tmp/archive/harvested/{date}/ (can restore)
+  2. Delete — permanently remove harvested files (no undo)
   3. Keep — leave source files in place
-     → No cleanup, files remain where they are
 
 Choose [1/2/3] (default: 1): _
 ```

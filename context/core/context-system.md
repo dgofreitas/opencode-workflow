@@ -78,7 +78,7 @@ Filenames should tell you what's inside:
 ### 6. Knowledge Harvesting
 Extract valuable context from AI summaries/overviews, then delete them. Workspace stays clean, knowledge persists.
 
-### 5. Technology Context Organization
+### 7. Technology Context Organization
 
 **Purpose**: Ensure consistent placement of new technologies (frameworks, libraries, tools) to maintain discoverability.
 
@@ -391,21 +391,10 @@ Data:     development/data/nosql-patterns/mongodb.md
 
 ## Extraction Rules
 
-### ✅ Extract:
-- Core concepts (minimal)
-- Essential patterns
-- Step-by-step workflows
-- Critical errors
-- Quick reference data
-- Links to detailed docs
+See `context-system/standards/mvi.md` for detailed extract/skip rules.
 
-### ❌ Don't Extract:
-- Verbose explanations
-- Complete API docs
-- Implementation details
-- Historical context
-- Marketing content
-- Duplicate info
+**Extract**: Core concepts, essential patterns, workflows, critical errors, reference data, doc links
+**Skip**: Verbose explanations, complete API docs, implementation details, historical context, marketing, duplicates
 
 ---
 
