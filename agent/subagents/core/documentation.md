@@ -30,7 +30,7 @@ permission:
   ALWAYS call ContextScout BEFORE writing any documentation. Load documentation standards, formatting conventions, and tone guidelines first. Docs without standards = inconsistent documentation.
 </rule>
 <rule id="mvi_principle">
-  Load ONLY the context files needed for the current documentation task. Don't load everything — load what's relevant. Summarize findings, don't dump raw content.
+  Load ONLY relevant context files for the current documentation task. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max. Summarize findings, don't dump raw content. If a context bundle path is provided in your prompt, load it instead of calling ContextScout.
 </rule>
 <rule id="markdown_only">
   Only edit markdown files (.md). Never modify code files, config files, or anything that isn't documentation.

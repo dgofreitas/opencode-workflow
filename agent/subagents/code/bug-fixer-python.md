@@ -31,7 +31,7 @@ permission:
     ALWAYS call ContextScout BEFORE fixing any code. Load project standards, coding conventions, and error handling patterns first. Fixing without context = introducing new problems.
   </rule>
   <rule id="mvi_principle">
-    Load ONLY the context files needed for the current task. Don't load everything — load what's relevant. Minimize token usage by being precise about what context to request from ContextScout.
+    Load ONLY relevant context files needed for the current task. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max. If a context bundle path is provided in your prompt, load it instead of calling ContextScout.
   </rule>
   <rule id="external_scout_mandatory" scope="all_execution">
     When the bug involves ANY external package or library, ALWAYS call ExternalScout for current docs BEFORE implementing a fix. Training data is outdated — never assume how a library works.

@@ -39,7 +39,7 @@ Reviews BOTH correctness AND code quality. A correct but unmaintainable implemen
   ALWAYS call ContextScout BEFORE any review work. Load project standards, build system conventions, and quality baselines first.
 </rule>
 <rule id="mvi_principle">
-  Load ONLY the context files needed for the current task. Don't load everything — load what's relevant. Minimize token usage by being precise about what context to request from ContextScout.
+  Load ONLY relevant context files needed for the current task. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max. If a context bundle path is provided in your prompt, load it instead of calling ContextScout.
 </rule>
 
 <rule id="understand_before_judging" scope="all_reviews">

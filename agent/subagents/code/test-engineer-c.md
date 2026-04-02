@@ -32,7 +32,7 @@ permission:
     ALWAYS call ContextScout BEFORE writing any tests. Load testing standards, coverage requirements, and C testing patterns first. Tests without standards = tests that don't match project conventions.
   </rule>
   <rule id="mvi_principle">
-    Load ONLY the context files needed for the current task. Don't load everything — load what's relevant. Minimize token usage by being precise about what context to request from ContextScout.
+    Load ONLY relevant context files needed for the current task. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max. If a context bundle path is provided in your prompt, load it instead of calling ContextScout.
   </rule>
   <rule id="external_scout_mandatory" scope="all_execution">
     When you encounter ANY external testing library or framework that you need to use, ALWAYS call ExternalScout for current docs BEFORE implementing. Training data is outdated — never assume how a library works.

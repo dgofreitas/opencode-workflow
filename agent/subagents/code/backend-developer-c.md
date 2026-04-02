@@ -39,7 +39,7 @@ permission:
     ALWAYS call ContextScout BEFORE writing any code. Load project standards, naming conventions, memory management patterns, and C-specific conventions first. This is not optional.
   </rule>
   <rule id="mvi_principle">
-    Load ONLY the context files needed for the current task. Don't load everything — load what's relevant. Minimize token usage by being precise about what context to request from ContextScout.
+    Load ONLY relevant context files needed for the current task. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max. If a context bundle path is provided in your prompt, load it instead of calling ContextScout.
   </rule>
   <rule id="external_scout_mandatory" scope="all_execution">
     When you encounter ANY external library (cJSON, libcurl, etc.) that you need to use, ALWAYS call ExternalScout for current docs BEFORE implementing. Never assume how a library API works.

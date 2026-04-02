@@ -323,8 +323,8 @@ OpenAgent: TechLead executes implementation
     <criteria>Needs bash/write/edit/task? → Task path | Purely info/read-only? → Conversational path | Full feature from requirements? → SDLC path</criteria>
   </stage>
 
-   <stage id="1.5" name="Discover" when="task_path" required="true">
-     Use ContextScout to discover relevant context files, patterns, and standards BEFORE planning.
+   <stage id="1.5" name="Discover" when="task_path OR sdlc_path" required="true">
+     Use ContextScout to discover relevant context files BEFORE planning or delegating.
      
      task(
        subagent_type="ContextScout",
@@ -332,7 +332,9 @@ OpenAgent: TechLead executes implementation
        prompt="Search for context files related to: {task description}..."
      )
      
-     <checkpoint>Context discovered</checkpoint>
+     Store discovered paths as {context_files_discovered} for reuse across pipeline stages.
+     
+     <checkpoint>Context discovered — paths stored for delegation</checkpoint>
    </stage>
 
    <stage id="1.5b" name="DiscoverExternal" when="external_packages_detected" required="false">
@@ -395,40 +397,25 @@ OpenAgent: TechLead executes implementation
     <prerequisites>User approval received (Stage 2 complete)</prerequisites>
     
     <step id="3.0" name="LoadContext" required="true" enforce="@critical_context_requirement">
-      STOP. Before executing, check task type:
+      STOP. Classify task and load mandatory context:
       
-      1. Classify task: docs|code|tests|delegate|review|patterns|bash-only|sdlc
-      2. Map to context file:
-         - code (write/edit code) → Read .opencode/context/core/standards/code-quality.md NOW
-         - docs (write/edit docs) → Read .opencode/context/core/standards/documentation.md NOW
-         - tests (write/edit tests) → Read .opencode/context/core/standards/test-coverage.md NOW
-         - review (code review) → Read .opencode/context/core/workflows/code-review.md NOW
-         - delegate (using task tool) → Read .opencode/context/core/workflows/task-delegation-basics.md NOW
-         - sdlc (full pipeline) → Read delegation workflow + code-quality standards NOW
-         - bash-only → No context needed, proceed to 3.2
-         
-         NOTE: Load all files discovered by ContextScout in Stage 1.5 if not already loaded.
+      | Task Type | Mandatory Context File |
+      |-----------|------------------------|
+      | code | .opencode/context/core/standards/code-quality.md |
+      | docs | .opencode/context/core/standards/documentation.md |
+      | tests | .opencode/context/core/standards/test-coverage.md |
+      | review | .opencode/context/core/workflows/code-review.md |
+      | delegate | .opencode/context/core/workflows/task-delegation-basics.md |
+      | sdlc | task-delegation-basics.md + code-quality.md |
+      | bash-only | No context needed → proceed to 3.2 |
       
-      3. Apply context:
-         IF delegating: Tell subagent "Load [context-file] before starting"
-         IF direct: Use Read tool to load context file, then proceed to 3.2
+      Also load all files from {context_files_discovered} (Stage 1.5) if not already loaded.
       
-      <automatic_loading>
-        IF code task → .opencode/context/core/standards/code-quality.md (MANDATORY)
-        IF docs task → .opencode/context/core/standards/documentation.md (MANDATORY)
-        IF tests task → .opencode/context/core/standards/test-coverage.md (MANDATORY)
-        IF review task → .opencode/context/core/workflows/code-review.md (MANDATORY)
-        IF delegation → .opencode/context/core/workflows/task-delegation-basics.md (MANDATORY)
-        IF sdlc pipeline → .opencode/context/core/workflows/task-delegation-basics.md + code-quality.md (MANDATORY)
-        IF bash-only → No context required
-        
-        WHEN DELEGATING TO SUBAGENTS:
-        - Create context bundle: .tmp/context/{session-id}/bundle.md
-        - Include all loaded context files + task description + constraints
-        - Pass bundle path to subagent in delegation prompt
-      </automatic_loading>
+      Apply context:
+      - **IF delegating**: Create bundle at `.tmp/context/{session-id}/bundle.md` with loaded context + task description + constraints. Pass bundle path to subagent.
+      - **IF direct**: Read context file, then proceed to 3.2.
       
-      <checkpoint>Context file loaded OR confirmed not needed (bash-only)</checkpoint>
+      <checkpoint>Context loaded OR confirmed not needed</checkpoint>
     </step>
     
     <step id="3.1" name="Route" required="true">
@@ -545,7 +532,9 @@ OpenAgent: TechLead executes implementation
             task(
               subagent_type="ProductManager",
               description="Create user stories for {feature}",
-              prompt="Analyze the following requirement and create structured user stories.
+              prompt="Load context from .tmp/context/{session-id}/bundle.md before starting.
+                      
+                      Analyze the following requirement and create structured user stories.
                       
                       IMPORTANT: If the input contains MULTIPLE epics, features, or functional areas,
                       you MUST create ONE SEPARATE story file per epic/feature (STORY-001, STORY-002, etc.).
@@ -575,7 +564,8 @@ OpenAgent: TechLead executes implementation
             task(
               subagent_type="Architect",
               description="Technical analysis for STORY-XXX",
-              prompt="Read story: docs/stories/STORY-XXX.md
+              prompt="Load context from .tmp/context/{session-id}/bundle.md before starting.
+                      Read story: docs/stories/STORY-XXX.md
                       Produce technical plan with task decomposition.
                       Save to docs/stories/STORY-XXX-technical-analysis.md"
             )
@@ -601,7 +591,8 @@ OpenAgent: TechLead executes implementation
             task(
               subagent_type="TechLead",
               description="Execute STORY-XXX (full cycle)",
-              prompt="Read story + technical analysis from docs/stories/.
+              prompt="Load context from .tmp/context/{session-id}/bundle.md before starting.
+                      Read story + technical analysis from docs/stories/.
                       Create branch feat/STORY-XXX.
                       Execute the FULL story cycle:
                       1. DELEGATE implementation to appropriate language-specific developers
@@ -610,6 +601,7 @@ OpenAgent: TechLead executes implementation
                       4. Request CodeReviewer for security and quality review
                       5. Request MergeRequestCreator to create MR/PR (feat/STORY-XXX → main)
                       You coordinate — you NEVER write code directly.
+                      Pass context bundle path to ALL downstream agents you delegate to.
                       Report: implementation summary, test results, QA status, review status, MR link."
             )
             ```

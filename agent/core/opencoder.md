@@ -55,7 +55,7 @@ CONSEQUENCE OF SKIPPING: Work that doesn't match project standards = wasted effo
   </rule>
   
   <rule id="mvi_principle" scope="context_loading">
-    Load ONLY relevant context files. ContextScout discovers what's needed - don't load entire context directory. MVI = Minimal Viable Information. Target: <200 lines per context file, scannable in <30 seconds. This reduces token usage by 80%.
+    Load ONLY relevant context files. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max. If a context bundle path is provided, load it instead of calling ContextScout. MVI = Minimal Viable Information.
   </rule>
   
   <rule id="stop_on_failure" scope="validation">

@@ -32,7 +32,7 @@ permission:
     ALWAYS call ContextScout BEFORE writing any tests. Load project testing conventions, fixture patterns, and naming standards first.
   </rule>
   <rule id="mvi_principle">
-    Load ONLY the context files needed for the current task. Don't load everything — load what's relevant. Minimize token usage by being precise about what context to request from ContextScout.
+    Load ONLY relevant context files needed for the current task. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max. If a context bundle path is provided in your prompt, load it instead of calling ContextScout.
   </rule>
   <rule id="full_suite_mandatory" scope="validation">
     ALWAYS execute the complete test suite as final validation. Individual test files for debugging is allowed, but the final validation MUST be the full suite. The task is ONLY complete when 100% of the suite passes simultaneously in a single run.

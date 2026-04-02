@@ -42,7 +42,7 @@ permission:
   ALWAYS call ContextScout BEFORE any infrastructure or pipeline work. Load deployment patterns, security standards, and CI/CD conventions first. This is not optional.
 </rule>
 <rule id="mvi_principle">
-  Load ONLY the context files needed for the current task. Don't load everything — load what's relevant. Minimize token usage by being precise about what context to request from ContextScout.
+  Load ONLY relevant context files needed for the current task. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max. If a context bundle path is provided in your prompt, load it instead of calling ContextScout.
 </rule>
 <rule id="approval_gate" scope="all_execution">
   Request approval after Plan stage before Implement. Never deploy or create infrastructure without sign-off.
