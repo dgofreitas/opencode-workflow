@@ -1,8 +1,8 @@
-#!/usr/bin/env npx ts-node
+#!/usr/bin/env node
 /**
  * Task Management CLI
  *
- * Usage: npx ts-node task-cli.ts <command> [feature] [args...]
+ * Usage: node task-cli.js <command> [feature] [args...]
  *
  * Commands:
  *   status [feature]              - Show task status summary
@@ -23,7 +23,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Find project root (look for .git or package.json)
-function findProjectRoot(): string {
+function findProjectRoot() {
   let dir = process.cwd();
   while (dir !== path.dirname(dir)) {
     if (fs.existsSync(path.join(dir, '.git')) || fs.existsSync(path.join(dir, 'package.json'))) {
@@ -38,76 +38,44 @@ const PROJECT_ROOT = findProjectRoot();
 const TASKS_DIR = path.join(PROJECT_ROOT, '.tmp', 'tasks');
 const COMPLETED_DIR = path.join(TASKS_DIR, 'completed');
 
-interface Task {
-  id: string;
-  name: string;
-  status: 'active' | 'completed' | 'blocked' | 'archived';
-  objective: string;
-  context_files: string[];
-  reference_files?: string[];
-  exit_criteria: string[];
-  subtask_count: number;
-  completed_count: number;
-  created_at: string;
-  completed_at: string | null;
-}
-
-interface Subtask {
-  id: string;
-  seq: string;
-  title: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'blocked';
-  depends_on: string[];
-  parallel: boolean;
-  context_files: string[];
-  reference_files?: string[];
-  acceptance_criteria: string[];
-  deliverables: string[];
-  agent_id: string | null;
-  suggested_agent?: string;
-  started_at: string | null;
-  completed_at: string | null;
-  completion_summary: string | null;
-}
-
 // Helpers
-function getFeatureDirs(): string[] {
+function getFeatureDirs() {
   if (!fs.existsSync(TASKS_DIR)) return [];
-  return fs.readdirSync(TASKS_DIR).filter((f: string) => {
+  return fs.readdirSync(TASKS_DIR).filter((f) => {
     const fullPath = path.join(TASKS_DIR, f);
     return fs.statSync(fullPath).isDirectory() && f !== 'completed';
   });
 }
 
-function loadTask(feature: string): Task | null {
+function loadTask(feature) {
   const taskPath = path.join(TASKS_DIR, feature, 'task.json');
   if (!fs.existsSync(taskPath)) return null;
   return JSON.parse(fs.readFileSync(taskPath, 'utf-8'));
 }
 
-function loadSubtasks(feature: string): Subtask[] {
+function loadSubtasks(feature) {
   const featureDir = path.join(TASKS_DIR, feature);
   if (!fs.existsSync(featureDir)) return [];
 
   const files = fs.readdirSync(featureDir)
-    .filter((f: string) => f.match(/^subtask_\d{2}\.json$/))
+    .filter((f) => f.match(/^subtask_\d{2}\.json$/))
     .sort();
 
-  return files.map((f: string) => JSON.parse(fs.readFileSync(path.join(featureDir, f), 'utf-8')));
+  return files.map((f) => JSON.parse(fs.readFileSync(path.join(featureDir, f), 'utf-8')));
 }
 
-function saveSubtask(feature: string, subtask: Subtask): void {
+function saveSubtask(feature, subtask) {
   const subtaskPath = path.join(TASKS_DIR, feature, `subtask_${subtask.seq}.json`);
   fs.writeFileSync(subtaskPath, JSON.stringify(subtask, null, 2));
 }
 
-function saveTask(feature: string, task: Task): void {
+function saveTask(feature, task) {
   const taskPath = path.join(TASKS_DIR, feature, 'task.json');
   fs.writeFileSync(taskPath, JSON.stringify(task, null, 2));
 }
 
 // Commands
-function cmdStatus(feature?: string): void {
+function cmdStatus(feature) {
   const features = feature ? [feature] : getFeatureDirs();
 
   if (features.length === 0) {
@@ -141,7 +109,7 @@ function cmdStatus(feature?: string): void {
   }
 }
 
-function cmdNext(feature?: string): void {
+function cmdNext(feature) {
   const features = feature ? [feature] : getFeatureDirs();
 
   console.log('\n=== Ready Tasks (deps satisfied) ===\n');
@@ -166,7 +134,7 @@ function cmdNext(feature?: string): void {
   }
 }
 
-function cmdParallel(feature?: string): void {
+function cmdParallel(feature) {
   const features = feature ? [feature] : getFeatureDirs();
 
   console.log('\n=== Parallelizable Tasks Ready Now ===\n');
@@ -191,7 +159,7 @@ function cmdParallel(feature?: string): void {
   }
 }
 
-function cmdDeps(feature: string, seq: string): void {
+function cmdDeps(feature, seq) {
   const subtasks = loadSubtasks(feature);
   const target = subtasks.find(s => s.seq === seq);
 
@@ -208,7 +176,7 @@ function cmdDeps(feature: string, seq: string): void {
     return;
   }
 
-  const printDeps = (seqs: string[], indent: string = '  '): void => {
+  const printDeps = (seqs, indent = '  ') => {
     for (let i = 0; i < seqs.length; i++) {
       const depSeq = seqs[i];
       const dep = subtasks.find(s => s.seq === depSeq);
@@ -231,7 +199,7 @@ function cmdDeps(feature: string, seq: string): void {
   printDeps(target.depends_on);
 }
 
-function cmdBlocked(feature?: string): void {
+function cmdBlocked(feature) {
   const features = feature ? [feature] : getFeatureDirs();
 
   console.log('\n=== Blocked Tasks ===\n');
@@ -260,7 +228,7 @@ function cmdBlocked(feature?: string): void {
   }
 }
 
-function cmdComplete(feature: string, seq: string, summary: string): void {
+function cmdComplete(feature, seq, summary) {
   if (summary.length > 200) {
     console.log('Error: Summary must be max 200 characters');
     process.exit(1);
@@ -296,7 +264,7 @@ function cmdComplete(feature: string, seq: string, summary: string): void {
   }
 }
 
-function cmdValidate(feature?: string): void {
+function cmdValidate(feature) {
   const features = feature ? [feature] : getFeatureDirs();
   let hasErrors = false;
 
@@ -332,13 +300,13 @@ function cmdValidate(feature?: string): void {
     'completion_summary',
   ];
 
-  const hasField = (obj: any, field: string): boolean => Object.prototype.hasOwnProperty.call(obj, field);
-  const isStringArray = (value: any): boolean => Array.isArray(value) && value.every(v => typeof v === 'string');
+  const hasField = (obj, field) => Object.prototype.hasOwnProperty.call(obj, field);
+  const isStringArray = (value) => Array.isArray(value) && value.every(v => typeof v === 'string');
 
   console.log('\n=== Validation Results ===\n');
 
   for (const f of features) {
-    const errors: string[] = [];
+    const errors = [];
 
     // Check task.json exists
     const task = loadTask(f);
@@ -348,7 +316,7 @@ function cmdValidate(feature?: string): void {
 
     // Load and validate subtasks
     const subtasks = loadSubtasks(f);
-    const seqCounts = new Map<string, number>();
+    const seqCounts = new Map();
     for (const s of subtasks) {
       const seq = typeof s.seq === 'string' ? s.seq : '';
       seqCounts.set(seq, (seqCounts.get(seq) || 0) + 1);
@@ -454,19 +422,19 @@ function cmdValidate(feature?: string): void {
       }
 
       // Check for circular dependencies
-      const visited = new Set<string>();
-      const checkCircular = (seq: string, path: string[]): boolean => {
-        if (path.includes(seq)) {
-          errors.push(`${s.seq}: circular dependency detected: ${[...path, seq].join(' -> ')}`);
+      const visited = new Set();
+      const checkCircular = (seq, depPath) => {
+        if (depPath.includes(seq)) {
+          errors.push(`${s.seq}: circular dependency detected: ${[...depPath, seq].join(' -> ')}`);
           return true;
         }
         if (visited.has(seq)) return false;
         visited.add(seq);
 
-        const task = subtasks.find(t => t.seq === seq);
-        if (task) {
-          for (const dep of task.depends_on) {
-            if (checkCircular(dep, [...path, seq])) return true;
+        const t = subtasks.find(t => t.seq === seq);
+        if (t) {
+          for (const dep of t.depends_on) {
+            if (checkCircular(dep, [...depPath, seq])) return true;
           }
         }
         return false;
@@ -532,7 +500,7 @@ switch (command) {
     console.log(`
 Task Management CLI
 
-Usage: npx ts-node task-cli.ts <command> [feature] [args...]
+Usage: node task-cli.js <command> [feature] [args...]
 
 Task files are stored in: .tmp/tasks/{feature-slug}/
 
@@ -546,8 +514,8 @@ Commands:
   validate [feature]                Validate JSON files and dependencies
 
 Examples:
-  npx ts-node task-cli.ts status
-  npx ts-node task-cli.ts next my-feature
-  npx ts-node task-cli.ts complete my-feature 02 "Implemented auth module"
+  node task-cli.js status
+  node task-cli.js next my-feature
+  node task-cli.js complete my-feature 02 "Implemented auth module"
 `);
 }

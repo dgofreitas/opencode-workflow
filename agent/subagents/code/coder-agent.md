@@ -198,7 +198,7 @@ Update subtask status and report completion to orchestrator:
 
 **8.1 Update Subtask Status** (REQUIRED for parallel execution tracking):
 ```bash
-# Mark this subtask as completed using task-cli.ts
+# Mark this subtask as completed using task-cli.js
 bash .opencode/skills/task-management/router.sh complete {feature} {seq} "{completion_summary}"
 ```
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #############################################################################
 # Task Management Skill Router
-# Routes to task-cli.ts with proper path resolution and command handling
+# Routes to task-cli.js with proper path resolution and command handling
 #############################################################################
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CLI_SCRIPT="$SCRIPT_DIR/scripts/task-cli.ts"
+CLI_SCRIPT="$SCRIPT_DIR/scripts/task-cli.js"
 
 # Show help
 show_help() {
@@ -62,7 +62,7 @@ HELP
 
 # Check if CLI script exists
 if [ ! -f "$CLI_SCRIPT" ]; then
-    echo "❌ Error: task-cli.ts not found at $CLI_SCRIPT"
+    echo "❌ Error: task-cli.js not found at $CLI_SCRIPT"
     exit 1
 fi
 
@@ -99,6 +99,6 @@ PROJECT_ROOT="$(find_project_root)"
 case "$1" in
   *)
     # Run the task CLI with all arguments
-    cd "$PROJECT_ROOT" && npx ts-node "$CLI_SCRIPT" "$@"
+    cd "$PROJECT_ROOT" && node "$CLI_SCRIPT" "$@"
     ;;
 esac

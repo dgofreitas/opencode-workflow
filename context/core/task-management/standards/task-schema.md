@@ -82,7 +82,7 @@ blocked → pending       (when unblocked)
 - `parallel: true` = Isolated task, can run alongside others
 - `parallel: false` = May affect shared state, run sequentially
 
-Use `task-cli.ts parallel` to find all parallelizable tasks ready to run.
+Use `task-cli.js parallel` to find all parallelizable tasks ready to run.
 
 ---
 

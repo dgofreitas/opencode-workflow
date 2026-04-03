@@ -38,7 +38,7 @@ Create feature folder and files:
 └── subtask_03.json
 ```
 
-Validate with: `task-cli.ts validate {feature}`
+Validate with: `task-cli.js validate {feature}`
 
 ---
 
@@ -46,8 +46,8 @@ Validate with: `task-cli.ts validate {feature}`
 
 Find eligible tasks using CLI:
 ```bash
-task-cli.ts next {feature}      # All ready tasks
-task-cli.ts parallel {feature}  # Parallelizable only
+task-cli.js next {feature}      # All ready tasks
+task-cli.js parallel {feature}  # Parallelizable only
 ```
 
 Selection criteria:
@@ -82,7 +82,7 @@ After agent signals completion:
 1. Check each `acceptance_criteria`
 2. If all pass → Mark completed:
    ```bash
-   task-cli.ts complete {feature} {seq} "summary"
+   task-cli.js complete {feature} {seq} "summary"
    ```
 3. If fail → Keep in_progress, report failures
 

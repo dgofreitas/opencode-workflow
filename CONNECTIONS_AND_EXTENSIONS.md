@@ -172,7 +172,7 @@ skills/
 └── task-management/
     ├── SKILL.md              ← Define a skill
     ├── router.sh             ← Script bash
-    └── scripts/task-cli.ts  ← Script TypeScript
+    └── scripts/task-cli.js  ← Script JavaScript
 ```
 
 ---
@@ -227,7 +227,7 @@ graph TD
 **Tools são módulos TypeScript importados por skills/scripts:**
 
 ```typescript
-// Arquivo: skills/task-management/scripts/task-cli.ts
+// Arquivo: skills/task-management/scripts/task-cli.js
 // Linhas: 1-10
 
 import { loadEnv } from '../../../tool/env/index.js'
@@ -241,7 +241,7 @@ const config = loadEnv()
 | Arquivo | Função |
 |---------|--------|
 | `tool/env/index.ts` | Loader de variáveis de ambiente |
-| `skills/task-management/scripts/task-cli.ts:5` | Importa tool/env |
+| `skills/task-management/scripts/task-cli.js:5` | Importa tool/env |
 
 ---
 

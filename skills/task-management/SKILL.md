@@ -133,7 +133,7 @@ $ bash .opencode/skills/task-management/router.sh validate
 ├── SKILL.md                          # This file
 ├── router.sh                         # CLI router (entry point)
 └── scripts/
-    └── task-cli.ts                   # Task management CLI implementation
+    └── task-cli.js                   # Task management CLI implementation
 ```
 
 ---
@@ -372,7 +372,7 @@ bash .opencode/skills/task-management/router.sh validate
 
 ## Troubleshooting
 
-### "task-cli.ts not found"
+### "task-cli.js not found"
 Make sure you're running from the project root or the router.sh can find it.
 
 ### "No tasks found"
@@ -390,7 +390,7 @@ Run `validate` to see specific issues, then check the JSON files in `.tmp/tasks/
 
 - **Skill**: `.opencode/skills/task-management/`
 - **Router**: `.opencode/skills/task-management/router.sh`
-- **CLI**: `.opencode/skills/task-management/scripts/task-cli.ts`
+- **CLI**: `.opencode/skills/task-management/scripts/task-cli.js`
 - **Tasks**: `.tmp/tasks/` (created by TaskManager)
 - **Documentation**: `.opencode/skills/task-management/SKILL.md` (this file)
 

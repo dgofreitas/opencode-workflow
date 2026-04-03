@@ -2,7 +2,7 @@
 
 # Lookup: Task CLI Commands
 
-**Purpose**: Quick reference for task-cli.ts commands
+**Purpose**: Quick reference for task-cli.js commands
 
 **Last Updated**: 2026-02-14
 
@@ -11,7 +11,7 @@
 ## Usage
 
 ```bash
-npx ts-node .opencode/skills/task-management/scripts/task-cli.ts <command> [args]
+node .opencode/skills/task-management/scripts/task-cli.js <command> [args]
 ```
 
 Task files are stored in `.tmp/tasks/` at the project root.
@@ -25,8 +25,8 @@ Task files are stored in `.tmp/tasks/` at the project root.
 Show task status summary for all features or specific feature.
 
 ```bash
-task-cli.ts status
-task-cli.ts status my-feature
+task-cli.js status
+task-cli.js status my-feature
 ```
 
 **Output**:
@@ -43,8 +43,8 @@ task-cli.ts status my-feature
 Show tasks ready to work on (deps satisfied).
 
 ```bash
-task-cli.ts next
-task-cli.ts next my-feature
+task-cli.js next
+task-cli.js next my-feature
 ```
 
 **Output**:
@@ -63,8 +63,8 @@ task-cli.ts next my-feature
 Show only parallelizable tasks ready now.
 
 ```bash
-task-cli.ts parallel
-task-cli.ts parallel my-feature
+task-cli.js parallel
+task-cli.js parallel my-feature
 ```
 
 **Use**: Batch multiple isolated tasks for parallel execution.
@@ -76,7 +76,7 @@ task-cli.ts parallel my-feature
 Show dependency tree for a specific task.
 
 ```bash
-task-cli.ts deps my-feature 04
+task-cli.js deps my-feature 04
 ```
 
 **Output**:
@@ -96,8 +96,8 @@ task-cli.ts deps my-feature 04
 Show blocked tasks and reasons.
 
 ```bash
-task-cli.ts blocked
-task-cli.ts blocked my-feature
+task-cli.js blocked
+task-cli.js blocked my-feature
 ```
 
 **Output**:
@@ -116,7 +116,7 @@ task-cli.ts blocked my-feature
 Mark task as completed with summary (max 200 chars).
 
 ```bash
-task-cli.ts complete my-feature 02 "Created JWT service with RS256 signing"
+task-cli.js complete my-feature 02 "Created JWT service with RS256 signing"
 ```
 
 **Effect**:
@@ -132,8 +132,8 @@ task-cli.ts complete my-feature 02 "Created JWT service with RS256 signing"
 Check JSON validity, dependencies, circular refs.
 
 ```bash
-task-cli.ts validate
-task-cli.ts validate my-feature
+task-cli.js validate
+task-cli.js validate my-feature
 ```
 
 **Checks**:

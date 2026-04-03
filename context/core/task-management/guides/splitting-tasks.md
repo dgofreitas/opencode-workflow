@@ -103,7 +103,7 @@ Don't embed descriptions. Reference paths:
 |---------|-----|
 | Task too big | Split into 2-3 smaller tasks |
 | Circular deps | Re-order or merge tasks |
-| Missing deps | Run `task-cli.ts validate` |
+| Missing deps | Run `task-cli.js validate` |
 | Vague criteria | Make binary pass/fail |
 
 ---

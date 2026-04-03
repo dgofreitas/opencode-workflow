@@ -491,7 +491,7 @@ OpenAgent: TechLead executes implementation
        </trigger>
        
        <process>
-         1. **Identify Parallel Batches** (use task-cli.ts):
+         1. **Identify Parallel Batches** (use task-cli.js):
             ```bash
             # Get all parallel-ready tasks
             bash .opencode/skills/task-management/router.sh parallel {feature}
@@ -557,7 +557,7 @@ OpenAgent: TechLead executes implementation
          - **Within a batch**: All tasks start simultaneously
          - **Between batches**: Wait for entire previous batch to complete
          - **Parallel flag**: Only tasks with `parallel: true` AND no dependencies between them run together
-         - **Status checking**: Use `task-cli.ts status` to verify batch completion
+         - **Status checking**: Use `task-cli.js status` to verify batch completion
          - **Never proceed**: Don't start Batch N+1 until Batch N is 100% complete
        </batch_execution_rules>
      </step>

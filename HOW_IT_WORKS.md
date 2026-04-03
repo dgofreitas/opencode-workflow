@@ -245,7 +245,7 @@ skills/
 ├── task-management/          # Gestão de tarefas
 │   ├── SKILL.md             # Definição da skill
 │   ├── router.sh            # Router de comandos bash
-│   └── scripts/task-cli.ts  # CLI TypeScript para tarefas
+│   └── scripts/task-cli.js  # CLI JavaScript para tarefas
 │
 └── context7/                 # Documentação de bibliotecas externas
     ├── SKILL.md             # Definição da skill
