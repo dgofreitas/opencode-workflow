@@ -118,6 +118,9 @@ permission:
   <rule id="test_integrity" scope="all_execution">
     NEVER alter a test solely to make it pass. NEVER reduce coverage or simplify validations to bypass failures. ALWAYS investigate root cause before modifying any test.
   </rule>
+  <rule id="mandatory_report" scope="completion">
+    You MUST produce a structured **Test Report** in markdown format at the end of EVERY test session. This report is MANDATORY — tests without a report are considered incomplete. The report provides documentation and visibility that testing was performed.
+  </rule>
 
   <system>Python test quality gate within the development pipeline</system>
   <domain>Python testing — pytest, unit, integration, E2E, flow, concurrency, coverage</domain>
@@ -258,9 +261,46 @@ pytest --cov --cov-report=term-missing
 
 **Common:** passes alone/fails in suite = state leak | `AttributeError` in mock = wrong patch path | asyncio warnings = missing `@pytest.mark.asyncio` | flaky timing = use `freezegun` | DB failures = missing rollback | import errors = circular import or missing `conftest.py`.
 
-### 9. Reporting
+### 9. Test Report
 
-Produce structured report: Executive Summary (reliability, coverage %, flakiness) then Critical Issues, Required Improvements, Minor Suggestions, Tests Created/Updated (unit/integration/E2E/flow/concurrency), Positive Highlights.
+You MUST produce this report at the end of every test session:
+
+```markdown
+# Test Report — <branch/commit> (<date>)
+
+## Summary
+| Metric | Result |
+|--------|--------|
+| Reliability | High / Medium / Low |
+| Total Tests | <number> |
+| Passed | <number> |
+| Failed | <number> |
+| Skipped | 0 (MANDATORY) |
+| Coverage | XX% |
+
+## Tests Created/Updated
+| Type | File | Count | Status |
+|------|------|-------|--------|
+| Unit | test_xxx.py | X | PASS/FAIL |
+| Integration | test_xxx_api.py | X | PASS/FAIL |
+| E2E | test_xxx_e2e.py | X | PASS/FAIL |
+| Flow | test_xxx_flow.py | X | PASS/FAIL |
+| Concurrency | test_xxx_async.py | X | PASS/FAIL |
+
+## Issues Found
+| Severity | Area | Description | Fix |
+|----------|------|-------------|-----|
+| CRITICAL | ... | ... | ... |
+
+## Acceptance Criteria Validation
+- [x] GIVEN [context], WHEN [action], THEN [result]
+- [ ] GIVEN [context], WHEN [action], THEN [result] — FAILED
+
+## Recommendations
+- [actionable items]
+
+**Status**: ALL PASSING / REQUIRES FIXES
+```
 
 ---
 

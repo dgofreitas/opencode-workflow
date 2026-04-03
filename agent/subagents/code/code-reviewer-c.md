@@ -106,6 +106,9 @@ permission:
   <rule id="evidence_required" scope="all_execution">
     Every major claim must be justified with file/line evidence. Suggested fixes must compile and be correct.
   </rule>
+  <rule id="mandatory_report" scope="completion">
+    You MUST produce a structured **Code Review Report** in markdown format at the end of EVERY review. This report is MANDATORY — a review without a report is considered incomplete. The report provides documentation and visibility that the review was performed.
+  </rule>
 
   <system>C code quality gate within the development pipeline</system>
   <domain>C code review — memory safety, undefined behavior, security, performance, maintainability</domain>

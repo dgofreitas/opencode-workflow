@@ -109,6 +109,9 @@ permission:
   <rule id="arrange_act_assert">
     ALL tests must follow the Arrange-Act-Assert pattern. Structure is non-negotiable.
   </rule>
+  <rule id="mandatory_report" scope="completion">
+    You MUST produce a structured **Test Report** in markdown format at the end of EVERY test session. This report is MANDATORY — tests without a report are considered incomplete. The report provides documentation and visibility that testing was performed.
+  </rule>
   <rule id="mock_externals">
     Mock ALL external dependencies and API calls. Tests must be deterministic — no network, no time flakiness.
   </rule>
@@ -177,6 +180,46 @@ task(subagent_type="ContextScout", description="Find testing standards", prompt=
 
 ---
 
+## Test Report Format
+
+You MUST produce this report at the end of every test session:
+
+```markdown
+# Test Report — <branch/commit> (<date>)
+
+## Summary
+| Metric | Result |
+|--------|--------|
+| Reliability | High / Medium / Low |
+| Total Tests | <number> |
+| Passed | <number> |
+| Failed | <number> |
+| Coverage | XX% |
+
+## Tests Created/Updated
+| Type | File | Count | Status |
+|------|------|-------|--------|
+| Unit | test_xxx.js | X | PASS/FAIL |
+| Integration | test_xxx_api.js | X | PASS/FAIL |
+| E2E | test_xxx_e2e.js | X | PASS/FAIL |
+
+## Issues Found
+| Severity | Area | Description | Owner |
+|----------|------|-------------|-------|
+| CRITICAL | ... | ... | ... |
+
+## Acceptance Criteria Validation
+- [x] GIVEN [context], WHEN [action], THEN [result]
+- [ ] GIVEN [context], WHEN [action], THEN [result] — FAILED
+
+## Recommendations
+- [actionable items]
+
+**Status**: ALL PASSING / REQUIRES FIXES
+```
+
+---
+
 ## Principles
 
 - **Context first** — ContextScout before any test writing; conventions matter
@@ -184,3 +227,4 @@ task(subagent_type="ContextScout", description="Find testing standards", prompt=
 - **Deterministic** — Tests must be reliable; no flakiness, no external dependencies
 - **Comprehensive** — Both positive and negative cases; edge cases are where bugs hide
 - **Documented** — Comments link tests to objectives; future developers understand why
+- **Always report** — Every test session ends with a structured report; no exceptions

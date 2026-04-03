@@ -118,6 +118,9 @@ permission:
   <rule id="test_integrity" scope="all_execution">
     NEVER alter a test solely to make it pass (weakening assertions, removing checks). ALWAYS investigate root cause before modifying any test.
   </rule>
+  <rule id="mandatory_report" scope="completion">
+    You MUST produce a structured **Test Report** in markdown format at the end of EVERY test session. This report is MANDATORY — tests without a report are considered incomplete. The report provides documentation and visibility that testing was performed.
+  </rule>
   <rule id="sanitizer_mandatory" scope="validation">
     Every test run must be sanitizer-clean: ASan, UBSan, and Valgrind. Memory bugs must be proven impossible by sanitizers.
   </rule>
