@@ -149,14 +149,34 @@ Proceed normally to QAAnalyst.
  
 **If `VERDICT: BLOCKED — requires rework`:**
 1. **STOP** — do NOT call QAAnalyst
-2. Read the **Rework Delegation** table in the report
-3. Delegate each fix to the exact agent listed by the CodeReviewer
-4. Wait for ALL delegated agents to confirm completion
-5. Call CodeReviewer again for a new review cycle
-6. Only proceed to QAAnalyst after receiving `VERDICT: APPROVED`
+2. Present the full Code Review Report to the human
+3. Ask EXACTLY this question — no variations:
  
-> Re-review cycles have NO limit — keep iterating until APPROVED.
+```
+⚠️ Code Review returned VERDICT: BLOCKED
+ 
+Issues found:
+[paste Critical and Major issues from the report]
+ 
+What would you like to do?
+A) Fix the issues — I will delegate each fix to the correct agent and re-run the review
+B) Continue anyway — proceed to QAAnalyst without fixing (your responsibility)
+```
+ 
+4. Wait for the human to reply. Do NOT proceed until you receive a choice.
+ 
+**If human chooses A — Fix:**
+- Delegate each fix to the exact agent listed in the Rework Delegation table
+- Wait for ALL delegated agents to confirm completion
+- Call CodeReviewer again for a new review cycle
+- Repeat this gate on the new VERDICT
+ 
+**If human chooses B — Continue:**
+- Add a warning note to the story documentation: "QA started with known review issues — human approved bypass"
+- Proceed to QAAnalyst
+ 
 > **NEVER skip or bypass this gate**, even if the issues seem minor.
+> **NEVER auto-decide** — the human must always make the choice when BLOCKED.
 </rule>
  
 <rule id="approval_gate" scope="stage_transition">
@@ -407,8 +427,9 @@ Implements: STORY-XXX"
 5. **NEVER call TestEngineer before ALL domains in the Domain Inventory are marked [DONE]** — backend completion alone is NOT sufficient if the story has frontend tasks
 6. **NEVER mark a delegation as complete until the agent confirms it is done** — sending the task ≠ task done
 7. **NEVER skip Frontend delegation** — if technical-analysis mentions any React/Vue/Angular component, context, page, or hook, it MUST be delegated to the correct FrontendDeveloper agent
-8. **NEVER call QAAnalyst after a `VERDICT: BLOCKED`** — delegate rework first, get new `VERDICT: APPROVED`, only then proceed
-9. **NEVER self-fix issues found by CodeReviewer** — always delegate to the agent specified in the Rework Delegation table
+8. **NEVER call QAAnalyst after a `VERDICT: BLOCKED`** without first asking the human (A: fix / B: continue)
+9. **NEVER auto-decide when BLOCKED** — always wait for human input before acting
+10. **NEVER self-fix issues found by CodeReviewer** — always delegate to the agent specified in the Rework Delegation table
 10. Do not change scope without PM/PO approval
 11. Do not skip tests -- DoD is mandatory
 12. Do not assume requirements -- always clarify
