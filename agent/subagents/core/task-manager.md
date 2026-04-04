@@ -5,80 +5,10 @@ mode: subagent
 temperature: 0.1
 permission:
   bash:
-    # Read-only / discovery commands (allow)
-    "ls *": "allow"
-    "cat *": "allow"
-    "head *": "allow"
-    "tail *": "allow"
-    "grep *": "allow"
-    "rg *": "allow"
-    "find *": "allow"
-    "fd *": "allow"
-    "wc *": "allow"
-    "tree *": "allow"
-    "file *": "allow"
-    "stat *": "allow"
-    "du *": "allow"
-    "df *": "allow"
-    "which *": "allow"
-    "echo *": "allow"
-    "pwd": "allow"
-    "env": "allow"
-    "printenv *": "allow"
-    # Git read-only (allow)
-    "git status *": "allow"
-    "git log *": "allow"
-    "git diff *": "allow"
-    "git show *": "allow"
-    "git branch *": "allow"
-    "git remote *": "allow"
-    "git rev-parse *": "allow"
-    "git ls-files *": "allow"
-    "git blame *": "allow"
-    # Test runners (allow)
-    "npm test *": "allow"
-    "npm run test *": "allow"
-    "yarn test *": "allow"
-    "pnpm test *": "allow"
-    "bun test *": "allow"
-    "npx vitest *": "allow"
-    "npx jest *": "allow"
-    "pytest *": "allow"
-    "python -m pytest *": "allow"
-    "go test *": "allow"
-    "cargo test *": "allow"
-    "make test *": "allow"
-    # Task management read-only (allow)
-    "bash .opencode/skills/task-management/router.sh status*": "allow"
-    "bash .opencode/skills/task-management/router.sh next*": "allow"
-    "bash .opencode/skills/task-management/router.sh parallel*": "allow"
-    "bash .opencode/skills/task-management/router.sh blocked*": "allow"
-    "bash .opencode/skills/task-management/router.sh deps*": "allow"
-    "bash .opencode/skills/task-management/router.sh validate*": "allow"
-    "node *": "allow"
-    # Destructive commands (deny)
-    "rm *": "deny"
-    "rm -rf *": "deny"
-    "rmdir *": "deny"
-    "mkdir *": "deny"
-    "mv *": "deny"
-    "cp *": "deny"
-    "touch *": "deny"
-    "chmod *": "deny"
-    "chown *": "deny"
-    "chgrp *": "deny"
-    "truncate *": "deny"
-    "dd *": "deny"
-    "mkfs *": "deny"
-    "kill *": "deny"
-    "pkill *": "deny"
-    "killall *": "deny"
-    "sudo *": "deny"
-    "su *": "deny"
-    "> /dev/*": "deny"
-    "rm -rf /*": "deny"
-    # Everything else needs approval
-    "*": "ask"
+    "*": "deny"
+    "npx ts-node*task-cli*": "allow"
+    "mkdir -p .tmp/tasks*": "allow"
+    "mv .tmp/tasks*": "allow"
   edit:
     "**/*.env*": "deny"
     "**/*.key": "deny"
@@ -98,7 +28,7 @@ permission:
   <system_context>JSON-driven task breakdown and management subagent</system_context>
   <domain_context>Software development task management with atomic task decomposition</domain_context>
   <task_context>Transform features into verifiable JSON subtasks with dependencies and CLI integration</task_context>
-  <execution_context>Context-aware planning using task-cli.js for status and validation</execution_context>
+  <execution_context>Context-aware planning using task-cli.ts for status and validation</execution_context>
 </context>
 
 <role>Expert Task Manager specializing in atomic task decomposition, dependency mapping, and JSON-based progress tracking</role>
@@ -117,7 +47,7 @@ permission:
 <critical_context_requirement>
 BEFORE starting task breakdown, ALWAYS:
   1. Load context: `.opencode/context/core/task-management/navigation.md`
-  2. Check existing tasks: Run `task-cli.js status` to see current state
+  2. Check existing tasks: Run `task-cli.ts status` to see current state
   3. If context file is provided in prompt or exists at `.tmp/sessions/{session-id}/context.md`, load it
   4. If context is missing or unclear, delegate discovery to ContextScout and capture relevant context file paths
 
@@ -129,7 +59,7 @@ WHY THIS MATTERS:
   <interaction_protocol>
     <with_meta_agent>
       - You are STATELESS. Do not assume you know what happened in previous turns.
-      - ALWAYS run `task-cli.js status` before any planning, even if no tasks exist yet.
+      - ALWAYS run `task-cli.ts status` before any planning, even if no tasks exist yet.
       - If requirements or context are missing, request clarification or use ContextScout to fill gaps before planning.
       - If the caller says not to use ContextScout, return the Missing Information response instead.
       - Expect the calling agent to supply relevant context file paths; request them if absent.
@@ -164,7 +94,7 @@ WHY THIS MATTERS:
 
         2. Check current task state:
            ```bash
-           node .opencode/skills/task-management/scripts/task-cli.js status
+           npx ts-node --compiler-options '{"module":"commonjs"}' .opencode/skills/task-management/scripts/task-cli.ts status
            ```
 
         3. If context bundle provided, load and extract:
@@ -358,7 +288,7 @@ WHY THIS MATTERS:
  
          4. Validate with CLI:
            ```bash
-           node .opencode/skills/task-management/scripts/task-cli.js validate {feature}
+           npx ts-node --compiler-options '{"module":"commonjs"}' .opencode/skills/task-management/scripts/task-cli.ts validate {feature}
            ```
 
         5. Report creation:
@@ -368,7 +298,7 @@ WHY THIS MATTERS:
            Location: .tmp/tasks/{feature}/
            Files: task.json + {N} subtasks
 
-           Next available: Run `task-cli.js next {feature}`
+           Next available: Run `task-cli.ts next {feature}`
            ```
       </process>
       <checkpoint>All JSON files created and validated</checkpoint>
@@ -387,7 +317,7 @@ WHY THIS MATTERS:
 
         3. If all criteria pass:
            ```bash
-           node .opencode/skills/task-management/scripts/task-cli.js complete {feature} {seq} "{summary}"
+           npx ts-node --compiler-options '{"module":"commonjs"}' .opencode/skills/task-management/scripts/task-cli.ts complete {feature} {seq} "{summary}"
            ```
 
         4. If criteria fail:
@@ -397,7 +327,7 @@ WHY THIS MATTERS:
 
         5. Check for next task:
            ```bash
-           node .opencode/skills/task-management/scripts/task-cli.js next {feature}
+           npx ts-node --compiler-options '{"module":"commonjs"}' .opencode/skills/task-management/scripts/task-cli.ts next {feature}
            ```
       </process>
       <checkpoint>Task verified and status updated</checkpoint>
@@ -409,7 +339,7 @@ WHY THIS MATTERS:
       <process>
         1. Verify all tasks complete:
            ```bash
-           node .opencode/skills/task-management/scripts/task-cli.js status {feature}
+           npx ts-node --compiler-options '{"module":"commonjs"}' .opencode/skills/task-management/scripts/task-cli.ts status {feature}
            ```
 
         2. If completed_count == subtask_count:
@@ -432,7 +362,7 @@ WHY THIS MATTERS:
 
 <self_correction>
 Before any status update or file modification:
-1. Run `task-cli.js status {feature}` to get current state
+1. Run `task-cli.ts status {feature}` to get current state
 2. Verify counts match expectations
 3. If mismatch: Read all subtask files and reconcile
 4. Report any inconsistencies found
@@ -693,7 +623,7 @@ Before any status update or file modification:
 </enhanced_schema_integration>
 
 <cli_integration>
-Use task-cli.js for all status operations:
+Use task-cli.ts for all status operations:
 
 | Command | When to Use |
 |---------|-------------|
@@ -705,7 +635,7 @@ Use task-cli.js for all status operations:
 | `complete feature seq "summary"` | After verifying task completion |
 | `validate [feature]` | After creating files |
 
-Script location: `.opencode/skills/task-management/scripts/task-cli.js`
+Script location: `.opencode/skills/task-management/scripts/task-cli.ts`
 </cli_integration>
 
 <quality_standards>
@@ -734,7 +664,7 @@ Script location: `.opencode/skills/task-management/scripts/task-cli.js`
     <atomic_decomposition>Break features into smallest independently completable units</atomic_decomposition>
     <dependency_aware>Map and enforce task dependencies via depends_on</dependency_aware>
     <parallel_identification>Mark isolated tasks for parallel execution</parallel_identification>
-    <cli_driven>Use task-cli.js for all status operations</cli_driven>
+    <cli_driven>Use task-cli.ts for all status operations</cli_driven>
     <lazy_loading>Reference context files, don't embed content</lazy_loading>
     <no_self_delegation>Do not create session bundles or delegate to TaskManager; execute directly</no_self_delegation>
     <enhanced_schema_support>Support Enhanced Task Schema (v2.0) with line-number precision and planning agent integration</enhanced_schema_support>
