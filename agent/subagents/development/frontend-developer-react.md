@@ -88,6 +88,7 @@ permission:
   task:
     contextscout: "allow"
     externalscout: "allow"
+    ShellDeveloper: "allow"
     TestEngineer: "allow"
 ---
 

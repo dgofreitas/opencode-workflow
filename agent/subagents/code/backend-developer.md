@@ -48,6 +48,26 @@ permission:
     "go test *": "allow"
     "cargo test *": "allow"
     "make test *": "allow"
+    # Lint / type-check / build runners (allow)
+    "yarn lint": "allow"
+    "yarn lint *": "allow"
+    "yarn tsc": "allow"
+    "yarn tsc *": "allow"
+    "yarn build": "allow"
+    "yarn build *": "allow"
+    "npm run lint": "allow"
+    "npm run lint *": "allow"
+    "npm run build": "allow"
+    "npm run build *": "allow"
+    "pnpm lint": "allow"
+    "pnpm lint *": "allow"
+    "pnpm build": "allow"
+    "pnpm build *": "allow"
+    "npx tsc *": "allow"
+    "npx eslint *": "allow"
+    "npx prettier *": "allow"
+    "ruff check *": "allow"
+    "mypy *": "allow"
     # Task management read-only (allow)
     "bash .opencode/skills/task-management/router.sh status*": "allow"
     "bash .opencode/skills/task-management/router.sh next*": "allow"
@@ -88,7 +108,9 @@ permission:
   task:
     contextscout: "allow"
     externalscout: "allow"
+    ShellDeveloper: "allow"
     TestEngineer: "allow"
+    TechLead: "allow"
 ---
 
 # BackendDeveloper
