@@ -3,7 +3,7 @@ name: DevopsSpecialist
 description: "DevOps specialist — CI/CD pipelines, infrastructure as code (Docker, Kubernetes, Terraform), deployment automation, and cloud operations"
 mode: subagent
 temperature: 0.1
-ppermission:
+permission:
   bash:
     "*": "allow"
     "rm *": "deny"

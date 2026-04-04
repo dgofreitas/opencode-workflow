@@ -3,7 +3,7 @@ name: BugFixerPython
 description: "Python bug diagnosis and fixing specialist with root-cause analysis and regression testing"
 mode: subagent
 temperature: 0.1
-ppermission:
+permission:
   bash:
     "*": "allow"
     "rm *": "deny"

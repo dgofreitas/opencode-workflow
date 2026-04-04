@@ -3,7 +3,7 @@ name: CoderAgent
 description: Executes coding subtasks in sequence, ensuring completion as specified
 mode: subagent
 temperature: 0
-ppermission:
+permission:
   bash:
     "*": "allow"
     "rm *": "deny"

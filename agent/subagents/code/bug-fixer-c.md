@@ -3,7 +3,7 @@ name: BugFixerC
 description: "C bug diagnosis and fixing specialist for memory errors, undefined behavior, and system-level bugs"
 mode: subagent
 temperature: 0.1
-ppermission:
+permission:
   bash:
     "*": "allow"
     "rm *": "deny"

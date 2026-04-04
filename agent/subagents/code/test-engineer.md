@@ -3,7 +3,7 @@ name: TestEngineer
 description: Test authoring and TDD agent
 mode: subagent
 temperature: 0.1
-ppermission:
+permission:
   bash:
     "*": "allow"
     "rm *": "deny"
