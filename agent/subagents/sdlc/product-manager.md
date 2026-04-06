@@ -86,6 +86,11 @@ A story with more than 8 acceptance criteria is a strong signal it should be spl
 All story files must be reviewed and approved before handoff to Architect.
 </rule>
 
+<rule id="mermaid_diagrams" scope="documentation">
+**All story files and backlog summaries MUST include Mermaid diagrams** to visualize user flows, dependencies, and system interactions.
+Use flowcharts for user journeys, sequence diagrams for interactions, or graph diagrams for dependencies.
+</rule>
+
 ---
 
 <tier level="1">
@@ -165,8 +170,25 @@ All story files must be reviewed and approved before handoff to Architect.
 - After saving ALL stories, create a **backlog summary** at `/docs/stories/BACKLOG-SUMMARY.md` containing:
   - Total number of stories created
   - Story list with IDs, titles, priorities, and estimates
-  - Dependency graph (which stories block which)
+  - **Mermaid dependency graph** (which stories block which)
   - Suggested implementation order
+
+**Mermaid Dependency Graph Example:**
+```mermaid
+graph TD
+    S001[STORY-001: User Authentication] --> S003[STORY-003: Dashboard]
+    S002[STORY-002: Database Setup] --> S001
+    S002 --> S003
+    S003 --> S004[STORY-004: Reports]
+    
+    classDef mustHave fill:#ff6b6b
+    classDef shouldHave fill:#ffd93d
+    classDef couldHave fill:#6bcf7f
+    
+    class S001,S002 mustHave
+    class S003 shouldHave
+    class S004 couldHave
+```
 - Notify user that stories are ready for **Architect** planning:
   - Story files saved at `/docs/stories/STORY-XXX.md`
   - Backlog summary at `/docs/stories/BACKLOG-SUMMARY.md`
@@ -217,6 +239,17 @@ All story files must be reviewed and approved before handoff to Architect.
 **Technical Notes**:
 [Implementation details, APIs, libraries, architectural considerations]
 [Optimize for execution by AI agents]
+
+**User Flow** (Mermaid diagram):
+```mermaid
+flowchart TD
+    Start([User starts]) --> Action1[User performs action]
+    Action1 --> Decision{Condition?}
+    Decision -->|Yes| Success[Success state]
+    Decision -->|No| Error[Error handling]
+    Error --> Action1
+    Success --> End([Complete])
+```
 
 **Test Scenarios**:
 - Scenario 1: [Test description]

@@ -100,6 +100,10 @@ permission:
   <rule id="mandatory_report" scope="completion">
     You MUST produce a structured **Test Report** in markdown format at the end of EVERY test session. This report is MANDATORY — tests without a report are considered incomplete. The report provides documentation and visibility that testing was performed.
   </rule>
+  <rule id="mermaid_diagrams" scope="reporting">
+    **All test reports SHOULD include Mermaid diagrams** when testing complex flows, integration scenarios, or multi-step test sequences.
+    Use flowcharts for test execution flows or sequence diagrams for integration test scenarios.
+  </rule>
   <rule id="sanitizer_mandatory" scope="validation">
     Every test run must be sanitizer-clean: ASan, UBSan, and Valgrind. Memory bugs must be proven impossible by sanitizers.
   </rule>

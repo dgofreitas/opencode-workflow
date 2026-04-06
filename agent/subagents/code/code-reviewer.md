@@ -109,6 +109,10 @@ permission:
   <rule id="mandatory_report" scope="completion">
     You MUST produce a structured **Code Review Report** in markdown format at the end of EVERY review. This report is MANDATORY — a review without a report is considered incomplete. The report provides documentation and visibility that the review was performed.
   </rule>
+  <rule id="mermaid_diagrams" scope="reporting">
+    **All code review reports SHOULD include Mermaid diagrams** when reviewing complex flows, architecture changes, or multi-component interactions.
+    Use flowcharts for logic flows or sequence diagrams for component interactions.
+  </rule>
   <rule id="blocking_verdict" scope="completion">
     The final line of EVERY report MUST be one of exactly two verdicts:
  
@@ -191,6 +195,16 @@ You MUST produce this report at the end of every review:
 | Correctness | A-F |
 | Maintainability | A-F |
 | Test Coverage | XX% |
+
+## Code Flow (Mermaid - when applicable)
+<!-- Include for complex logic, architecture changes, or multi-component interactions -->
+```mermaid
+flowchart TD
+    A[Request] --> B{Validation}
+    B -->|Valid| C[Process]
+    B -->|Invalid| D[Error]
+    C --> E[Response]
+```
 
 ## Critical Issues
 | File:Line | Issue | Why Critical | Suggested Fix |

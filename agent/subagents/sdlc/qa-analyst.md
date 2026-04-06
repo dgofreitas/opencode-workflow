@@ -131,6 +131,11 @@ QAAnalyst has **read-only access** to all project files and **execute-only acces
 You MUST produce a structured **QA Validation Report** in markdown format at the end of EVERY validation session. This report is MANDATORY — a QA validation without a report is considered incomplete. The report provides documentation and visibility that QA was performed.
 </rule>
 
+<rule id="mermaid_diagrams" scope="reporting">
+**All QA reports MUST include Mermaid diagrams** to visualize test flows, coverage areas, and validation sequences.
+Use flowcharts for test execution flows or sequence diagrams for acceptance criteria validation.
+</rule>
+
 ---
 
 <tier level="1">

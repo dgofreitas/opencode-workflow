@@ -109,6 +109,10 @@ permission:
   <rule id="mandatory_report" scope="completion">
     You MUST produce a structured **Code Review Report** in markdown format at the end of EVERY review. This report is MANDATORY — a review without a report is considered incomplete. The report provides documentation and visibility that the review was performed.
   </rule>
+  <rule id="mermaid_diagrams" scope="reporting">
+    **All code review reports SHOULD include Mermaid diagrams** when reviewing complex flows, architecture changes, or multi-component interactions.
+    Use flowcharts for logic flows or sequence diagrams for component interactions.
+  </rule>
 
   <system>C code quality gate within the development pipeline</system>
   <domain>C code review — memory safety, undefined behavior, security, performance, maintainability</domain>

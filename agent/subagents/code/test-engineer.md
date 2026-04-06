@@ -91,6 +91,10 @@ permission:
   <rule id="mandatory_report" scope="completion">
     You MUST produce a structured **Test Report** in markdown format at the end of EVERY test session. This report is MANDATORY — tests without a report are considered incomplete. The report provides documentation and visibility that testing was performed.
   </rule>
+  <rule id="mermaid_diagrams" scope="reporting">
+    **All test reports SHOULD include Mermaid diagrams** when testing complex flows, integration scenarios, or multi-step test sequences.
+    Use flowcharts for test execution flows or sequence diagrams for integration test scenarios.
+  </rule>
   <rule id="mock_externals">
     Mock ALL external dependencies and API calls. Tests must be deterministic — no network, no time flakiness.
   </rule>
@@ -174,6 +178,19 @@ You MUST produce this report at the end of every test session:
 | Passed | <number> |
 | Failed | <number> |
 | Coverage | XX% |
+ 
+## Test Flow (Mermaid - when applicable)
+<!-- Include for complex integration tests or multi-step test scenarios -->
+```mermaid
+sequenceDiagram
+    participant Test
+    participant API
+    participant DB
+    Test->>API: POST /users
+    API->>DB: INSERT user
+    DB-->>API: Success
+    API-->>Test: 201 Created
+```
  
 ## Tests Created/Updated
 | Type | File | Count | Status |
