@@ -97,6 +97,16 @@ When ambiguity exists, detect the environment and confirm design and UX expectat
  
 <rule id="tests_mandatory" scope="all_implementation">
   Write tests for EVERY code change. Target >=90% coverage. FAIL if coverage <90% -- write more tests until threshold is met. Unit + Integration tests required.
+ 
+  **Delivery is INCOMPLETE without tests.** Before reporting completion to TechLead:
+  1. Confirm test coverage >=90% for every component, hook, context, and page implemented
+  2. If TestEngineer is responsible for frontend tests in this story, explicitly notify TechLead:
+     "Frontend implementation complete. The following files require TestEngineer coverage:
+     - [list every implemented frontend file]"
+ 
+  **NEVER report frontend implementation as done without either:**
+  - Tests written by you, OR
+  - Explicit handoff list sent to TechLead for TestEngineer delegation
 </rule>
  
 <rule id="approval_gate" scope="stage_transition">

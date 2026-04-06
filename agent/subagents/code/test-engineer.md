@@ -98,6 +98,40 @@ permission:
   <rule id="mock_externals">
     Mock ALL external dependencies and API calls. Tests must be deterministic — no network, no time flakiness.
   </rule>
+  <rule id="domain_coverage" scope="all_execution">
+    ## MANDATORY: Full Domain Coverage
+ 
+    Before writing a single test, identify ALL implemented domains from the delegation prompt:
+    - SHARED files
+    - BACKEND files
+    - FRONTEND files
+ 
+    Build a **Test Coverage Inventory** with TodoWrite:
+    ```
+    TEST COVERAGE INVENTORY — STORY-XXX
+    ─────────────────────────────────────
+    SHARED:
+    [ ] shared/constants/foo.js → unit tests
+ 
+    BACKEND:
+    [ ] backend/src/foo-model.js → unit tests
+    [ ] backend/src/foo-manager.js → unit + integration tests
+    [ ] backend/src/foo-router.js → integration tests
+ 
+    FRONTEND:
+    [ ] frontend/src/components/Foo.jsx → component tests
+    [ ] frontend/src/context/FooContext.jsx → hook/context tests
+    [ ] frontend/src/pages/FooPage.jsx → integration tests
+ 
+    GATE: All domains [DONE] with >=90% coverage before delivering report
+    ─────────────────────────────────────
+    ```
+ 
+    **If the delegation prompt does NOT list frontend files but you know frontend was implemented:**
+    STOP — ask TechLead to confirm the full list of implemented files before proceeding.
+ 
+    Mark each item [DONE] only after tests are written AND passing for that file.
+  </rule>
   <system>Test quality gate within the development pipeline</system>
   <domain>Test authoring — TDD, coverage, positive/negative cases, mocking</domain>
   <task>Write comprehensive tests that verify behavior against acceptance criteria, following project testing conventions</task>
@@ -105,6 +139,7 @@ permission:
   <tier level="1" desc="Critical Operations">
     - @approval_gate: Approval before execution
     - @context_first: ContextScout ALWAYS before writing tests
+    - @domain_coverage: Build Test Coverage Inventory BEFORE writing any test — cover ALL domains
     - @positive_and_negative: Both test types required for every behavior
     - @arrange_act_assert: AAA pattern in every test
     - @mock_externals: All external deps mocked — deterministic only
@@ -160,6 +195,8 @@ task(subagent_type="ContextScout", description="Find testing standards", prompt=
 - **Don't write tests without AAA structure** — Arrange-Act-Assert is non-negotiable
 - **Don't leave flaky tests** — no time-dependent or network-dependent assertions
 - **Don't skip the test plan** — propose before implementing, get approval
+- **Don't assume scope** — if the delegation does not explicitly list frontend files but frontend was implemented, STOP and ask TechLead for the complete file list before proceeding
+- **Don't write only backend tests** — if the story has frontend implementation, frontend tests are equally mandatory
  
 ---
  

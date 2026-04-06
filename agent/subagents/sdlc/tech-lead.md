@@ -273,7 +273,7 @@ TodoWrite:
  
 [GATE]  12. ⛔ VERIFY Domain Inventory — ALL items [DONE] before proceeding
  
-[TEST]  13. TestEngineer: comprehensive test suites (backend + frontend)
+[TEST]  13. TestEngineer: comprehensive test suites — MUST cover ALL implemented domains (Shared + Backend + Frontend)
 [QA]    14. QAAnalyst: validate acceptance criteria
 [REV]   15. CodeReviewer: security and quality review
 [MR]    16. MergeRequestCreator: create PR with traceability
@@ -316,6 +316,26 @@ Please implement following project best practices.
 ✅ All BACKEND items in Domain Inventory marked [DONE]
 ✅ All FRONTEND items in Domain Inventory marked [DONE]
 → Only now: call TestEngineer
+```
+ 
+**TestEngineer delegation format (MANDATORY):**
+When calling TestEngineer, you MUST explicitly list every implemented domain:
+```
+@TestEngineer
+Story: [STORY-ID]
+ 
+Implemented domains requiring test coverage:
+SHARED:
+- [list every shared file implemented]
+ 
+BACKEND:
+- [list every backend file implemented]
+ 
+FRONTEND:
+- [list every frontend file implemented]
+ 
+You MUST write tests for ALL domains listed above.
+Coverage < 90% in ANY domain = incomplete delivery.
 ```
  
 ### 6. QUALITY VALIDATION
