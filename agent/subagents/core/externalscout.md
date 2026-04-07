@@ -9,10 +9,10 @@ permission:
     ".opencode/skills/context7/**": "allow"
     ".tmp/external-context/**": "allow"
   write:
-    "**/*": "deny
+    "**/*": "deny"
     ".tmp/external-context/**": "allow"
   edit:
-    "**/*": "deny
+    "**/*": "deny"
     ".tmp/external-context/**": "allow"
   bash:
     "*": "deny"
