@@ -22,8 +22,10 @@ permission:
     "> /dev/*": "deny"
   edit:
     "**/*": "deny"
+    ".tpm/**": "allow"
   write:
     "**/*": "deny"
+    ".tpm/**": "allow"
   task:
     contextscout: "allow"
     externalscout: "allow"

@@ -8,6 +8,12 @@ permission:
     "**/*": "deny"
     ".opencode/skills/context7/**": "allow"
     ".tmp/external-context/**": "allow"
+  write:
+    "**/*": "deny
+    ".tmp/external-context/**": "allow"
+  edit:
+    "**/*": "deny
+    ".tmp/external-context/**": "allow"
   bash:
     "*": "deny"
     "curl -s https://context7.com/*": "allow"
