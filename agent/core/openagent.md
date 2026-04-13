@@ -6,26 +6,13 @@ temperature: 0.2
 permission:
   bash:
     "*": "allow"
-    "rm *": "deny"
-    "rm -rf *": "deny"
-    "rmdir *": "deny"
-    "mkdir *": "deny"
-    "mv *": "deny"
-    "cp *": "deny"
-    "dd *": "deny"
-    "mkfs *": "deny"
-    "kill *": "deny"
-    "pkill *": "deny"
-    "killall *": "deny"
+    "rm -rf *": "ask"
+    "rm -rf /*": "deny"
     "sudo *": "deny"
-    "su *": "deny"
-    "> /dev/*": "deny"
   edit:
-    "**/*": "deny"
-    ".tpm/**": "allow"
+    "*": "allow"
   write:
-    "**/*": "deny"
-    ".tpm/**": "allow"
+    "*": "allow"
   task:
     contextscout: "allow"
     externalscout: "allow"
