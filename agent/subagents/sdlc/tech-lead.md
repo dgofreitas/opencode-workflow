@@ -274,38 +274,20 @@ Review the technical analysis from **Architect** and:
 > **⚠ If the technical analysis mentions any frontend components, pages, contexts, or hooks — they are MANDATORY deliverables of this story. They MUST appear in the Domain Inventory and MUST be delegated before proceeding to tests.**
  
 ### 3. LANGUAGE DETECTION AND AGENT SELECTION
- 
+
 **MANDATORY**: Detect project language from build files before selecting agents.
- 
-| Indicator | Language |
-|-----------|----------|
-| `package.json`, `tsconfig.json` | **Node.js** |
-| `pyproject.toml`, `requirements.txt`, `manage.py` | **Python** |
-| `CMakeLists.txt`, `Makefile`, `meson.build` | **C** |
- 
-**Agent Routing by Language:**
- 
-| Type | Node.js | Python | C |
-|------|---------|--------|---|
-| Backend | BackendDeveloper | BackendDeveloperPython | BackendDeveloperC |
-| Testing | TestEngineer | TestEngineerPython | TestEngineerC |
-| QA | QAAnalyst | QAAnalyst | QAAnalyst |
-| Review | CodeReviewer | CodeReviewerPython | CodeReviewerC |
-| Bug Fix | BugFixerNodejs | BugFixerPython | BugFixerC |
-| Delivery | MergeRequestCreator | MergeRequestCreator | MergeRequestCreator |
- 
-**Frontend Routing by Framework** (detect from `package.json` deps, config files):
- 
-| Indicator | Agent |
-|-----------|-------|
-| `react` in deps, `next.config.*` | FrontendDeveloperReact |
-| `vue` in deps, `nuxt.config.*`, `.vue` files | FrontendDeveloperVue |
-| `angular.json`, `@angular/core` in deps | FrontendDeveloperAngular |
-| None detected / other | FrontendDeveloper (generic) |
- 
-> If the story involves UI work and a `STORY-XXX-ux-spec.md` exists (produced by **UXDesigner** during architect phase), pass it to the frontend developer as reference.
- 
-> **Frontend-Backend Integration**: When delegating frontend work, always include the **integration pattern** from `technical-analysis.md` (Node.js fullstack vs SPA, API client strategy, auth flow, CORS/proxy needs). This ensures the frontend agent uses the correct setup for the detected backend language.
+
+> See `agent/shared/language-detection.md` for language indicators.
+> See `agent/shared/agent-routing.md` for agent routing tables.
+
+**Quick Reference:**
+- Node.js: BackendDeveloper, TestEngineer, CodeReviewer, BugFixerNodejs
+- Python: BackendDeveloperPython, TestEngineerPython, CodeReviewerPython, BugFixerPython
+- C: BackendDeveloperC, TestEngineerC, CodeReviewerC, BugFixerC
+- Frontend: FrontendDeveloperReact/Vue/Angular (detect from deps)
+
+> If UI work and `STORY-XXX-ux-spec.md` exists, pass to frontend developer.
+> Include **integration pattern** from `technical-analysis.md` for frontend-backend integration.
  
 ### 4. TODO LIST
  
