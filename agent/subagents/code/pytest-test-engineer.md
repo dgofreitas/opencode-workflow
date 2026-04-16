@@ -3,7 +3,7 @@ name: PytestTestEngineer
 description: "Specialized pytest testing engineer for unit, integration, E2E, flow, and concurrency tests in Python"
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-4.6
+model: zai-coding-plan/glm-4.7-flashx
 permission:
   bash:
     "*": "allow"

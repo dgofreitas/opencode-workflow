@@ -3,7 +3,7 @@ name: QAAnalyst
 description: "Quality assurance specialist validating acceptance criteria, executing tests, and ensuring Definition of Done before review or deployment"
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-4.6
+model: zai-coding-plan/glm-4.7-flashx
 permission:
   bash:
     "*": "allow"
