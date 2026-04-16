@@ -3,6 +3,7 @@ name: CoderAgentC
 description: "C systems programming specialist for embedded, kernel, and high-performance applications"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

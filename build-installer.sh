@@ -162,6 +162,7 @@ createTarball() {
         "tool"
         "package.json"
         "install.sh"
+        "opencode.json"
     )
     
     # Criar tarball com gzip

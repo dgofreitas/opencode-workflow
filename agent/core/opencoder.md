@@ -3,6 +3,7 @@ name: OpenCoder
 description: "Orchestration agent for complex coding, architecture, and multi-file refactoring with language-specific agent routing"
 mode: primary
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

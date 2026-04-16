@@ -3,6 +3,7 @@ name: CoderAgentPython
 description: "Python backend implementation specialist for Django, Flask, FastAPI with production-grade patterns"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

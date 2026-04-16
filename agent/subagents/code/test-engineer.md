@@ -3,6 +3,7 @@ name: TestEngineer
 description: Test authoring and TDD agent
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

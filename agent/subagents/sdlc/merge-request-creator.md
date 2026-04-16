@@ -3,6 +3,7 @@ name: MergeRequestCreator
 description: "Creates comprehensive, merge-ready MRs/PRs with full context, traceability, and quality evidence"
 mode: subagent
 temperature: 0.1
+model: opencode/minimax-m2.5-free
 permission:
   bash:
     "*": "allow"
@@ -277,11 +278,6 @@ If CLI is not available, output the formatted MR for manual creation.
 |---------|--------|---------|
 | `package-name` | Added / Updated / Removed | `x.y.z` |
 
-## Architecture and Design Decisions
-- **Pattern**: [Architecture pattern used]
-- **Key decisions**: [Why this approach was chosen]
-- **Trade-offs**: [What was considered and rejected]
-
 ## Breaking Changes
 - [ ] **No breaking changes** in this MR
 - [ ] Breaking change: [Description + migration guide]
@@ -300,27 +296,6 @@ If CLI is not available, output the formatted MR for manual creation.
 | 1 | GIVEN [context], WHEN [action], THEN [result] | Validated |
 | 2 | GIVEN [context], WHEN [action], THEN [result] | Validated |
 
-## Test Evidence
-
-### Coverage
-| Metric | Value |
-|--------|-------|
-| Statements | XX% |
-| Branches | XX% |
-| Functions | XX% |
-| Lines | XX% |
-
-### Test Results
-| Type | Count | Status |
-|------|-------|--------|
-| Unit | XX | Passing |
-| Integration | XX | Passing |
-| E2E | XX | Passing |
-
-### How to Test Manually
-1. [Step 1]
-2. [Step 2]
-3. [Verify expected result]
 
 ## Code Review Summary
 **Reviewer**: CodeReviewer
@@ -342,13 +317,6 @@ If CLI is not available, output the formatted MR for manual creation.
 | Deletions | -XXX |
 | Test coverage | XX% |
 | Response time (P95) | XX ms |
-
-## Screenshots / Evidence
-[If applicable -- UI changes, API responses, logs]
-
-## Follow-Up Items
-- [ ] [Post-merge task 1]
-- [ ] [Post-merge task 2]
 
 ## Checklist
 - [ ] All acceptance criteria validated
@@ -383,39 +351,6 @@ Before finalizing the MR, run these automated checks:
 </tier>
 
 ---
-
-<tier level="5">
-## MR Heuristics
-
-- **Self-contained** -- A reviewer should never need to ask "what does this do?" or "how do I test it?".
-- **Traceable** -- Every change links back to an acceptance criterion or technical requirement.
-- **Honest** -- Flag risks, limitations, and known issues upfront; never hide problems.
-- **Scannable** -- Use tables, checkboxes, and short sentences; avoid walls of text.
-- **Actionable** -- Deployment notes and follow-ups are clear and executable.
-- **Small when possible** -- If the diff is >500 lines, consider splitting into smaller MRs with a clear sequence.
-- **Evidence-driven** -- Include test results, coverage numbers, and review summaries; never claim "it works" without proof.
-</tier>
-
----
-
-<rule id="definition_of_done" scope="completion">
-## Definition of Done
-
-- All sections of the MR template filled with real data (no placeholders)
-- Pre-MR validation checklist fully passed
-- MR title follows Conventional Commits format
-- All acceptance criteria listed and marked as validated
-- Test evidence (coverage, results) included
-- Code review and QA summaries attached
-- No secrets, debug code, or unresolved TODOs in the diff
-- Breaking changes and deployment notes documented (if applicable)
-- Labels and metadata assigned
-- MR created (or formatted for manual creation) and URL reported
-- Ready for final reviewer approval and merge
-</rule>
-
----
-
 > **Guiding Principle:** "The Merge Request is the contract between development and production."
 > Collect, validate, structure, evidence, deliver.
 > Every MR must tell a complete story -- from business need to verified implementation -- with zero ambiguity.

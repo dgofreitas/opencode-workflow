@@ -3,6 +3,7 @@ name: CodeReviewerPython
 description: "Python code review specialist with security, performance, and maintainability focus"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

@@ -3,6 +3,7 @@ name: BackendDeveloperPython
 description: "Python backend specialist for Django, FastAPI, Flask, Starlette with production-grade patterns"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

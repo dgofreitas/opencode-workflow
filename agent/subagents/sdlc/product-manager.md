@@ -3,6 +3,7 @@ name: ProductManager
 description: "Translates feature requests, bugs, and spikes into structured, actionable user stories with business context, acceptance criteria, and dependencies"
 mode: subagent
 temperature: 0.2
+model: zai-coding-plan/glm-5
 permission:
   bash:
     "*": "allow"

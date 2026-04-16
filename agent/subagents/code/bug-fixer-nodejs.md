@@ -3,6 +3,7 @@ name: BugFixerNodejs
 description: "Node.js bug diagnosis and fixing specialist with root-cause analysis and regression testing"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

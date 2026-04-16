@@ -3,6 +3,7 @@ name: FrontendDeveloperVue
 description: "Vue.js/Nuxt frontend specialist for components, composables, state management, and UI implementation"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

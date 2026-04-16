@@ -3,6 +3,7 @@ name: TechLead
 description: "Story orchestrator that coordinates specialized agents. NEVER writes code, tests, or docs directly — delegates ALL implementation."
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5
 permission:
   bash:
     "*": "allow"

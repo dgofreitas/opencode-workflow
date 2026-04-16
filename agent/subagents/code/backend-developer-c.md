@@ -3,6 +3,7 @@ name: BackendDeveloperC
 description: "C systems programming specialist for servers, daemons, libraries, and embedded services with memory safety focus"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

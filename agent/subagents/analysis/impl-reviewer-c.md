@@ -3,6 +3,7 @@ name: ImplReviewerC
 description: "Post-implementation reviewer validating C code against technical analysis specifications"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

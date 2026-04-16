@@ -3,6 +3,7 @@ name: CodeAnalyzerC
 description: "C codebase analysis specialist for architecture, memory patterns, and safety analysis"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-4.6
 permission:
   bash:
     "*": "allow"

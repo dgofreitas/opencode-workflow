@@ -3,6 +3,7 @@ name: CodeReviewerC
 description: "C code review specialist focused on memory safety, undefined behavior, and systems-level security"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

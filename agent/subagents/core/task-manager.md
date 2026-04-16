@@ -3,6 +3,7 @@ name: TaskManager
 description: JSON-driven task breakdown specialist transforming complex features into atomic, verifiable subtasks with dependency tracking and CLI integration
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-4.6
 permission:
   bash:
     "*": "deny"

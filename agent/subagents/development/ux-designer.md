@@ -3,6 +3,7 @@ name: UXDesigner
 description: "UX/UI design specialist creating wireframes, component specs, and design system documentation"
 mode: subagent
 temperature: 0.2
+model: zai-coding-plan/glm-4.6
 permission:
   bash:
     "*": "allow"

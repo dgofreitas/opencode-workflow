@@ -3,6 +3,7 @@ name: CoderAgent
 description: Executes coding subtasks in sequence, ensuring completion as specified
 mode: subagent
 temperature: 0
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

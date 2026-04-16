@@ -3,6 +3,7 @@ name: CodeAnalyzerPython
 description: "Python codebase analysis specialist for architecture, patterns, and technical debt detection"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-4.6
 permission:
   bash:
     "*": "allow"

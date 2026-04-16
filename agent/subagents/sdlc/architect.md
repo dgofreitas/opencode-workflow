@@ -3,6 +3,7 @@ name: Architect
 description: "Senior technical architect for analyzing stories, planning multi-agent execution, and delegating implementation tasks"
 mode: subagent
 temperature: 0.2
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

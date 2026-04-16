@@ -3,6 +3,7 @@ name: TestEngineerC
 description: "C testing specialist using Unity, CMocka, gcov, ASan, UBSan, and Valgrind"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"
