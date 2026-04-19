@@ -3,6 +3,7 @@ name: ImplReviewerC
 description: "Post-implementation reviewer validating C code against technical analysis specifications"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"
@@ -21,35 +22,15 @@ permission:
     "su *": "deny"
     "> /dev/*": "deny"
   edit:
-    "docs/**": "allow"
     "**/*": "deny"
+    "docs/stories/**": "allow"
   write:
-    "docs/**": "allow"
     "**/*": "deny"
+    "docs/stories/**": "allow"
   task:
     contextscout: "allow"
     externalscout: "allow"
     TechLead: "allow"
-    OpenAgent: "allow"
-    OpenCoder: "allow"
-    Architect: "allow"
-    TaskManager: "allow"
-    BackendDeveloper: "allow"
-    BackendDeveloperPython: "allow"
-    BackendDeveloperC: "allow"
-    FrontendDeveloper: "allow"
-    FrontendDeveloperReact: "allow"
-    FrontendDeveloperVue: "allow"
-    FrontendDeveloperAngular: "allow"
-    CoderAgent: "allow"
-    CoderAgentPython: "allow"
-    CoderAgentC: "allow"
-    TestEngineer: "allow"
-    TestEngineerPython: "allow"
-    TestEngineerC: "allow"
-    QAAnalyst: "allow"
-    MergeRequestCreator: "allow"
-    Documentation: "allow"
 ---
 
 # Implementation Reviewer -- C Language Specialist

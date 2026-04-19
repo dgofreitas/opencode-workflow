@@ -3,6 +3,7 @@ name: DevopsSpecialist
 description: "DevOps specialist — CI/CD pipelines, infrastructure as code (Docker, Kubernetes, Terraform), deployment automation, and cloud operations"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5
 permission:
   bash:
     "*": "allow"
@@ -19,14 +20,14 @@ permission:
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
-  edit:
+  write:
     "*": "allow"
     "**/*.env*": "deny"
     "**/*.key": "deny"
     "**/*.secret": "deny"
     "node_modules/**": "deny"
     ".git/**": "deny"
-  write:
+  edit:
     "*": "allow"
     "**/*.env*": "deny"
     "**/*.key": "deny"
@@ -36,37 +37,7 @@ permission:
   task:
     contextscout: "allow"
     externalscout: "allow"
-    ShellDeveloper: "allow"
     TechLead: "allow"
-    OpenAgent: "allow"
-    OpenCoder: "allow"
-    BackendDeveloper: "allow"
-    BackendDeveloperPython: "allow"
-    BackendDeveloperC: "allow"
-    FrontendDeveloper: "allow"
-    FrontendDeveloperReact: "allow"
-    FrontendDeveloperVue: "allow"
-    FrontendDeveloperAngular: "allow"
-    CoderAgent: "allow"
-    CoderAgentPython: "allow"
-    CoderAgentC: "allow"
-    BugFixerNodejs: "allow"
-    BugFixerPython: "allow"
-    BugFixerC: "allow"
-    TestEngineer: "allow"
-    TestEngineerPython: "allow"
-    TestEngineerC: "allow"
-    PytestTestEngineer: "allow"
-    CodeReviewer: "allow"
-    CodeReviewerPython: "allow"
-    CodeReviewerC: "allow"
-    ImplReviewerNodejs: "allow"
-    ImplReviewerPython: "allow"
-    ImplReviewerC: "allow"
-    QAAnalyst: "allow"
-    DevopsSpecialist: "allow"
-    UXDesigner: "allow"
-    BuildAgent: "allow"
 ---
 
 # DevopsSpecialist

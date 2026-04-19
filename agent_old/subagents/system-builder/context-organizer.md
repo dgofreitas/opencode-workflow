@@ -3,74 +3,16 @@ name: ContextOrganizer
 description: Organizes and generates context files (domain, processes, standards, templates) for optimal knowledge management
 mode: subagent
 temperature: 0.1
+model: opencode/minimax-m2.5-free
 permission:
-  task:
-    contextscout: "allow"
-    "*": "deny"
   bash:
-    # Read-only / discovery commands (allow)
-    "ls *": "allow"
-    "cat *": "allow"
-    "head *": "allow"
-    "tail *": "allow"
-    "grep *": "allow"
-    "rg *": "allow"
-    "find *": "allow"
-    "fd *": "allow"
-    "wc *": "allow"
-    "tree *": "allow"
-    "file *": "allow"
-    "stat *": "allow"
-    "du *": "allow"
-    "df *": "allow"
-    "which *": "allow"
-    "echo *": "allow"
-    "pwd": "allow"
-    "env": "allow"
-    "printenv *": "allow"
-    # Git read-only (allow)
-    "git status *": "allow"
-    "git log *": "allow"
-    "git diff *": "allow"
-    "git show *": "allow"
-    "git branch *": "allow"
-    "git remote *": "allow"
-    "git rev-parse *": "allow"
-    "git ls-files *": "allow"
-    "git blame *": "allow"
-    # Test runners (allow)
-    "npm test *": "allow"
-    "npm run test *": "allow"
-    "yarn test *": "allow"
-    "pnpm test *": "allow"
-    "bun test *": "allow"
-    "npx vitest *": "allow"
-    "npx jest *": "allow"
-    "pytest *": "allow"
-    "python -m pytest *": "allow"
-    "go test *": "allow"
-    "cargo test *": "allow"
-    "make test *": "allow"
-    # Task management read-only (allow)
-    "bash .opencode/skills/task-management/router.sh status*": "allow"
-    "bash .opencode/skills/task-management/router.sh next*": "allow"
-    "bash .opencode/skills/task-management/router.sh parallel*": "allow"
-    "bash .opencode/skills/task-management/router.sh blocked*": "allow"
-    "bash .opencode/skills/task-management/router.sh deps*": "allow"
-    "bash .opencode/skills/task-management/router.sh validate*": "allow"
-    "node *": "allow"
-    # Destructive commands (deny)
+    "*": "allow"
     "rm *": "deny"
     "rm -rf *": "deny"
     "rmdir *": "deny"
     "mkdir *": "deny"
     "mv *": "deny"
     "cp *": "deny"
-    "touch *": "deny"
-    "chmod *": "deny"
-    "chown *": "deny"
-    "chgrp *": "deny"
-    "truncate *": "deny"
     "dd *": "deny"
     "mkfs *": "deny"
     "kill *": "deny"
@@ -79,15 +21,15 @@ permission:
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
-    "rm -rf /*": "deny"
-    # Everything else needs approval
-    "*": "ask"
   edit:
-    "**/*.env*": "deny"
-    "**/*.key": "deny"
-    "**/*.secret": "deny"
-    "node_modules/**": "deny"
-    ".git/**": "deny"
+    "**/*": "deny"
+    "docs/stories/**": "allow"
+  write:
+    "**/*": "deny"
+    "docs/stories/**": "allow"
+  task:
+    contextscout: "allow"
+    externalscout: "allow"
 ---
 
 # Context Organizer

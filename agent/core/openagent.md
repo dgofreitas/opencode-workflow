@@ -3,7 +3,7 @@ name: OpenAgent
 description: "Universal orchestrator agent for analyzing requests, coordinating workflows, and delegating ALL execution to specialized subagents"
 mode: primary
 temperature: 0.2
-model: zai-coding-plan/glm-5.1
+model: zai-coding-plan/glm-5
 permission:
   bash:
     "*": "allow"

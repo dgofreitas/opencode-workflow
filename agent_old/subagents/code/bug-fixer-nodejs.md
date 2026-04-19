@@ -3,13 +3,13 @@ name: BugFixerNodejs
 description: "Node.js bug diagnosis and fixing specialist with root-cause analysis and regression testing"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"
     "rm *": "deny"
     "rm -rf *": "deny"
     "rmdir *": "deny"
-    "mkdir *": "deny"
     "mv *": "deny"
     "cp *": "deny"
     "dd *": "deny"
@@ -20,14 +20,14 @@ permission:
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
-  edit:
+  write:
     "*": "allow"
     "**/*.env*": "deny"
     "**/*.key": "deny"
     "**/*.secret": "deny"
     "node_modules/**": "deny"
     ".git/**": "deny"
-  write:
+  edit:
     "*": "allow"
     "**/*.env*": "deny"
     "**/*.key": "deny"
@@ -37,37 +37,8 @@ permission:
   task:
     contextscout: "allow"
     externalscout: "allow"
-    ShellDeveloper: "allow"
     TechLead: "allow"
-    OpenAgent: "allow"
-    OpenCoder: "allow"
-    BackendDeveloper: "allow"
-    BackendDeveloperPython: "allow"
-    BackendDeveloperC: "allow"
-    FrontendDeveloper: "allow"
-    FrontendDeveloperReact: "allow"
-    FrontendDeveloperVue: "allow"
-    FrontendDeveloperAngular: "allow"
-    CoderAgent: "allow"
-    CoderAgentPython: "allow"
-    CoderAgentC: "allow"
-    BugFixerNodejs: "allow"
-    BugFixerPython: "allow"
-    BugFixerC: "allow"
-    TestEngineer: "allow"
-    TestEngineerPython: "allow"
-    TestEngineerC: "allow"
-    PytestTestEngineer: "allow"
-    CodeReviewer: "allow"
-    CodeReviewerPython: "allow"
-    CodeReviewerC: "allow"
-    ImplReviewerNodejs: "allow"
-    ImplReviewerPython: "allow"
-    ImplReviewerC: "allow"
-    QAAnalyst: "allow"
-    DevopsSpecialist: "allow"
-    UXDesigner: "allow"
-    BuildAgent: "allow"
+---
 
 # BugFixerNodejs
 

@@ -3,6 +3,7 @@ name: TestEngineerPython
 description: "Python testing specialist using pytest, httpx, pytest-cov, and pytest-asyncio"
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"
@@ -19,14 +20,14 @@ permission:
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
-  edit:
+  write:
     "*": "allow"
     "**/*.env*": "deny"
     "**/*.key": "deny"
     "**/*.secret": "deny"
     "node_modules/**": "deny"
     ".git/**": "deny"
-  write:
+  edit:
     "*": "allow"
     "**/*.env*": "deny"
     "**/*.key": "deny"
@@ -36,37 +37,7 @@ permission:
   task:
     contextscout: "allow"
     externalscout: "allow"
-    ShellDeveloper: "allow"
     TechLead: "allow"
-    OpenAgent: "allow"
-    OpenCoder: "allow"
-    BackendDeveloper: "allow"
-    BackendDeveloperPython: "allow"
-    BackendDeveloperC: "allow"
-    FrontendDeveloper: "allow"
-    FrontendDeveloperReact: "allow"
-    FrontendDeveloperVue: "allow"
-    FrontendDeveloperAngular: "allow"
-    CoderAgent: "allow"
-    CoderAgentPython: "allow"
-    CoderAgentC: "allow"
-    BugFixerNodejs: "allow"
-    BugFixerPython: "allow"
-    BugFixerC: "allow"
-    TestEngineer: "allow"
-    TestEngineerPython: "allow"
-    TestEngineerC: "allow"
-    PytestTestEngineer: "allow"
-    CodeReviewer: "allow"
-    CodeReviewerPython: "allow"
-    CodeReviewerC: "allow"
-    ImplReviewerNodejs: "allow"
-    ImplReviewerPython: "allow"
-    ImplReviewerC: "allow"
-    QAAnalyst: "allow"
-    DevopsSpecialist: "allow"
-    UXDesigner: "allow"
-    BuildAgent: "allow"
 ---
 
 # TestEngineerPython
@@ -99,6 +70,10 @@ permission:
   </rule>
   <rule id="mandatory_report" scope="completion">
     You MUST produce a structured **Test Report** in markdown format at the end of EVERY test session. This report is MANDATORY — tests without a report are considered incomplete. The report provides documentation and visibility that testing was performed.
+  </rule>
+  <rule id="mermaid_diagrams" scope="reporting">
+    **All test reports SHOULD include Mermaid diagrams** when testing complex flows, integration scenarios, or multi-step test sequences.
+    Use flowcharts for test execution flows or sequence diagrams for integration test scenarios.
   </rule>
 
   <system>Python test quality gate within the development pipeline</system>

@@ -3,6 +3,7 @@ name: DocWriter
 description: "Technical documentation specialist — analyzes codebases and produces comprehensive, navigable Markdown with Mermaid diagrams, structured index, and evidence-based content"
 mode: subagent
 temperature: 0.2
+model: zai-coding-plan/glm-4.7-flashx
 permission:
   bash:
     "*": "allow"
@@ -24,14 +25,14 @@ permission:
     "git push -f*": "deny"
     "git push *": "ask"
   edit:
-    "docs/**": "allow"
+    "**/*.md": "allow"
     "**/*.env*": "deny"
     "**/*.key": "deny"
     "**/*.secret": "deny"
     "node_modules/**": "deny"
     ".git/**": "deny"
   write:
-    "docs/**": "allow"
+    "**/*.md": "allow"
     "**/*.env*": "deny"
     "**/*.key": "deny"
     "**/*.secret": "deny"
