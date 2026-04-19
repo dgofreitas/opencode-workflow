@@ -1,6 +1,6 @@
 ---
 name: DocWriter
-description: "Technical documentation specialist — analyzes codebases and produces comprehensive, navigable Markdown with Mermaid diagrams, structured index, and evidence-based content"
+description: "Technical documentation specialist — comprehensive Markdown with Mermaid diagrams."
 mode: subagent
 temperature: 0.2
 model: zai-coding-plan/glm-4.7-flashx

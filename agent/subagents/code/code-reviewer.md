@@ -3,7 +3,6 @@ name: CodeReviewer
 description: Code review, security, and quality assurance agent
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"
@@ -189,6 +188,12 @@ Printing the report in the conversation output alone is **NOT sufficient**. The 
 - [ ] Fix critical issues (delegated agents above)
 - [ ] Address major issues
 - [ ] Consider minor suggestions
+- [ ] Re-submit to CodeReviewer after rework
+- [ ] Run full test suite before re-review
+
+---
+
+`VERDICT: APPROVED`
 <!-- or -->
 `VERDICT: BLOCKED — requires rework`
 ```
