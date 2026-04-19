@@ -6,10 +6,14 @@ temperature: 0.1
 model: zai-coding-plan/glm-4.7-flashx
 permission:
   bash:
-    "*": "deny"
-    "npx ts-node*task-cli*": "allow"
-    "mkdir -p .tmp/**": "allow"
-    "mv .tmp/**": "allow"
+    "*": "allow"
+    "rm -rf *": "deny"
+    "rm -rf /*": "deny"
+    "sudo *": "deny"
+    "su *": "deny"
+    "> /dev/*": "deny"
+    "git push --force*": "deny"
+    "git push -f*": "deny"
   write:
     "*": "deny"
     ".tmp/**": "allow"

@@ -1,55 +1,35 @@
 ---
 name: DocWriter
-description: "Technical documentation specialist — analyzes codebases and produces comprehensive, navigable Markdown with Mermaid diagrams, structured index, and evidence-based content"
+description: "Technical documentation specialist — comprehensive Markdown with Mermaid diagrams."
 mode: subagent
 temperature: 0.2
 model: zai-coding-plan/glm-4.7-flashx
 permission:
   bash:
     "*": "allow"
-    "rm *": "deny"
     "rm -rf *": "deny"
-    "rmdir *": "deny"
-    "mkdir *": "deny"
-    "mv *": "deny"
-    "cp *": "deny"
-    "dd *": "deny"
-    "mkfs *": "deny"
-    "kill *": "deny"
-    "pkill *": "deny"
-    "killall *": "deny"
+    "rm -rf /*": "deny"
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
     "git push --force*": "deny"
     "git push -f*": "deny"
-    "git push *": "ask"
-  edit:
-    "**/*.md": "allow"
+  write:
+    "*": "allow"
     "**/*.env*": "deny"
     "**/*.key": "deny"
     "**/*.secret": "deny"
     "node_modules/**": "deny"
     ".git/**": "deny"
-  write:
-    "**/*.md": "allow"
+  edit:
+    "*": "allow"
     "**/*.env*": "deny"
     "**/*.key": "deny"
     "**/*.secret": "deny"
     "node_modules/**": "deny"
     ".git/**": "deny"
   task:
-    contextscout: "allow"
-    externalscout: "allow"
-    TechLead: "allow"
-    OpenAgent: "allow"
-    QAAnalyst: "allow"
-    CodeReviewer: "allow"
-    CodeReviewerPython: "allow"
-    CodeReviewerC: "allow"
-    ImplReviewerNodejs: "allow"
-    ImplReviewerPython: "allow"
-    ImplReviewerC: "allow"
+    "*": "allow"
 ---
 
 # DocWriter

@@ -5,6 +5,15 @@ mode: subagent
 temperature: 0.1
 model: opencode/minimax-m2.5-free
 permission:
+  bash:
+    "*": "allow"
+    "rm -rf *": "deny"
+    "rm -rf /*": "deny"
+    "sudo *": "deny"
+    "su *": "deny"
+    "> /dev/*": "deny"
+    "git push --force*": "deny"
+    "git push -f*": "deny"
   read:
     "**/*": "deny"
     ".opencode/skills/context7/**": "allow"
@@ -15,15 +24,11 @@ permission:
   edit:
     "**/*": "deny"
     ".tmp/external-context/**": "allow"
-  bash:
-    "*": "deny"
-    "curl -s https://context7.com/*": "allow"
-    "jq *": "allow"
   skill:
     "*": "deny"
     "*context7*": "allow"
   task:
-    "*": "deny"
+    "*": "allow"
 ---
 
 

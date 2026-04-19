@@ -1,24 +1,14 @@
 ---
 name: ImplReviewerNodejs
-description: "Post-implementation reviewer validating Node.js code against technical analysis specifications"
+description: "Post-implementation reviewer validating Node.js code against technical analysis specifications."
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-5.1
-permission:
+model: zai-coding-plan/glm-4.7
 permission:
   bash:
     "*": "allow"
-    "rm *": "deny"
     "rm -rf *": "deny"
-    "rmdir *": "deny"
-    "mkdir *": "deny"
-    "mv *": "deny"
-    "cp *": "deny"
-    "dd *": "deny"
-    "mkfs *": "deny"
-    "kill *": "deny"
-    "pkill *": "deny"
-    "killall *": "deny"
+    "rm -rf /*": "deny"
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
@@ -29,9 +19,7 @@ permission:
     "**/*": "deny"
     "docs/stories/**": "allow"
   task:
-    contextscout: "allow"
-    externalscout: "allow"
-    TechLead: "allow"
+    "*": "allow"
 ---
 
 # Implementation Reviewer -- Node.js Specialist

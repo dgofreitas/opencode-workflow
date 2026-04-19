@@ -1,22 +1,14 @@
 ---
 name: ProductManager
-description: "Translates feature requests, bugs, and spikes into structured, actionable user stories with business context, acceptance criteria, and dependencies"
+description: "Translates feature requests into structured user stories with acceptance criteria."
 mode: subagent
 temperature: 0.2
 model: zai-coding-plan/glm-5
 permission:
   bash:
     "*": "allow"
-    "rm *": "deny"
     "rm -rf *": "deny"
-    "rmdir *": "deny"
-    "mv *": "deny"
-    "cp *": "deny"
-    "dd *": "deny"
-    "mkfs *": "deny"
-    "kill *": "deny"
-    "pkill *": "deny"
-    "killall *": "deny"
+    "rm -rf /*": "deny"
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
@@ -27,20 +19,7 @@ permission:
     "**/*": "deny"
     "docs/stories/**": "allow"
   task:
-    contextscout: "allow"
-    externalscout: "allow"
-    OpenAgent: "allow"
-    OpenCoder: "allow"
-    TaskManager: "allow"
-    Architect: "allow"
-    TechLead: "allow"
-    CodeAnalyzer: "allow"
-    CodeAnalyzerPython: "allow"
-    CodeAnalyzerC: "allow"
-    UXDesigner: "allow"
-    DocWriter: "allow"
-    Documentation: "allow"
-    ContextOrganizer: "allow"
+    "*": "allow"
 ---
 
 <role>

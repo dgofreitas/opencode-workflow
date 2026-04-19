@@ -1,35 +1,35 @@
 ---
 name: UXDesigner
-description: "UX/UI design specialist creating wireframes, component specs, and design system documentation"
+description: "UX/UI design specialist creating wireframes, component specs, and design system documentation."
 mode: subagent
 temperature: 0.2
 model: zai-coding-plan/glm-4.7-flashx
 permission:
   bash:
     "*": "allow"
-    "rm *": "deny"
     "rm -rf *": "deny"
-    "rmdir *": "deny"
-    "mkdir *": "deny"
-    "mv *": "deny"
-    "cp *": "deny"
-    "dd *": "deny"
-    "mkfs *": "deny"
-    "kill *": "deny"
-    "pkill *": "deny"
-    "killall *": "deny"
+    "rm -rf /*": "deny"
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
-  edit:
-    "**/*": "deny"
-    "docs/stories/**": "allow"
+    "git push --force*": "deny"
+    "git push -f*": "deny"
   write:
-    "**/*": "deny"
-    "docs/stories/**": "allow"
+    "*": "allow"
+    "**/*.env*": "deny"
+    "**/*.key": "deny"
+    "**/*.secret": "deny"
+    "node_modules/**": "deny"
+    ".git/**": "deny"
+  edit:
+    "*": "allow"
+    "**/*.env*": "deny"
+    "**/*.key": "deny"
+    "**/*.secret": "deny"
+    "node_modules/**": "deny"
+    ".git/**": "deny"
   task:
-    contextscout: "allow"
-    externalscout: "allow"
+    "*": "allow"
 ---
 
 # UX Designer -- User Experience & Interface Specialist

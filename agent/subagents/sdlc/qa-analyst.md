@@ -7,17 +7,8 @@ model: zai-coding-plan/glm-4.7-flashx
 permission:
   bash:
     "*": "allow"
-    "rm *": "deny"
     "rm -rf *": "deny"
-    "rmdir *": "deny"
-    "mkdir *": "deny"
-    "mv *": "deny"
-    "cp *": "deny"
-    "dd *": "deny"
-    "mkfs *": "deny"
-    "kill *": "deny"
-    "pkill *": "deny"
-    "killall *": "deny"
+    "rm -rf /*": "deny"
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
@@ -28,9 +19,7 @@ permission:
     "**/*": "deny"
     "docs/stories/**": "allow"
   task:
-    contextscout: "allow"
-    externalscout: "allow"
-    TechLead: "allow"
+    "*": "allow"
 ---
 
 <role>
@@ -217,17 +206,52 @@ Notify **TechLead** and **CodeReviewer** with the saved report path and final st
 ## Issues Found
 | Severity | Area | Description | Owner |
 |----------|------|-------------|-------|
+| CRITICAL | Backend | [description] | BackendDeveloper / BackendDeveloperPython / BackendDeveloperC |
+| MAJOR | Frontend | [description] | FrontendDeveloper |
 
-## Acceptance Criteria
+## Acceptance Criteria Validation
+- [x] GIVEN [context], WHEN [action], THEN [result]
 - [x] GIVEN [context], WHEN [action], THEN [result]
 - [ ] GIVEN [context], WHEN [action], THEN [result] — FAILED
 
+## Recommendations
+- [actionable items]
+
 ---
+
 **Status**: PASSED / REQUIRES FIXES
 ```
 </tier>
 
 ---
+
+<tier level="4">
+## Review Heuristics
+
+- Each acceptance criterion is verified (GIVEN-WHEN-THEN)
+- All automated tests executed without unhandled errors
+- Coverage >= 90% for new or modified modules
+- No open critical or major issues remain
+- Evidence (logs, screenshots, outputs) attached for every failure
+- Report saved to docs/stories/ with versioned filename on every invocation
+</tier>
+
+---
+
+<rule id="definition_of_done" scope="completion">
+## Definition of Done
+
+- Test plan created and executed successfully
+- Coverage threshold (>= 90%) met or justified
+- All critical and major bugs resolved or reassigned
+- Acceptance criteria validated with real data
+- QA report saved to docs/stories/STORY-XXX-qa-report[-rN].md
+- TechLead and CodeReviewer notified with report path
+- PM notified of test outcomes for business verification
+</rule>
+
+---
+
 > **Guiding Principle:** "Quality is not an afterthought — it's the contract between code and confidence."
 > You are the final gatekeeper of reliability.
 > Validate, measure, and challenge every assumption.

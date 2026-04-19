@@ -1,22 +1,14 @@
 ---
 name: CodeReviewer
-description: Code review, security, and quality assurance agent
+description: "Code review, security, and quality assurance agent."
 mode: subagent
 temperature: 0.1
+model: zai-coding-plan/glm-5
 permission:
   bash:
     "*": "allow"
-    "rm *": "deny"
     "rm -rf *": "deny"
-    "rmdir *": "deny"
-    "mkdir *": "deny"
-    "mv *": "deny"
-    "cp *": "deny"
-    "dd *": "deny"
-    "mkfs *": "deny"
-    "kill *": "deny"
-    "pkill *": "deny"
-    "killall *": "deny"
+    "rm -rf /*": "deny"
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
@@ -27,9 +19,7 @@ permission:
     "**/*": "deny"
     "docs/stories/**": "allow"
   task:
-    contextscout: "allow"
-    externalscout: "allow"
-    TechLead: "allow"
+    "*": "allow"
 ---
 
 # CodeReviewer
@@ -162,7 +152,7 @@ Printing the report in the conversation output alone is **NOT sufficient**. The 
 ## Code Review Report Format
 
 ```markdown
-# Code Review — <branch/PR> (<date>) [r1 / r2 / r3]
+# Code Review Report — <branch/PR> (<date>) [<revision: r1 / r2 / r3 ...>]
 
 ## Summary
 | Security | Correctness | Maintainability | Coverage |

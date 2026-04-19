@@ -1,23 +1,14 @@
 ---
 name: CodeAnalyzer
-description: "Node.js codebase analysis specialist for architecture, patterns, and technical debt detection"
+description: "Node.js codebase analysis specialist for architecture, patterns, and technical debt detection."
 mode: subagent
 temperature: 0.1
 model: zai-coding-plan/glm-4.7
 permission:
   bash:
     "*": "allow"
-    "rm *": "deny"
     "rm -rf *": "deny"
-    "rmdir *": "deny"
-    "mkdir *": "deny"
-    "mv *": "deny"
-    "cp *": "deny"
-    "dd *": "deny"
-    "mkfs *": "deny"
-    "kill *": "deny"
-    "pkill *": "deny"
-    "killall *": "deny"
+    "rm -rf /*": "deny"
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
@@ -28,9 +19,7 @@ permission:
     "**/*": "deny"
     "docs/stories/**": "allow"
   task:
-    contextscout: "allow"
-    externalscout: "allow"
-    TechLead: "allow"
+    "*": "allow"
 ---
 
 # Code Analyzer -- Codebase Intelligence Specialist

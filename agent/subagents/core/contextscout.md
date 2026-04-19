@@ -5,21 +5,26 @@ mode: subagent
 temperature: 0.1
 model: opencode/minimax-m2.5-free
 permission:
-  read:
+  bash:
     "*": "allow"
   grep:
     "*": "allow"
   glob:
     "*": "allow"
   bash:
-    "*": "deny"
+    "rm -rf *": "deny"
+    "rm -rf /*": "deny"
+    "sudo *": "deny"
+    "su *": "deny"
+    "> /dev/*": "deny"
   edit:
-    "*": "deny"
+    "**/*": "deny"
+    "docs/stories/**": "allow"
   write:
-    "*": "deny"
+    "**/*": "deny"
+    "docs/stories/**": "allow"
   task:
-    "*": "deny"
-
+    "*": "allow"
 ---
 
 # ContextScout

@@ -1,25 +1,19 @@
 ---
 name: TestEngineer
-description: Test authoring and TDD agent
+description: "Test authoring and TDD agent for comprehensive test coverage."
 mode: subagent
 temperature: 0.1
 model: zai-coding-plan/glm-4.7
 permission:
   bash:
     "*": "allow"
-    "rm *": "deny"
     "rm -rf *": "deny"
-    "rmdir *": "deny"
-    "mv *": "deny"
-    "cp *": "deny"
-    "dd *": "deny"
-    "mkfs *": "deny"
-    "kill *": "deny"
-    "pkill *": "deny"
-    "killall *": "deny"
+    "rm -rf /*": "deny"
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
+    "git push --force*": "deny"
+    "git push -f*": "deny"
   write:
     "*": "allow"
     "**/*.env*": "deny"
@@ -35,9 +29,7 @@ permission:
     "node_modules/**": "deny"
     ".git/**": "deny"
   task:
-    contextscout: "allow"
-    externalscout: "allow"
-    TechLead: "allow"
+    "*": "allow"
 ---
 
 # TestEngineer
