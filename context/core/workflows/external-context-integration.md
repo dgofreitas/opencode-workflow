@@ -112,7 +112,7 @@ Main Agent
 ### Stage 6: Subagents Read External Context
 
 ```
-TaskManager / CoderAgent / TestEngineer
+TaskManager / BackendDeveloper / TestEngineer
   ↓
   1. Read session context file
   ↓
@@ -303,9 +303,9 @@ TaskManager creates subtask JSONs like:
 }
 ```
 
-### Step 6: CoderAgent Implements Using External Context
+### Step 6: BackendDeveloper Implements Using External Context
 
-CoderAgent reads subtask JSON and:
+BackendDeveloper reads subtask JSON and:
 
 1. Loads context_files (standards)
 2. Reads reference_files (existing code)
@@ -361,7 +361,7 @@ CoderAgent reads subtask JSON and:
 - Mix external_context with context_files
 - Assume subagents will re-fetch
 
-### For Subagents (CoderAgent, TestEngineer, etc.)
+### For Subagents (BackendDeveloper, TestEngineer, etc.)
 
 ✅ **DO**:
 - Read external_context files from subtask JSON

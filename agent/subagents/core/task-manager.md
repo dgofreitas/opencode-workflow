@@ -3,7 +3,7 @@ name: TaskManager
 description: JSON-driven task breakdown specialist transforming complex features into atomic, verifiable subtasks with dependency tracking and CLI integration
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-4.7-flashx
+model: zai-coding-plan/glm-4.7-flash
 permission:
   bash:
     "*": "allow"
@@ -280,7 +280,7 @@ WHY THIS MATTERS:
               Agents MUST support both formats. Mix-and-match is allowed in the same array.
  
               **AGENT FIELD SEMANTICS**:
-             - `suggested_agent`: Recommendation from TaskManager during planning (e.g., "CoderAgent", "TestEngineer")
+             - `suggested_agent`: Recommendation from TaskManager during planning (e.g., "BackendDeveloper", "TestEngineer")
              - `agent_id`: Set by the working agent when task moves to `in_progress` (tracks who is actually working on it)
              - These are separate fields: suggestion vs. assignment
  
@@ -599,7 +599,7 @@ Before any status update or file modification:
         }
       ],
       "reference_files": ["src/config/jwt.config.ts"],
-      "suggested_agent": "CoderAgent",
+      "suggested_agent": "BackendDeveloper",
       "acceptance_criteria": [
         "JWT tokens signed with RS256 algorithm",
         "Access tokens expire in 15 minutes",

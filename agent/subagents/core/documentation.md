@@ -3,7 +3,7 @@ name: DocWriter
 description: "Technical documentation specialist — comprehensive Markdown with Mermaid diagrams."
 mode: subagent
 temperature: 0.2
-model: zai-coding-plan/glm-4.7-flashx
+model: zai-coding-plan/glm-4.7-flash
 permission:
   bash:
     "*": "allow"

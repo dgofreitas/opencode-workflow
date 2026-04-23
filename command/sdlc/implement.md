@@ -23,7 +23,7 @@ Delegates to **TechLead** to coordinate the full implementation of a story, mana
    - Read the PM story and technical analysis
    - Detect project stack and route to language-specific agents
    - Execute implementation batches:
-     - Delegate to BackendDeveloper/CoderAgent variants for implementation
+     - Delegate to BackendDeveloper variants for implementation
      - Delegate to FrontendDeveloper variants for UI work
      - Delegate to TestEngineer variants for test creation
      - Delegate to CodeReviewer variants for quality review

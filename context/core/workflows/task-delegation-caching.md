@@ -85,7 +85,7 @@ session_id = "2026-01-28-parallel-tests"
 
 // Task 1: Write component A (parallel)
 task(
-  subagent_type="CoderAgent",
+  subagent_type="BackendDeveloper",
   description="Write component A",
   prompt="Load context from .tmp/sessions/{session_id}/context.md
           Use cached context if available at .cache/"
@@ -93,7 +93,7 @@ task(
 
 // Task 2: Write component B (parallel)  
 task(
-  subagent_type="CoderAgent",
+  subagent_type="BackendDeveloper",
   description="Write component B",
   prompt="Load context from .tmp/sessions/{session_id}/context.md
           Use cached context if available at .cache/"

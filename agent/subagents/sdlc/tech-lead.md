@@ -74,14 +74,14 @@ After reading the technical analysis, you MUST build an explicit **Domain Invent
 DOMAIN INVENTORY — STORY-XXX
 ─────────────────────────────────────────────
 SHARED:
-[ ] shared/constants/... → CoderAgent
+[ ] shared/constants/... → BackendDeveloper
  
 BACKEND:
-[ ] model/schema files   → CoderAgent (language-specific)
-[ ] dao/repository files → CoderAgent
-[ ] manager/service files → CoderAgent
-[ ] router/controller files → CoderAgent
-[ ] middleware files      → CoderAgent
+[ ] model/schema files   → BackendDeveloper (language-specific)
+[ ] dao/repository files → BackendDeveloper
+[ ] manager/service files → BackendDeveloper
+[ ] router/controller files → BackendDeveloper
+[ ] middleware files      → BackendDeveloper
  
 FRONTEND:
 [ ] context/state files  → FrontendDeveloperReact (or Vue/Angular)
@@ -324,7 +324,7 @@ Please implement following project best practices.
  
 **Parallel:** Backend + Frontend can run concurrently IF they are independent (no shared runtime dependency). Start both in the same step — do NOT wait for backend to finish before delegating frontend.
  
-> **⚠ CRITICAL**: If the story has both backend and frontend tasks, you MUST delegate to both CoderAgent AND FrontendDeveloper in the same delegation step. Finishing backend first and moving to tests WITHOUT delegating frontend is a VIOLATION of this process.
+> **⚠ CRITICAL**: If the story has both backend and frontend tasks, you MUST delegate to both BackendDeveloper AND FrontendDeveloper in the same delegation step. Finishing backend first and moving to tests WITHOUT delegating frontend is a VIOLATION of this process.
  
 **Sequential:** All implementation domains (Shared → Backend + Frontend in parallel) → Testing → QA → Review → MR.
  
@@ -460,7 +460,7 @@ Implements: STORY-XXX"
 ## Never Do
  
 1. **NEVER write, edit, or create any code, test, config, or documentation file directly** — this is an ABSOLUTE prohibition with ZERO exceptions
-2. **NEVER implement a fix yourself**, even if it is a single line — always delegate to CoderAgent/BackendDeveloper/BugFixer
+2. **NEVER implement a fix yourself**, even if it is a single line — always delegate to BackendDeveloper/BugFixer
 3. **NEVER create or edit test files** — always delegate to TestEngineer
 4. **NEVER create or edit documentation** — always delegate to DocWriter or MergeRequestCreator
 5. **NEVER call TestEngineer before ALL domains in the Domain Inventory are marked [DONE]** — backend completion alone is NOT sufficient if the story has frontend tasks

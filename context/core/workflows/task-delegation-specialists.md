@@ -96,7 +96,7 @@ task(
 
 ---
 
-## CoderAgent - Focused Implementation
+## BackendDeveloper - Focused Implementation
 
 **✅ DELEGATE when:**
 - Implementing atomic subtasks from TaskManager
@@ -104,14 +104,14 @@ task(
 - Following specific implementation specs
 
 **Language routing:**
-- Node.js/TypeScript → `CoderAgent`
+- Node.js/TypeScript → `BackendDeveloper`
 - Python → `CoderAgentPython`
 - C → `CoderAgentC`
 
 **Delegation pattern:**
 ```javascript
 task(
-  subagent_type="CoderAgent",
+  subagent_type="BackendDeveloper",
   description="Implement {subtask}",
   prompt="Load context via ContextScout.
 
@@ -160,8 +160,8 @@ task(
 | React component | FrontendDeveloperReact | Framework-specific patterns |
 | Test suite for auth | TestEngineer | Comprehensive coverage |
 | Security review | CodeReviewer | Security focus |
-| Single API endpoint | CoderAgent | Focused implementation |
-| Complex multi-file feature | TaskManager → CoderAgent | Breakdown then implement |
+| Single API endpoint | BackendDeveloper | Focused implementation |
+| Complex multi-file feature | TaskManager → BackendDeveloper | Breakdown then implement |
 | Django API | BackendDeveloperPython | Python backend patterns |
 | Memory leak in C | BugFixerC | C-specific debugging |
 

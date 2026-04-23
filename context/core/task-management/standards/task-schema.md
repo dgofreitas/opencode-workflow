@@ -56,7 +56,7 @@ Enhanced fields (line-number precision, domain modeling, contracts) can be added
 | `parallel` | bool | No | True if can run alongside others |
 | `context_files` | array | No | **Standards paths only** — conventions and patterns to follow |
 | `reference_files` | array | No | **Source material only** — existing files to reference |
-| `suggested_agent` | string | No | Recommended agent for this task (e.g., FrontendDeveloperReact, CoderAgent, TestEngineer) |
+| `suggested_agent` | string | No | Recommended agent for this task (e.g., FrontendDeveloperReact, BackendDeveloper, TestEngineer) |
 | `acceptance_criteria` | array | No | Binary pass/fail conditions |
 | `deliverables` | array | No | Files to create/modify |
 | `agent_id` | string | No | Set when in_progress |

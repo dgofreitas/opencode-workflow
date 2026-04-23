@@ -67,7 +67,7 @@ permission:
 
   **`VERDICT: BLOCKED — requires rework`** — one or more Critical or Major issues found.
   When BLOCKED, you MUST include a **Rework Delegation** section listing:
-  - The exact agent responsible for each fix (CoderAgent, BackendDeveloper, FrontendDeveloperReact, etc.)
+  - The exact agent responsible for each fix (BackendDeveloper, FrontendDeveloperReact, etc.)
   - The specific issue each agent must resolve
   - The file and line number of each issue
 

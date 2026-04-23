@@ -125,7 +125,7 @@ task(
 | Agent | Reads | Does |
 |-------|-------|------|
 | **TaskManager** | `context.md` (full) | Extracts files, creates subtask JSONs |
-| **CoderAgent** | subtask JSON | Loads standards, references source, implements |
+| **BackendDeveloper** | subtask JSON | Loads standards, references source, implements |
 | **TestEngineer** | session path | Writes tests against same standards |
 | **CodeReviewer** | session path | Reviews against applied standards |
 

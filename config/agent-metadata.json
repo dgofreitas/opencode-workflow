@@ -92,47 +92,6 @@
         "subagent:contextscout"
       ]
     },
-    "coder-agent": {
-      "id": "coder-agent",
-      "name": "CoderAgent",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["coding", "implementation", "nodejs", "typescript"],
-      "dependencies": [
-        "subagent:contextscout",
-        "subagent:externalscout"
-      ]
-    },
-    "coder-agent-python": {
-      "id": "coder-agent-python",
-      "name": "CoderAgentPython",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["coding", "implementation", "python", "django", "fastapi", "flask"],
-      "dependencies": [
-        "subagent:contextscout",
-        "subagent:externalscout",
-        "subagent:test-engineer-python"
-      ]
-    },
-    "coder-agent-c": {
-      "id": "coder-agent-c",
-      "name": "CoderAgentC",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["coding", "implementation", "c", "systems", "embedded"],
-      "dependencies": [
-        "subagent:contextscout",
-        "subagent:externalscout",
-        "subagent:test-engineer-c"
-      ]
-    },
     "backend-developer": {
       "id": "backend-developer",
       "name": "BackendDeveloper",
@@ -147,34 +106,6 @@
         "subagent:test-engineer"
       ]
     },
-    "backend-developer-python": {
-      "id": "backend-developer-python",
-      "name": "BackendDeveloperPython",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["backend", "python", "django", "fastapi", "flask", "starlette"],
-      "dependencies": [
-        "subagent:contextscout",
-        "subagent:externalscout",
-        "subagent:test-engineer-python"
-      ]
-    },
-    "backend-developer-c": {
-      "id": "backend-developer-c",
-      "name": "BackendDeveloperC",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["backend", "c", "systems", "posix", "embedded"],
-      "dependencies": [
-        "subagent:contextscout",
-        "subagent:externalscout",
-        "subagent:test-engineer-c"
-      ]
-    },
     "test-engineer": {
       "id": "test-engineer",
       "name": "TestEngineer",
@@ -187,43 +118,6 @@
         "subagent:contextscout"
       ]
     },
-    "test-engineer-python": {
-      "id": "test-engineer-python",
-      "name": "TestEngineerPython",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["testing", "pytest", "python", "tdd"],
-      "dependencies": [
-        "subagent:contextscout"
-      ]
-    },
-    "test-engineer-c": {
-      "id": "test-engineer-c",
-      "name": "TestEngineerC",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["testing", "c", "unity", "cmocka", "sanitizers"],
-      "dependencies": [
-        "subagent:contextscout"
-      ]
-    },
-    "pytest-test-engineer": {
-      "id": "pytest-test-engineer",
-      "name": "PytestTestEngineer",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["testing", "pytest", "python", "concurrency", "e2e", "integration"],
-      "dependencies": [
-        "subagent:contextscout",
-        "subagent:externalscout"
-      ]
-    },
     "code-reviewer": {
       "id": "code-reviewer",
       "name": "CodeReviewer",
@@ -232,30 +126,6 @@
       "version": "1.0.0",
       "author": "opencode",
       "tags": ["review", "security", "quality", "nodejs"],
-      "dependencies": [
-        "subagent:contextscout"
-      ]
-    },
-    "code-reviewer-python": {
-      "id": "code-reviewer-python",
-      "name": "CodeReviewerPython",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["review", "security", "quality", "python", "ruff", "mypy"],
-      "dependencies": [
-        "subagent:contextscout"
-      ]
-    },
-    "code-reviewer-c": {
-      "id": "code-reviewer-c",
-      "name": "CodeReviewerC",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["review", "security", "quality", "c", "memory-safety"],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -285,32 +155,6 @@
         "subagent:externalscout"
       ]
     },
-    "bug-fixer-python": {
-      "id": "bug-fixer-python",
-      "name": "BugFixerPython",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["bugfix", "debugging", "python", "rca"],
-      "dependencies": [
-        "subagent:contextscout",
-        "subagent:externalscout"
-      ]
-    },
-    "bug-fixer-c": {
-      "id": "bug-fixer-c",
-      "name": "BugFixerC",
-      "category": "subagents/code",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["bugfix", "debugging", "c", "memory", "rca"],
-      "dependencies": [
-        "subagent:contextscout",
-        "subagent:externalscout"
-      ]
-    },
     "code-analyzer": {
       "id": "code-analyzer",
       "name": "CodeAnalyzer",
@@ -323,30 +167,6 @@
         "subagent:contextscout"
       ]
     },
-    "code-analyzer-python": {
-      "id": "code-analyzer-python",
-      "name": "CodeAnalyzerPython",
-      "category": "subagents/analysis",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["analysis", "architecture", "patterns", "python"],
-      "dependencies": [
-        "subagent:contextscout"
-      ]
-    },
-    "code-analyzer-c": {
-      "id": "code-analyzer-c",
-      "name": "CodeAnalyzerC",
-      "category": "subagents/analysis",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["analysis", "architecture", "patterns", "c", "memory"],
-      "dependencies": [
-        "subagent:contextscout"
-      ]
-    },
     "impl-reviewer-nodejs": {
       "id": "impl-reviewer-nodejs",
       "name": "ImplReviewerNodejs",
@@ -355,30 +175,6 @@
       "version": "1.0.0",
       "author": "opencode",
       "tags": ["review", "implementation", "validation", "nodejs"],
-      "dependencies": [
-        "subagent:contextscout"
-      ]
-    },
-    "impl-reviewer-python": {
-      "id": "impl-reviewer-python",
-      "name": "ImplReviewerPython",
-      "category": "subagents/analysis",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["review", "implementation", "validation", "python"],
-      "dependencies": [
-        "subagent:contextscout"
-      ]
-    },
-    "impl-reviewer-c": {
-      "id": "impl-reviewer-c",
-      "name": "ImplReviewerC",
-      "category": "subagents/analysis",
-      "type": "subagent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["review", "implementation", "validation", "c", "memory-safety"],
       "dependencies": [
         "subagent:contextscout"
       ]
