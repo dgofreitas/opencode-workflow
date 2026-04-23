@@ -1,13 +1,18 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "zai-coding-plan/glm-4.7-flashx",
+  "model": "zai-coding-plan/glm-4.7-flash",
   "default_agent": "OpenAgent",
+  "agent": {
+    "general": {
+      "model": "zai-coding-plan/glm-4.7-flash"
+    }
+  },
   "permission": {
     "bash": {
       "*": "allow",
-      "rm *": "deny",
+      "rm *": "ask",
       "rm -rf *": "deny",
-      "rmdir *": "deny",
+      "rmdir *": "ask",
       "dd *": "deny",
       "mkfs *": "deny",
       "kill *": "deny",
