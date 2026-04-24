@@ -22,6 +22,7 @@
       "su *": "deny"
     },
     "edit": "allow",
-    "write": "allow"
+    "write": "allow",
+    "skill": "allow"
   }
 }
