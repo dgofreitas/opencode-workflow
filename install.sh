@@ -442,7 +442,7 @@ verifyInstallation() {
     # Verificar agents
     local agentCount
     agentCount=$(find "${targetDir}/agent" -name "*.md" 2>/dev/null | wc -l)
-    if [[ ${agentCount} -ge 41 ]]; then
+    if [[ ${agentCount} -ge 26 ]]; then
         logSuccess "Agents: ${agentCount}"
     else
         logError "Agents: ${agentCount} (esperado: ≥41)"

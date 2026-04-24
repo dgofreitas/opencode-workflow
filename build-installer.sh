@@ -125,6 +125,8 @@ validateSourceFiles() {
         "skills"
         "tool"
         "package.json"
+        "opencode.json"
+        "instructions.md"
         "install.sh"
     )
     
@@ -161,8 +163,9 @@ createTarball() {
         "skills"
         "tool"
         "package.json"
-        "install.sh"
         "opencode.json"
+        "instructions.md"
+        "install.sh"
     )
     
     # Criar tarball com gzip
