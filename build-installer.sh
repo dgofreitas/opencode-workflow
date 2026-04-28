@@ -29,6 +29,20 @@ readonly NC='\033[0m'
 # Variáveis
 OUTPUT_FILE="${OUTPUT_DEFAULT}"
 
+# Lista de itens obrigatórios para o bundle
+readonly WORKFLOW_REQUIRED_ITEMS=(
+    "agent"
+    "command"
+    "config"
+    "context"
+    "skills"
+    "tool"
+    "package.json"
+    "opencode.json"
+    "instructions.md"
+    "install.sh"
+)
+
 # ==============================================================================
 # FUNÇÕES DE LOG
 # ==============================================================================
@@ -117,18 +131,7 @@ parseArguments() {
 validateSourceFiles() {
     logStep "Validando arquivos fonte..."
     
-    local -a requiredItems=(
-        "agent"
-        "command"
-        "config"
-        "context"
-        "skills"
-        "tool"
-        "package.json"
-        "opencode.json"
-        "instructions.md"
-        "install.sh"
-    )
+    local -a requiredItems=("${WORKFLOW_REQUIRED_ITEMS[@]}")
     
     local missing=0
     
@@ -154,19 +157,8 @@ createTarball() {
     
     logStep "Criando tarball..."
     
-    # Criar lista de itens para incluir (incluindo install.sh)
-    local -a items=(
-        "agent"
-        "command"
-        "config"
-        "context"
-        "skills"
-        "tool"
-        "package.json"
-        "opencode.json"
-        "instructions.md"
-        "install.sh"
-    )
+    # Usar a lista global de itens
+    local -a items=("${WORKFLOW_REQUIRED_ITEMS[@]}")
     
     # Criar tarball com gzip
     tar -czf "${tarballPath}" -C "${SCRIPT_DIR}" "${items[@]}"
