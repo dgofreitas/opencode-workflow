@@ -218,7 +218,7 @@ opencode --agent OpenAgent
 # Pipeline: PM → ⏸️#1 → Architect → ⏸️#2 → TechLead(impl→test→QA→review→MR) → ⏸️#3
 ```
 
-### Exemplo 2: Bug em Produção
+### Exemplo 2: Bug em Backend Node.js
 
 ```bash
 opencode --agent OpenCoder
