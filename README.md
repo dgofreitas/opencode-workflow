@@ -1,10 +1,10 @@
 # New OpenCode Workflow
 
-A comprehensive AI agent workflow system for [OpenCode](https://opencode.ai) that combines the OpenCode plugin architecture with a full SDLC multi-agent pipeline. Built by merging the agent roster from `windsurf-workflow/` into the `opencode-workflow/` infrastructure.
+A comprehensive AI agent workflow system for [OpenCode](https://opencode.ai) that combines the OpenCode plugin architecture with a full SDLC multi-agent pipeline. Optimized for **Node.js/TypeScript** development.
 
 ## Overview
 
-This workflow provides **41 specialized agents** covering the entire software development lifecycle, with language-specific variants for **Node.js/TypeScript**, **Python**, and **C**.
+This workflow provides **26 specialized agents** covering the entire software development lifecycle for Node.js projects.
 
 ### SDLC Pipeline
 
@@ -19,21 +19,18 @@ This workflow provides **41 specialized agents** covering the entire software de
 |----------|--------|-------------|
 | **Core** (2) | OpenAgent, OpenCoder | Primary orchestration agents |
 | **SDLC** (5) | ProductManager, Architect, TechLead, QAAnalyst, MergeRequestCreator | Full lifecycle pipeline |
-| **Code** (16) | CoderAgent, BackendDeveloper, TestEngineer, CodeReviewer, BugFixer, BuildAgent (+ Python/C variants) | Implementation, testing, review |
-| **Analysis** (6) | CodeAnalyzer, ImplReviewer (+ Python/C/Node.js variants) | Pre-planning and post-implementation review |
-| **Development** (6) | FrontendDeveloper, FrontendDeveloperReact/Vue/Angular, ShellDeveloper, UXDesigner | Frontend and scripting |
-| **Core Subagents** (4) | ContextScout, ExternalScout, TaskManager, DocWriter | Context discovery, docs, task management |
+| **Code** (5) | BackendDeveloper, TestEngineer, CodeReviewer, BugFixerNodejs, BuildAgent | Implementation, testing, review |
+| **Analysis** (2) | CodeAnalyzer, ImplReviewerNodejs | Pre-planning and post-implementation review |
+| **Development** (7) | FrontendDeveloper, FrontendDeveloperReact/Vue/Angular, ShellDeveloper, UXDesigner, DevOpsSpecialist | Frontend, design and infra |
+| **Core Subagents** (4) | ContextScout, ExternalScout, TaskManager, Documentation | Context discovery, docs, task management |
 | **System** (1) | ContextOrganizer | Knowledge management |
 
-### Language-Specific Routing
+### Node.js Focus
 
-The system automatically detects project language and routes to the appropriate agent:
-
-| Detection | Language | Agents Used |
-|-----------|----------|-------------|
-| `package.json`, `tsconfig.json` | Node.js/TS | CoderAgent, TestEngineer, CodeReviewer, BackendDeveloper, BugFixerNodejs |
-| `pyproject.toml`, `requirements.txt` | Python | CoderAgentPython, TestEngineerPython, CodeReviewerPython, BackendDeveloperPython, BugFixerPython |
-| `CMakeLists.txt`, `Makefile` | C | CoderAgentC, TestEngineerC, CodeReviewerC, BackendDeveloperC, BugFixerC |
+The system is optimized for projects using:
+- **TypeScript / JavaScript**
+- **React, Vue, Angular**
+- **Node.js (Backend)**
 
 ## Directory Structure
 
@@ -53,7 +50,7 @@ new-opencode-workflow/
     sdlc/                    # /story, /plan, /implement, /review, /qa, /mr, /bugfix, /analyze
     commit.md, test.md, ...  # Generic commands
   config/
-    agent-metadata.json      # Registry of all 41 agents
+    agent-metadata.json      # Registry of all 26 agents
   context/
     core/                    # Standards, workflows, context system
     development/             # Language-specific development guides
