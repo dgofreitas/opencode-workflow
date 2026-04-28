@@ -3,7 +3,7 @@ name: CodeReviewer
 description: "Code review, security, and quality assurance agent."
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-5
+model: zai-coding-plan/glm-4.7
 permission:
   bash:
     "*": "allow"

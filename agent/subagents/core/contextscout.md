@@ -3,20 +3,19 @@ name: ContextScout
 description: Discovers and recommends context files from .opencode/context/ ranked by priority. Suggests ExternalScout when a framework/library is mentioned but not found internally.
 mode: subagent
 temperature: 0.1
-model: opencode/minimax-m2.5-free
+model: openrouter/minimax/minimax-m2.5:free
 permission:
   bash:
     "*": "allow"
-  grep:
-    "*": "allow"
-  glob:
-    "*": "allow"
-  bash:
     "rm -rf *": "deny"
     "rm -rf /*": "deny"
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
+  grep:
+    "*": "allow"
+  glob:
+    "*": "allow"
   edit:
     "**/*": "deny"
     "docs/stories/**": "allow"

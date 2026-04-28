@@ -3,7 +3,7 @@ name: MergeRequestCreator
 description: "Creates comprehensive, merge-ready MRs/PRs with full context, traceability, and quality evidence"
 mode: subagent
 temperature: 0.1
-model: opencode/minimax-m2.5-free
+model: openrouter/minimax/minimax-m2.5:free
 permission:
   bash:
     "*": "allow"

@@ -3,7 +3,7 @@ name: FrontendDeveloperAngular
 description: "Angular frontend specialist for components, services, RxJS, and enterprise UI patterns"
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-5.1
+model: zai-coding-plan/glm-4.7
 permission:
   bash:
     "*": "allow"

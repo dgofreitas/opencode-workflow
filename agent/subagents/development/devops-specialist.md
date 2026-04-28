@@ -3,7 +3,7 @@ name: DevopsSpecialist
 description: "DevOps specialist for CI/CD pipelines, infrastructure as code, and deployment automation."
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-5
+model: zai-coding-plan/glm-4.7
 permission:
   bash:
     "*": "allow"

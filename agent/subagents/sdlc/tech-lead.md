@@ -2,8 +2,8 @@
 name: TechLead
 description: "Execution coordinator orchestrating the full story cycle: impl, test, QA, review, MR.NEVER writes code."
 mode: subagent
-temperature: 0.2
-model: zai-coding-plan/glm-5
+temperature: 0.4
+model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

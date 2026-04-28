@@ -13,10 +13,10 @@ readonly AGENT_DIR="${ROOT_DIR}/agent"
 readonly CONFIG_FILE="${ROOT_DIR}/opencode.json"
 
 readonly -a MODELS=(
-    "opencode/minimax-m2.5-free"
-    "zai-coding-plan/glm-4.7-flash"
+    "openrouter/nvidia/nemotron-3-super-120b-a12b:free"
+    "openrouter/minimax/minimax-m2.5:free"
     "zai-coding-plan/glm-4.7"
-    "zai-coding-plan/glm-5"
+    "zai-coding-plan/glm-4.7"
     "zai-coding-plan/glm-5.1"
 )
 
