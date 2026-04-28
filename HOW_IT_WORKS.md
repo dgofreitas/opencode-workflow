@@ -169,7 +169,7 @@ command/
 **Conteúdo:**
 ```
 config/
-└── agent-metadata.json      # Registry de 41 agentes
+└── agent-metadata.json      # Registry de 26 agentes
 ```
 
 **Campos do metadata:**
@@ -698,15 +698,11 @@ graph TD
 
 ---
 
-## Roteamento por Linguagem
+O sistema detecta automaticamente a configuração do projeto Node.js e roteia para os agentes corretos:
 
-O sistema detecta automaticamente a linguagem do projeto e roteia para os agentes corretos:
-
-| Detecção | Linguagem | Agentes Usados |
+| Detecção | Stack | Agentes Usados |
 |----------|-----------|----------------|
-| `package.json` + `tsconfig.json` | Node.js/TS | CoderAgent, TestEngineer, CodeReviewer, BackendDeveloper |
-| `pyproject.toml` + `requirements.txt` | Python | CoderAgentPython, TestEngineerPython, CodeReviewerPython, BackendDeveloperPython |
-| `CMakeLists.txt` + `Makefile` | C | CoderAgentC, TestEngineerC, CodeReviewerC, BackendDeveloperC |
+| `package.json` + `tsconfig.json` | Node.js/TS | BackendDeveloper, TestEngineer, CodeReviewer |
 | `package.json` + `react` | React | FrontendDeveloperReact |
 | `package.json` + `vue` | Vue | FrontendDeveloperVue |
 | `angular.json` | Angular | FrontendDeveloperAngular |

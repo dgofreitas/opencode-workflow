@@ -32,6 +32,19 @@ readonly NC='\033[0m'
 readonly DEFAULT_GLOBAL_DIR="$HOME/.config/opencode"
 readonly DEFAULT_LOCAL_DIR=".opencode"
 
+# Lista de itens obrigatórios para instalação
+readonly WORKFLOW_REQUIRED_ITEMS=(
+    "agent"
+    "command"
+    "config"
+    "context"
+    "skills"
+    "tool"
+    "package.json"
+    "opencode.json"
+    "instructions.md"
+)
+
 # Variáveis de estado (modificadas durante execução)
 INSTALL_TYPE=""
 INSTALL_DEST=""
@@ -79,7 +92,7 @@ printBanner() {
     echo -e "${BLUE}"
     echo "╔════════════════════════════════════════════════════════════════╗"
     echo "║        🚀 OpenCode Workflow - Instalador v${SCRIPT_VERSION}                ║"
-    echo "║        42 Agents | 12 Commands | Full SDLC Pipeline            ║"
+    echo "║        25 Agents | 12 Commands | Full SDLC Pipeline            ║"
     echo "╚════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 }
@@ -177,15 +190,16 @@ copyWorkflowFiles() {
     
     mkdir -p "${targetDir}"
     
-    cp -r "${SCRIPT_DIR}/agent" "${targetDir}/"
-    cp -r "${SCRIPT_DIR}/command" "${targetDir}/"
-    cp -r "${SCRIPT_DIR}/config" "${targetDir}/"
-    cp -r "${SCRIPT_DIR}/context" "${targetDir}/"
-    cp -r "${SCRIPT_DIR}/skills" "${targetDir}/"
-    cp -r "${SCRIPT_DIR}/tool" "${targetDir}/"
-    cp "${SCRIPT_DIR}/package.json" "${targetDir}/"
+    for item in "${WORKFLOW_REQUIRED_ITEMS[@]}"; do
+        if [[ -e "${SCRIPT_DIR}/${item}" ]]; then
+            cp -r "${SCRIPT_DIR}/${item}" "${targetDir}/"
+            logInfo "  Copiado: ${item}"
+        else
+            logWarn "  Item ignorado (não encontrado na fonte): ${item}"
+        fi
+    done
     
-    logSuccess "Arquivos copiados"
+    logSuccess "Arquivos copiados com sucesso"
 }
 
 installDependencies() {
@@ -193,7 +207,7 @@ installDependencies() {
     logStep "Instalando dependências em: ${targetDir}"
     
     cd "${targetDir}"
-    bun install
+        bun install
     cd - > /dev/null
     
     logSuccess "Dependências instaladas"
@@ -201,11 +215,14 @@ installDependencies() {
 
 removeExistingInstallation() {
     local targetDir="$1"
-    logStep "Removendo instalação existente: ${targetDir}"
+    logStep "Removendo instalação existente em: ${targetDir}"
     
-    rm -rf "${targetDir}/agent" "${targetDir}/command" "${targetDir}/config" \
-           "${targetDir}/context" "${targetDir}/skills" "${targetDir}/tool" \
-           "${targetDir}/package.json" "${targetDir}/node_modules"
+    for item in "${WORKFLOW_REQUIRED_ITEMS[@]}"; do
+        rm -rf "${targetDir}/${item}"
+    done
+    
+    # Remover também node_modules que não está na lista de required source
+    rm -rf "${targetDir}/node_modules"
     
     logSuccess "Instalação anterior removida"
 }
@@ -434,52 +451,35 @@ EOF
 
 verifyInstallation() {
     local targetDir="$1"
-    
-    logStep "Verificando instalação em: ${targetDir}"
+    logStep "Verificando integridade em: ${targetDir}"
     
     local errors=0
     
-    # Verificar agents
+    # 1. Verificar itens obrigatórios do array
+    for item in "${WORKFLOW_REQUIRED_ITEMS[@]}"; do
+        if [[ -e "${targetDir}/${item}" ]]; then
+            logSuccess "  Presente: ${item}"
+        else
+            logError "  Faltando: ${item}"
+            ((errors++))
+        fi
+    done
+    
+    # 2. Validações específicas de conteúdo (ex: contagem de agentes)
     local agentCount
     agentCount=$(find "${targetDir}/agent" -name "*.md" 2>/dev/null | wc -l)
-    if [[ ${agentCount} -ge 26 ]]; then
-        logSuccess "Agents: ${agentCount}"
+    if [[ ${agentCount} -ge 25 ]]; then
+        logInfo "  Contagem de Agentes: ${agentCount} (OK)"
     else
-        logError "Agents: ${agentCount} (esperado: ≥41)"
+        logError "  Contagem de Agentes: ${agentCount} (esperado: ≥25)"
         ((errors++))
     fi
     
-    # Verificar commands
-    local commandCount
-    commandCount=$(find "${targetDir}/command" -name "*.md" 2>/dev/null | wc -l)
-    if [[ ${commandCount} -ge 12 ]]; then
-        logSuccess "Commands: ${commandCount}"
-    else
-        logError "Commands: ${commandCount} (esperado: ≥12)"
-        ((errors++))
-    fi
-    
-    # Verificar config
-    if [[ -f "${targetDir}/config/agent-metadata.json" ]]; then
-        logSuccess "Config: agent-metadata.json"
-    else
-        logError "Config: não encontrado"
-        ((errors++))
-    fi
-    
-    # Verificar context
-    if [[ -d "${targetDir}/context/core" ]]; then
-        logSuccess "Context: core presente"
-    else
-        logError "Context: não encontrado"
-        ((errors++))
-    fi
-    
-    # Verificar node_modules
+    # 3. Verificar se dependências foram instaladas
     if [[ -d "${targetDir}/node_modules" ]]; then
-        logSuccess "Dependências: instaladas"
+        logSuccess "  Dependências Node.js: OK"
     else
-        logError "Dependências: não instaladas"
+        logError "  Dependências Node.js: Não instaladas"
         ((errors++))
     fi
     

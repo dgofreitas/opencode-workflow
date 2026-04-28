@@ -320,7 +320,7 @@ ls -la .opencode/                   # Local (no projeto)
 
 # 2. Verificar agentes
 find ~/.config/opencode/agent -name "*.md" | wc -l
-# Deve retornar: 41
+# Deve retornar: 26
 
 # 3. Verificar comandos
 find ~/.config/opencode/command -name "*.md" | wc -l
@@ -332,7 +332,7 @@ ls ~/.config/opencode/context/core/navigation.md
 
 # 5. Verificar metadata
 cat ~/.config/opencode/config/agent-metadata.json | grep -c '"id"'
-# Deve retornar: 41
+# Deve retornar: 26
 ```
 
 ### Teste Rápido
@@ -360,10 +360,10 @@ opencode --agent OpenAgent
 │   │   ├── openagent.md
 │   │   └── opencoder.md
 │   └── subagents/
-│       ├── analysis/          # 6 agentes
-│       ├── code/              # 16 agentes
+│       ├── analysis/          # 2 agentes
+│       ├── code/              # 5 agentes
 │       ├── core/              # 4 agentes
-│       ├── development/       # 6 agentes
+│       ├── development/       # 7 agentes
 │       ├── sdlc/              # 5 agentes
 │       └── system-builder/    # 1 agente
 ├── command/
