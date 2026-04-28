@@ -50,14 +50,14 @@ Gate #3 repete para **cada story** (ciclo per-story). Cada story = branch própr
 | **QAAnalyst** | Valida acceptance criteria (invocado pelo TechLead) | QA Report (APPROVE/REJECT) |
 | **MergeRequestCreator** | Cria MR/PR (invocado pelo TechLead) | PR no GitHub/GitLab |
 
-### Implementação (por linguagem)
-| Node.js/TS | Python | C |
-|------------|--------|---|
-| BackendDeveloper | BackendDeveloperPython | BackendDeveloperC |
-| CoderAgent | CoderAgentPython | CoderAgentC |
-| TestEngineer | TestEngineerPython | TestEngineerC |
-| CodeReviewer | CodeReviewerPython | CodeReviewerC |
-| BugFixerNodejs | BugFixerPython | BugFixerC |
+### Implementação (Node.js/Web)
+| Agente | Função |
+|:---|:---|
+| **BackendDeveloper** | Implementação de APIs, lógica de negócio e banco de dados. |
+| **TestEngineer** | Criação de testes unitários e de integração (Jest, Vitest, etc). |
+| **CodeReviewer** | Revisão de código focada em segurança, performance e padrões. |
+| **BugFixerNodejs** | Especialista em diagnóstico e correção de bugs Node.js. |
+| **BuildAgent** | Gerenciamento de build, CI/CD e dependências. |
 
 ### Frontend (por framework)
 | React | Vue | Angular | Genérico |
@@ -147,18 +147,13 @@ sequenceDiagram
     Note right of OA: Resumo final:<br/>métricas, MRs, cobertura
 ```
 
-## Detecção de Linguagem
+## Tecnologias Suportadas
 
-O sistema detecta automaticamente:
+O sistema é otimizado para o ecossistema JavaScript/TypeScript moderno:
 
 ```mermaid
 graph LR
-    A["package.json + tsconfig.json"] --> B["Node.js/TypeScript"]
-    C["pyproject.toml"] --> D["Python"]
-    E["CMakeLists.txt"] --> F["C"]
-    G["package.json + react"] --> H["React"]
-    I["package.json + vue"] --> J["Vue"]
-    K["angular.json"] --> L["Angular"]
+    A["Node.js/TS"] --> B["Backend (Express, NestJS, etc.)"]
+    A --> C["Frontend (React, Vue, Angular)"]
+    A --> D["Infra (Docker, DevOps)"]
 ```
-
-E roteia para os agentes corretos automaticamente!
