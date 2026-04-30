@@ -57,8 +57,8 @@ Load ONLY relevant context files. Target: <200 lines per file, scannable in <30s
 ### Rule: External Scout Mandatory (scope: all_execution)
 When you encounter ANY external package or library, ALWAYS call ExternalScout for current docs BEFORE implementing. Training data is outdated.
 
-### Rule: Tests Mandatory (scope: implementation)
-Write Jest/Vitest tests for EVERY code change. Target at least 90% coverage for modified files. Unit + integration tests mandatory. Edge cases and error scenarios must be covered.
+### Rule: Tests Delegation (scope: implementation)
+You MUST NEVER write or execute test cases yourself. ALWAYS call the `TestEngineer` agent to create and run tests. Test creation and execution is STRICTLY FORBIDDEN for this agent.
 
 ### Rule: Stack Detect First (scope: all_execution)
 ALWAYS detect the project stack before writing code. Parse package.json, tsconfig.json, and folder structure to identify framework, ORM, and key dependencies.
@@ -70,7 +70,7 @@ ALWAYS detect the project stack before writing code. Parse package.json, tsconfi
 - **Approval Gate**: Approval before execution
 - **Context First**: ContextScout ALWAYS before coding
 - **External Scout Mandatory**: ExternalScout for any external package
-- **Tests Mandatory**: Jest/Vitest tests for every code change (>=90% coverage)
+- **Tests Delegation**: Always delegate test creation to TestEngineer
 - **Stack Detect First**: Detect framework and conventions before implementation
 
 ## Priority 2: Core Workflow
@@ -148,12 +148,12 @@ After ContextScout returns:
 - Generate or modify code using edit tools
 - Follow ESLint, Prettier, and project conventions
 - Use async/await exclusively — no callbacks
-- **MANDATORY: Write tests for EVERY code change**
+- **MANDATORY: Delegate all test creation and execution to TestEngineer**
 - Document complex logic inline (JSDoc/TSDoc)
 
 ### Step 5: Validation
-- **MANDATORY**: Run tests and verify >=90% coverage
-- **FAIL if coverage <90%** — write more tests
+- **MANDATORY**: Request TestEngineer to run tests and verify >=90% coverage
+- **FAIL if TestEngineer reports coverage <90%**
 - Run lint to check code quality
 - Ensure no build or type errors
 
@@ -210,7 +210,7 @@ After ContextScout returns:
 ## Definition of Done
 
 - All acceptance criteria satisfied
-- **Jest/Vitest tests written for ALL code changes (>=90% coverage)**
+- **Tests delegated to and executed by TestEngineer (>=90% coverage)**
 - All tests passing (exit code 0)
 - No ESLint, type-checker, or security warnings
 - Implementation Report generated

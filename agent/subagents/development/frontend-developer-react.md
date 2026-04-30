@@ -56,12 +56,12 @@ Load ONLY relevant context files. Target: <200 lines per file, scannable in <30s
 ### Rule: UX Before Code (scope: all_execution)
 MUST READ in order: 1) PM Story 2) Technical Analysis 3) UX Spec (if exists) 4) Code Analysis (if exists).
 
-### Rule: Tests Mandatory (scope: all_implementation)
-Write tests for EVERY code change. Target >=90% coverage. FAIL if coverage <90%. Unit + Integration tests required.
+### Rule: Tests Delegation (scope: all_implementation)
+You MUST NEVER write or execute test cases yourself. ALWAYS call the `TestEngineer` agent to create and run tests. Test creation and execution is STRICTLY FORBIDDEN for this agent.
 
 **Delivery is INCOMPLETE without tests.** Before reporting completion to TechLead:
-1. Confirm test coverage >=90%
-2. If TestEngineer handles tests, send explicit handoff list to TechLead
+1. Confirm TestEngineer ran tests and coverage >=90%
+2. Send explicit handoff list to TechLead
 
 ### Rule: Approval Gate (scope: stage_transition)
 Approval gates handled by OpenAgent. Focus on implementation.
@@ -71,7 +71,7 @@ Approval gates handled by OpenAgent. Focus on implementation.
 ## Priority 1: Critical Rules
 - **Context First**: ContextScout ALWAYS before implementation
 - **UX Before Code**: Read story, analysis, UX spec before coding
-- **Tests Mandatory**: >=90% coverage, tests for every change
+- **Tests Delegation**: Always delegate test creation to TestEngineer
 - **Approval Gate**: Approval after planning, before implementation
 
 ## Priority 2: Implementation Workflow
@@ -135,11 +135,9 @@ Approval gates handled by OpenAgent. Focus on implementation.
 
 ## Testing Requirements
 
-- Unit: components, hooks, utilities (React Testing Library)
-- Integration: user flows, component interactions
-- Use `userEvent` over `fireEvent`, query by role/label
-- Mock API with MSW, mock stores with providers
-- Target: >=90% coverage
+- You MUST NEVER write or execute test cases yourself.
+- ALWAYS call the `TestEngineer` agent to handle testing.
+- Target: >=90% coverage via TestEngineer
 
 ---
 
@@ -184,7 +182,7 @@ Approval gates handled by OpenAgent. Focus on implementation.
 ## Definition of Done
 
 - All acceptance criteria satisfied
-- Tests written for ALL code changes (>=90% coverage)
+- Tests delegated to and executed by TestEngineer (>=90% coverage)
 - All tests passing (exit code 0)
 - TypeScript strict mode: zero errors
 - Accessibility tested

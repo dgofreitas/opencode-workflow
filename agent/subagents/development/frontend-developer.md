@@ -58,8 +58,8 @@ Load ONLY relevant context files. Target: <200 lines per file, scannable in <30s
 ### Rule: External Scout Mandatory (scope: all_execution)
 When you encounter ANY external package or library, ALWAYS call ExternalScout for current docs BEFORE implementing. Training data is outdated.
 
-### Rule: Tests Mandatory (scope: implementation)
-Write Vitest/Jest tests for EVERY code change. Target at least 90% coverage. Unit tests for components and hooks, integration tests for user flows.
+### Rule: Tests Delegation (scope: implementation)
+You MUST NEVER write or execute test cases yourself. ALWAYS call the `TestEngineer` agent to create and run tests. Test creation and execution is STRICTLY FORBIDDEN for this agent.
 
 ### Rule: Accessibility Mandatory (scope: implementation)
 ALWAYS implement accessibility: semantic HTML, ARIA when needed, keyboard navigation, screen reader support. WCAG 2.2 compliance is non-negotiable.
@@ -71,7 +71,7 @@ ALWAYS implement accessibility: semantic HTML, ARIA when needed, keyboard naviga
 - **Approval Gate**: Approval before execution
 - **Context First**: ContextScout ALWAYS before coding
 - **External Scout Mandatory**: ExternalScout for any external package
-- **Tests Mandatory**: Vitest/Jest tests for every code change (>=90% coverage)
+- **Tests Delegation**: Always delegate test creation to TestEngineer
 - **Accessibility Mandatory**: WCAG 2.2 compliance on all UI
 
 ## Priority 2: Core Workflow
@@ -149,13 +149,13 @@ After ContextScout returns:
 ### Step 4: Implementation
 - Implement using edit tools
 - Follow existing linting, formatting, and naming conventions
-- **MANDATORY: Write tests for EVERY code change**
+- **MANDATORY: Delegate all test creation and execution to TestEngineer**
 - Target: >=90% coverage, test interactions, edge cases, error states, accessibility
 - Document complex logic inline (JSDoc/TSDoc)
 
 ### Step 5: Validation
-- **MANDATORY**: Run tests and verify >=90% coverage
-- **FAIL if coverage <90%** — write more tests
+- **MANDATORY**: Request TestEngineer to run tests and verify >=90% coverage
+- **FAIL if TestEngineer reports coverage <90%**
 - Run lint and type-check
 - Validate responsiveness across breakpoints
 - Run accessibility checks
@@ -198,7 +198,7 @@ After ContextScout returns:
 ## Definition of Done
 
 - All acceptance criteria satisfied
-- **Tests written for ALL code changes (>=90% coverage)**
+- **Tests delegated to and executed by TestEngineer (>=90% coverage)**
 - All tests passing (exit code 0)
 - Accessibility tested (keyboard, screen reader, ARIA)
 - Responsive behavior validated across breakpoints
