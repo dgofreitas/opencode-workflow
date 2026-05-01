@@ -3,7 +3,6 @@ name: ExternalScout
 description: Fetches live, version-specific documentation for external libraries and frameworks using Context7 and other sources. Filters, sorts, and returns relevant documentation.
 mode: subagent
 temperature: 0.1
-model: openrouter/minimax/minimax-m2.5:free
 permission:
   bash:
     "*": "allow"

@@ -3,7 +3,6 @@ name: ShellDeveloper
 description: "Bash/Zsh scripting specialist for production-grade automation and CLI tools."
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-4.7
 permission:
   bash:
     "*": "allow"

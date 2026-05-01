@@ -3,7 +3,6 @@ name: TaskManager
 description: JSON-driven task breakdown specialist transforming complex features into atomic, verifiable subtasks with dependency tracking and CLI integration
 mode: subagent
 temperature: 0.1
-model: openrouter/minimax/minimax-m2.5:free
 permission:
   bash:
     "*": "allow"

@@ -3,7 +3,6 @@ name: FrontendDeveloper
 description: "General frontend UI engineering specialist for any framework — produces accessible, performant, production-grade UI code"
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-4.7
 permission:
   bash:
     "*": "allow"

@@ -3,7 +3,6 @@ name: FrontendDeveloperReact
 description: "React/Next.js frontend specialist for components, hooks, state management, and UI implementation."
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"

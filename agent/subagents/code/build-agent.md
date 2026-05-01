@@ -3,7 +3,6 @@ name: BuildAgent
 description: "Type check and build validation agent."
 mode: subagent
 temperature: 0.1
-model: openrouter/minimax/minimax-m2.5:free
 permission:
   bash:
     "*": "allow"

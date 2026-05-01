@@ -3,7 +3,6 @@ name: CodeAnalyzer
 description: "Node.js codebase analysis specialist for architecture, patterns, and technical debt detection."
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-4.7
 permission:
   bash:
     "*": "allow"

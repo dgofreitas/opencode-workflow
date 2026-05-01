@@ -3,7 +3,6 @@ name: ContextOrganizer
 description: Organizes and generates context files (domain, processes, standards, templates) for optimal knowledge management
 mode: subagent
 temperature: 0.1
-model: openrouter/minimax/minimax-m2.5:free
 permission:
   bash:
     "*": "allow"

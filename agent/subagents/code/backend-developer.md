@@ -3,7 +3,6 @@ name: BackendDeveloper
 description: "Node.js backend specialist for Express, Koa, Fastify, NestJS with production-grade patterns."
 mode: subagent
 temperature: 0.1
-model: zai-coding-plan/glm-5.1
 permission:
   bash:
     "*": "allow"
