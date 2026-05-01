@@ -13,7 +13,13 @@
     "overloaded",
     "capacity exceeded",
     "credits",
-    "free usage exceeded"
+    "free usage exceeded",
+    "provider_unavailable",
+    "network connection lost",
+    "502",
+    "bad gateway",
+    "service unavailable",
+    "timeout"
   ],
   "agents": {
     "openagent": {

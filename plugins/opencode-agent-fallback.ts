@@ -38,7 +38,7 @@
 // @ts-ignore
 import type { Plugin } from "@opencode-ai/plugin";
 // @ts-ignore
-import { readFileSync, existsSync } from "fs";
+import { readFileSync, existsSync, appendFileSync, statSync, renameSync, readdirSync, unlinkSync } from "fs";
 // @ts-ignore
 import { join } from "path";
 // @ts-ignore
@@ -70,6 +70,7 @@ interface SessionState {
   providerID: string;
   modelID: string;
   fallbackIndex: number;
+  networkRetryCount: number;
   rateLimitedUntil: number;
   lastUserMessage: string;
   lastUserMessageID: string | null;
@@ -116,9 +117,18 @@ const DEFAULT_PATTERNS = [
   // NOTA: "credits" foi removido — muito genérico, causa falsos positivos
 ];
 
+const NETWORK_PATTERNS = [
+  "provider_unavailable",
+  "network connection lost",
+  "502",
+  "bad gateway",
+  "service unavailable",
+  "timeout"
+];
+
 // FIX #2: error nos eventos é um objeto tipado (ApiError | ProviderAuthError | etc),
 // não uma string. Extraímos a mensagem corretamente antes de comparar.
-function getRateLimitError(value: unknown, patterns: string[]): string | null {
+function getRateLimitError(value: unknown, patterns: string[]): { message: string, isNetwork: boolean } | null {
   let message: string;
 
   if (typeof value === "string") {
@@ -129,19 +139,77 @@ function getRateLimitError(value: unknown, patterns: string[]): string | null {
     const data = obj["data"] as Record<string, unknown> | undefined;
     message = String(data?.["message"] ?? obj["message"] ?? JSON.stringify(obj));
   } else {
+    fileLog(`getRateLimitError: unhandled value type`, { value });
     return null;
   }
 
   const lower = message.toLowerCase();
-  const matched = patterns.find((p) => lower.includes(p.toLowerCase()));
+  
+  const networkMatch = NETWORK_PATTERNS.find((p) => lower.includes(p.toLowerCase()));
+  if (networkMatch) {
+    fileLog(`getRateLimitError: MATCHED network pattern "${networkMatch}" in message:`, { message });
+    return { message, isNetwork: true };
+  }
 
-  return matched ? message : null;
+  const matched = patterns.find((p) => lower.includes(p.toLowerCase()));
+  if (matched) {
+    fileLog(`getRateLimitError: MATCHED rate limit pattern "${matched}" in message:`, { message });
+    return { message, isNetwork: false };
+  }
+
+  fileLog(`getRateLimitError: NO MATCH in message:`, { message });
+  return null;
 }
 
 // ─── Logger ───────────────────────────────────────────────────────────────────
 
+const LOG_FILE = "/tmp/opencode-agent-fallback.log";
+const MAX_LOG_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_LOG_FILES = 20;
+let logWriteCounter = 0;
+
+function rotateLogIfNeeded() {
+  logWriteCounter++;
+  if (logWriteCounter % 20 !== 0) return; // Otimização: verifica o tamanho a cada 20 logs
+
+  try {
+    if (!existsSync(LOG_FILE)) return;
+    const stats = statSync(LOG_FILE);
+    
+    if (stats.size >= MAX_LOG_SIZE) {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const archiveName = `${LOG_FILE}.${timestamp}`;
+      renameSync(LOG_FILE, archiveName);
+
+      // Limpar logs antigos
+      const dir = "/tmp";
+      const files = readdirSync(dir);
+      const logFiles = files
+        .filter(f => f.startsWith("opencode-agent-fallback.log."))
+        .map(f => join(dir, f))
+        .sort(); // Strings ISO ordenam cronologicamente, os mais antigos primeiro
+      
+      while (logFiles.length > MAX_LOG_FILES) {
+        const oldest = logFiles.shift();
+        if (oldest) unlinkSync(oldest);
+      }
+    }
+  } catch (err) {
+    // Ignora erros na rotação
+  }
+}
+
+function fileLog(msg: string, extra?: any) {
+  try {
+    rotateLogIfNeeded();
+    const logLine = `[${new Date().toISOString()}] ${msg} ${extra ? JSON.stringify(extra) : ""}\n`;
+    appendFileSync(LOG_FILE, logLine);
+  } catch (err) { }
+}
+
 function makeLog(enabled: boolean, client: any) {
   return (level: "info" | "warn" | "error", msg: string, extra?: Record<string, unknown>) => {
+    fileLog(`[${level.toUpperCase()}] ${msg}`, extra);
     if (!enabled) return;
     // Não usamos await aqui para não bloquear o fluxo principal
     client.app
@@ -164,7 +232,7 @@ async function showToast(
 ): Promise<void> {
   try {
     await client.tui.showToast({
-      body: { message, variant, ...(title ? { title } : {}), duration: 5000 },
+      body: { message, variant, ...(title ? { title } : {}), duration: 15000 },
     });
   } catch {
     // modo headless — sem TUI, ignora silenciosamente
@@ -196,6 +264,7 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
         providerID: "",
         modelID: "",
         fallbackIndex: 0,
+        networkRetryCount: 0,
         rateLimitedUntil: 0,
         lastUserMessage: "",
         lastUserMessageID: null,
@@ -221,7 +290,7 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
 
   // ── Fallback Handler ───────────────────────────────────────────────────────
 
-  async function handleRateLimit(sessionID: string, errorMessage: string): Promise<void> {
+  async function handleRateLimit(sessionID: string, errorMessage: string, isNetwork: boolean = false): Promise<void> {
     if (handling.has(sessionID)) return;
     handling.add(sessionID);
 
@@ -236,6 +305,57 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
         });
         return;
       }
+
+      // -- NETWORK RETRY LOGIC --
+      if (isNetwork && state.networkRetryCount < 1) {
+        state.networkRetryCount++;
+        const currentModel = state.providerID && state.modelID ? `${state.providerID}/${state.modelID}` : "modelo atual";
+        const agentLabel = state.agentID ? ` [${state.agentID}]` : "";
+        
+        log("info", `[${sessionID}] Erro de rede — retentando com o mesmo modelo (tentativa ${state.networkRetryCount})`, {
+          agentID: state.agentID,
+          model: currentModel
+        });
+
+        try {
+          await client.session.abort({ path: { id: sessionID } });
+          await new Promise((r) => setTimeout(r, 500));
+          await client.session.revert({ path: { id: sessionID } });
+          await new Promise((r) => setTimeout(r, 500));
+        } catch {}
+
+        const shortError = errorMessage.length > 60 ? errorMessage.substring(0, 57) + "..." : errorMessage;
+        await showToast(
+          client,
+          `🚨 ${shortError}\n🔄 Retentando${agentLabel}: ${currentModel}`,
+          "warning",
+          "Erro de Rede"
+        );
+
+        await new Promise<void>((r) => setTimeout(r, 1500));
+
+        if (!state.lastUserMessage) {
+          log("warn", `[${sessionID}] Sem mensagem para resubmeter (rede)`);
+          return;
+        }
+
+        try {
+          await client.session.prompt({
+            path: { id: sessionID },
+            body: {
+              ...(state.providerID && state.modelID ? {
+                model: { providerID: state.providerID, modelID: state.modelID }
+              } : {}),
+              parts: [{ type: "text", text: state.lastUserMessage }],
+            },
+          });
+        } catch (err) {}
+        
+        return; // Sai sem fazer fallback para outro modelo
+      }
+
+      // Reset retry count se formos fazer fallback (atingiu max retries ou é rate limit)
+      state.networkRetryCount = 0;
 
       const fallbackList = getFallbackList(state);
 
@@ -269,7 +389,9 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
       // Aborta e Reverte para limpar o estado antes do retry
       try {
         await client.session.abort({ path: { id: sessionID } });
+        await new Promise((r) => setTimeout(r, 500)); // Aguarda abort consolidar
         await client.session.revert({ path: { id: sessionID } });
+        await new Promise((r) => setTimeout(r, 500)); // Aguarda revert consolidar
       } catch {
         // Pode falhar se já estiver idle — continua
       }
@@ -284,40 +406,55 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
         "Rate Limit Detectado",
       );
 
-      await new Promise<void>((r) => setTimeout(r, 600));
+      await new Promise<void>((r) => setTimeout(r, 1500));
 
       if (!state.lastUserMessage) {
         log("warn", `[${sessionID}] Sem mensagem para resubmeter`);
         return;
       }
 
-      try {
-        await client.session.prompt({
-          path: { id: sessionID },
-          body: {
-            model: {
-              providerID: nextModel.providerID,
-              modelID: nextModel.modelID,
+      let success = false;
+      let lastErr: any;
+
+      // Tenta submeter o prompt até 2 vezes em caso de falha de rede/JSON (ex: Unexpected EOF)
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          await client.session.prompt({
+            path: { id: sessionID },
+            body: {
+              model: {
+                providerID: nextModel.providerID,
+                modelID: nextModel.modelID,
+              },
+              parts: [{ type: "text", text: state.lastUserMessage }],
             },
-            parts: [{ type: "text", text: state.lastUserMessage }],
-          },
-        });
+          });
+          success = true;
+          break; // Sai do loop se deu certo
+        } catch (err) {
+          lastErr = err;
+          // Se for erro de JSON (servidor instável após abort), aguarda e tenta de novo
+          if (String(err).includes("JSON Parse error") || String(err).includes("Unexpected EOF")) {
+            await new Promise<void>((r) => setTimeout(r, 2000));
+          } else {
+            break; // Outros erros saem direto
+          }
+        }
+      }
 
+      if (success) {
         log("info", `[${sessionID}] Fallback bem-sucedido`, { from: fromModel, to: toModel });
-
-        // Toast de confirmação final
         await showToast(
           client,
           `✅ Atividade retomada com ${toModel}`,
           "success",
           "Fallback Realizado",
         );
-      } catch (err) {
-        log("error", `[${sessionID}] Falha no fallback`, { error: String(err), to: toModel });
-
+      } else {
+        log("error", `[${sessionID}] Falha no fallback`, { error: String(lastErr), to: toModel });
         await showToast(
           client,
-          `❌ Erro ao tentar ${toModel}: ${String(err)}`,
+          `❌ Erro ao tentar ${toModel}: ${String(lastErr)}`,
           "error",
           "Falha no Fallback",
         );
@@ -332,6 +469,8 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
   return {
     event: async ({ event }: any) => {
       const e = event as { type: string; properties: Record<string, any> };
+
+      fileLog(`--- EVENT RECEIVED: ${e.type} ---`);
 
       switch (e.type) {
 
@@ -380,8 +519,8 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
 
             // Detecta rate limit no error da AssistantMessage
             if (info.error) {
-              const err = getRateLimitError(info.error, patterns);
-              if (err) await handleRateLimit(sessionID, err);
+              const errInfo = getRateLimitError(info.error, patterns);
+              if (errInfo) await handleRateLimit(sessionID, errInfo.message, errInfo.isNetwork);
             }
           }
           break;
@@ -404,8 +543,8 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
           // RetryPart: { type: "retry", attempt, error: ApiError }
           // FIX #8: RetryPart tem campo error: ApiError — passamos direto para getRateLimitError
           if (part.type === "retry" && part.error) {
-            const err = getRateLimitError(part.error, patterns);
-            if (err) await handleRateLimit(part.sessionID, err);
+            const errInfo = getRateLimitError(part.error, patterns);
+            if (errInfo) await handleRateLimit(part.sessionID, errInfo.message, errInfo.isNetwork);
           }
           break;
         }
@@ -417,8 +556,8 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
           const { sessionID, status } = e.properties ?? {};
           if (!sessionID || status?.type !== "retry" || !status?.message) break;
 
-          const err = getRateLimitError(status.message, patterns);
-          if (err) await handleRateLimit(sessionID, err);
+          const errInfo = getRateLimitError(status.message, patterns);
+          if (errInfo) await handleRateLimit(sessionID, errInfo.message, errInfo.isNetwork);
           break;
         }
 
@@ -429,8 +568,8 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
           const { sessionID, error } = e.properties ?? {};
           if (!sessionID || !error) break;
 
-          const err = getRateLimitError(error, patterns);
-          if (err) await handleRateLimit(sessionID, err);
+          const errInfo = getRateLimitError(error, patterns);
+          if (errInfo) await handleRateLimit(sessionID, errInfo.message, errInfo.isNetwork);
           break;
         }
 
@@ -469,7 +608,10 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
           const { sessionID } = e.properties ?? {};
           if (sessionID) {
             const state = sessions.get(sessionID);
-            if (state) state.fallbackIndex = 0;
+            if (state) {
+              state.fallbackIndex = 0;
+              state.networkRetryCount = 0;
+            }
           }
           break;
         }
