@@ -1,5 +1,4 @@
 {
-  "$schema": "https://opencode.ai/schemas/agent-metadata.json",
   "schema_version": "1.0.0",
   "description": "Centralized metadata for New OpenCode Workflow agents. Combines OpenCode agent infrastructure with Windsurf SDLC pipeline agents, featuring language-specific variants and full software development lifecycle support.",
   "agents": {
