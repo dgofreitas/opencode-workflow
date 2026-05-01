@@ -38,12 +38,20 @@ readonly WORKFLOW_REQUIRED_ITEMS=(
     "command"
     "config"
     "context"
+    "plugins"
     "skills"
     "tool"
     "package.json"
     "opencode.json"
     "instructions.md"
 )
+
+# Métricas do workflow (calculadas em tempo de execução)
+COUNT_AGENTS=0
+COUNT_COMMANDS=0
+COUNT_SKILLS=0
+COUNT_PLUGINS=0
+COUNT_CONTEXT=0
 
 # Variáveis de estado (modificadas durante execução)
 INSTALL_TYPE=""
@@ -88,11 +96,24 @@ logStep() {
 # FUNÇÕES DE UI - Banner e Menu padronizados
 # ==============================================================================
 
+calculateMetrics() {
+    # Usar SCRIPT_DIR como base para contagem se estivermos no diretório do script
+    local baseDir="${SCRIPT_DIR}"
+    
+    COUNT_AGENTS=$(find "${baseDir}/agent" -name "*.md" 2>/dev/null | wc -l)
+    COUNT_COMMANDS=$(find "${baseDir}/command" -name "*.md" 2>/dev/null | wc -l)
+    COUNT_SKILLS=$(find "${baseDir}/skills" -name "SKILL.md" 2>/dev/null | wc -l)
+    COUNT_PLUGINS=$(find "${baseDir}/plugins" -name "*.ts" 2>/dev/null | wc -l)
+    COUNT_CONTEXT=$(find "${baseDir}/context" -name "*.md" 2>/dev/null | wc -l)
+}
+
 printBanner() {
     echo -e "${BLUE}"
     echo "╔════════════════════════════════════════════════════════════════╗"
     echo "║        🚀 OpenCode Workflow - Instalador v${SCRIPT_VERSION}                ║"
-    echo "║        25 Agents | 12 Commands | Full SDLC Pipeline            ║"
+    echo "║                                                                ║"
+    echo "║  🤖 Agentes: ${COUNT_AGENTS} | ⌨️  Comandos: ${COUNT_COMMANDS} | 🛠️  Skills: ${COUNT_SKILLS}               ║"
+    echo "║  🔌 Plugins: ${COUNT_PLUGINS} | 📂 Contexto: ${COUNT_CONTEXT}                               ║"
     echo "╚════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 }
@@ -292,7 +313,7 @@ installGlobal() {
     installDependencies "${targetDir}"
     
     logSuccess "Instalação global concluída!"
-    logInfo "Para usar: opencode --agent OpenAgent"
+    logInfo "Para usar: opencode --agent Master"
 }
 
 installLocal() {
@@ -394,7 +415,7 @@ installHybrid() {
     logInfo "Próximos passos:"
     logInfo "  1. Edite .opencode/context/project/project-context.md"
     logInfo "  2. Commit .opencode/ para compartilhar com a equipe"
-    logInfo "  3. Execute: opencode --agent OpenAgent"
+    logInfo "  3. Execute: opencode --agent Master"
 }
 
 setupLocalIntelligence() {
@@ -583,6 +604,7 @@ parseArguments() {
 # ==============================================================================
 
 main() {
+    calculateMetrics
     printBanner
     
     if ! checkPrerequisites; then
@@ -618,7 +640,7 @@ main() {
     logSuccess "═══════════════════════════════════════════════════════════════"
     logSuccess "  Instalação concluída!"
     logSuccess "═══════════════════════════════════════════════════════════════"
-    logInfo "Para começar: opencode --agent OpenAgent"
+    logInfo "Para começar: opencode --agent Master"
 }
 
 # ==============================================================================

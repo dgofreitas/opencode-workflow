@@ -63,7 +63,7 @@ You MUST NEVER write or execute test cases yourself. ALWAYS call the `TestEngine
 2. Send explicit handoff list to TechLead
 
 ### Rule: Approval Gate (scope: stage_transition)
-Approval gates handled by OpenAgent. Focus on implementation.
+Approval gates handled by Master. Focus on implementation.
 
 ---
 

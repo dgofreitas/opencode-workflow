@@ -163,6 +163,12 @@ function getRateLimitError(value: unknown, patterns: string[]): { message: strin
 
 // ─── Logger ───────────────────────────────────────────────────────────────────
 
+function getLocalTimestamp(date?: number | Date): string {
+  const d = date ? new Date(date) : new Date();
+  const tzOffset = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - tzOffset).toISOString().slice(0, -1);
+}
+
 const LOG_FILE = "/tmp/opencode-agent-fallback.log";
 const MAX_LOG_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_LOG_FILES = 20;
@@ -177,7 +183,7 @@ function rotateLogIfNeeded() {
     const stats = statSync(LOG_FILE);
     
     if (stats.size >= MAX_LOG_SIZE) {
-      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const timestamp = getLocalTimestamp().replace(/[:.]/g, "-");
       const archiveName = `${LOG_FILE}.${timestamp}`;
       renameSync(LOG_FILE, archiveName);
 
@@ -202,7 +208,7 @@ function rotateLogIfNeeded() {
 function fileLog(msg: string, extra?: any) {
   try {
     rotateLogIfNeeded();
-    const logLine = `[${new Date().toISOString()}] ${msg} ${extra ? JSON.stringify(extra) : ""}\n`;
+    const logLine = `[${getLocalTimestamp()}] ${msg} ${extra ? JSON.stringify(extra) : ""}\n`;
     appendFileSync(LOG_FILE, logLine);
   } catch (err) { }
 }
@@ -301,7 +307,7 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
       if (state.rateLimitedUntil > now) {
         log("info", `[${sessionID}] Em cooldown, ignorando`, {
           agentID: state.agentID,
-          until: new Date(state.rateLimitedUntil).toISOString(),
+          until: getLocalTimestamp(state.rateLimitedUntil),
         });
         return;
       }

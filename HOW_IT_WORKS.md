@@ -10,11 +10,11 @@ Este documento explica a arquitetura completa, como os componentes se conectam, 
 graph TD
     User["USUÁRIO<br/>'Criar um app de finanças'"] --> OA
 
-    OA["OpenAgent - Core<br/>Agente primário universal<br/>Orquestra SDLC com 3 APPROVAL GATES"]
+    OA["Master - Core<br/>Agente primário universal<br/>Orquestra SDLC com 3 APPROVAL GATES"]
 
     OA --> SDLC[SDLC Pipeline]
     OA --> QI["Query/Info<br/>→ Resposta direta"]
-    OA --> DT["Direct Task<br/>→ OpenCoder"]
+    OA --> DT["Direct Task<br/>→ Specialists (via Master)"]
 
     SDLC --> PM[ProductManager]
     PM --> G1{{"GATE #1"}}
@@ -39,11 +39,11 @@ graph TD
 
 ## Comandos vs Linguagem Natural
 
-**Você NÃO precisa usar `/story`, `/plan`, `/implement`!** O OpenAgent detecta automaticamente a intenção:
+**Você NÃO precisa usar `/story`, `/plan`, `/implement`!** O Master detecta automaticamente a intenção:
 
 ### Detecção Automática
 
-| O que você diz | O que o OpenAgent faz |
+| O que você diz | O que o Master faz |
 |----------------|----------------------|
 | "Crie um site de investimento com dashboard" | **SDLC automático**: PM → ⏸️ → Arch → ⏸️ → TechLead(full cycle) → ⏸️ → next story |
 | "Build a user authentication system" | **SDLC automático**: Pipeline completo |
@@ -73,7 +73,7 @@ Você: "Crie um site de investimento com:
        - Exportação para CSV
        - Autenticação de usuários"
 
-OpenAgent: [Detecta feature request complexa]
+Master: [Detecta feature request complexa]
            → ProductManager cria STORY-001.md
            → ⏸️ GATE #1: "Prosseguir para Architect?"
            → Architect cria plano técnico
@@ -89,17 +89,17 @@ OpenAgent: [Detecta feature request complexa]
 
 # Opção 2: Comandos explícitos (controle passo a passo)
 Você: "/story criar site de investimento"
-OpenAgent: ProductManager cria STORY-001.md
+Master: ProductManager cria STORY-001.md
 Você: [Revisa story] → aprova GATE #1
 Você: "/plan STORY-001"
-OpenAgent: Architect cria technical-analysis.md
+Master: Architect cria technical-analysis.md
 Você: [Revisa plano] → aprova GATE #2
 Você: "/implement STORY-001"
-OpenAgent: TechLead executa ciclo completo (impl→test→QA→review→MR)
+Master: TechLead executa ciclo completo (impl→test→QA→review→MR)
 Você: [Revisa resultado] → aprova GATE #3
 ```
 
-**Recomendação**: Use linguagem natural para features completas — o OpenAgent pede aprovação em 3 momentos-chave. Use comandos quando quiser granularidade extra.
+**Recomendação**: Use linguagem natural para features completas — o Master pede aprovação em 3 momentos-chave. Use comandos quando quiser granularidade extra.
 
 ---
 
@@ -113,8 +113,7 @@ Você: [Revisa resultado] → aprova GATE #3
 ```
 agent/
 ├── core/                    # Agentes primários (entry points)
-│   ├── openagent.md         # Agente universal - recebe todos os pedidos
-│   └── opencoder.md         # Agente de desenvolvimento - coordena implementação
+│   └── master.md            # Agente universal - recebe todos os pedidos
 │
 └── subagents/               # Agentes especializados (invocados pelos core)
     ├── analysis/            # Análise de código
@@ -158,7 +157,7 @@ command/
 **Como se conecta:**
 - Quando o usuário digita `/story criar app de finanças`, o OpenCode carrega `command/sdlc/story.md`
 - O comando invoca o agente apropriado via `task(subagent_type="ProductManager", ...)`
-- Comandos são atalhos - o mesmo resultado pode ser obtido pedindo diretamente ao OpenAgent
+- Comandos são atalhos - o mesmo resultado pode ser obtido pedindo diretamente ao Master
 
 ---
 
@@ -289,9 +288,9 @@ Usuário: "Quero criar um aplicativo de finanças pessoais com:
 - Exportação para CSV"
 ```
 
-### Passo 2: OpenAgent recebe e classifica
+### Passo 2: Master recebe e classifica
 
-O **OpenAgent** (`agent/core/openagent.md`) é o agente primário. Ele:
+O **Master** (`agent/core/master.md`) é o agente primário. Ele:
 
 1. **Recebe** o pedido do usuário
 2. **Classifica** o tipo de pedido:
@@ -302,7 +301,7 @@ O **OpenAgent** (`agent/core/openagent.md`) é o agente primário. Ele:
 4. **Delega** para o **ProductManager**
 
 ```javascript
-// OpenAgent decide delegar
+// Master decide delegar
 task(
   subagent_type="ProductManager",
   description="Create user story for finance app",
@@ -355,12 +354,12 @@ O **ProductManager** (`agent/subagents/sdlc/product-manager.md`):
 
 ### Passo 4: ⏸️ GATE #1 — ProductManager → Architect
 
-O OpenAgent **PARA** e apresenta ao usuário:
+O Master **PARA** e apresenta ao usuário:
 - Stories criadas (lista de arquivos)
 - Resumo de cada story
 - Pergunta: "Stories criadas. Prosseguir para Architect? [Y/n]"
 
-**O usuário aprova**, e o OpenAgent delega para o **Architect**:
+**O usuário aprova**, e o Master delega para o **Architect**:
 
 ```javascript
 task(
@@ -422,13 +421,13 @@ O **Architect** (`agent/subagents/sdlc/architect.md`):
 
 ### Passo 6: ⏸️ GATE #2 — Architect → TechLead
 
-O OpenAgent **PARA** e apresenta ao usuário:
+O Master **PARA** e apresenta ao usuário:
 - Planos técnicos criados (lista de arquivos)
 - Resumo da abordagem técnica
 - Ordem de execução (se múltiplas stories)
 - Pergunta: "Plano técnico completo. Implementar STORY-001? [Y/n]"
 
-**O usuário aprova**, e o OpenAgent delega para o **TechLead**:
+**O usuário aprova**, e o Master delega para o **TechLead**:
 
 ```javascript
 task(
@@ -548,11 +547,11 @@ Closes #STORY-001
 
 ```mermaid
 graph TD
-    OA["OpenAgent<br/>O maestro — orquestra o SDLC com 3 approval gates"]
+    OA["Master<br/>O maestro — orquestra o SDLC com 3 approval gates"]
 
     OA --> PM["PM<br/>(Stories)"]
     OA --> Arch["Architect<br/>(Plans)"]
-    OA --> OC["OpenCoder<br/>(Code)"]
+    OA --> TL_ORCH["TechLead<br/>(Orquestração)"]
 
     PM -.->|"GATE #1"| Arch
     Arch -.->|"GATE #2"| TL
@@ -723,7 +722,7 @@ O sistema detecta automaticamente a configuração do projeto Node.js e roteia p
 
 ## Resumo: Por que a "Mágica" Acontece
 
-1. **OpenAgent é o maestro** - recebe tudo, classifica, e orquestra com 3 approval gates
+1. **Master é o maestro** - recebe tudo, classifica, e orquestra com 3 approval gates
 2. **ContextScout é a memória** - carrega conhecimento do projeto
 3. **ExternalScout é a pesquisa** - busca documentação atualizada
 4. **SDLC Pipeline é o processo** - PM → ⏸️ → Arch → ⏸️ → TechLead(full cycle) → ⏸️ → next story
@@ -733,6 +732,6 @@ O sistema detecta automaticamente a configuração do projeto Node.js e roteia p
 8. **Per-story branches** - cada story = `feat/STORY-XXX → main`
 
 A "mágica" é **coordenação + contexto + qualidade**:
-- **Coordenação**: OpenAgent orquestra, TechLead coordena, especialistas implementam
+- **Coordenação**: Master orquestra, TechLead coordena, especialistas implementam
 - **Contexto**: Conhecimento do projeto é carregado antes de cada ação
 - **Qualidade**: Cada story passa por testes, QA, review, e MR antes de avançar

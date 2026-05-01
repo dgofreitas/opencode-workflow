@@ -2,9 +2,9 @@
   "schema_version": "1.0.0",
   "description": "Centralized metadata for New OpenCode Workflow agents. Combines OpenCode agent infrastructure with Windsurf SDLC pipeline agents, featuring language-specific variants and full software development lifecycle support.",
   "agents": {
-    "openagent": {
-      "id": "openagent",
-      "name": "OpenAgent",
+    "master": {
+      "id": "master",
+      "name": "Master",
       "category": "core",
       "type": "agent",
       "version": "1.0.0",

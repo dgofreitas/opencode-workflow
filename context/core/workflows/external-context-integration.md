@@ -30,7 +30,7 @@ Use ExternalScout to fetch external context when:
 ### Stage 1: Analyze & Discover (Before Approval)
 
 ```
-Main Agent (OpenAgent, etc.)
+Main Agent (Master, etc.)
   ↓
   1. Analyze user request
   ↓

@@ -35,6 +35,7 @@ readonly WORKFLOW_REQUIRED_ITEMS=(
     "command"
     "config"
     "context"
+    "plugins"
     "skills"
     "tool"
     "package.json"

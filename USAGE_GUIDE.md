@@ -6,10 +6,10 @@ Este documento explica como usar o New OpenCode Workflow no dia a dia.
 
 ## Iniciando o OpenCode
 
-### Com OpenAgent (Recomendado para Início)
+### Com Master (Recomendado para Início)
 
 ```bash
-opencode --agent OpenAgent
+opencode --agent Master
 ```
 
 **Use quando:**
@@ -18,42 +18,18 @@ opencode --agent OpenAgent
 - Quer o pipeline SDLC automático
 - Quer delegação automática para especialistas
 
-### Com OpenCoder (Desenvolvimento Focado)
-
-```bash
-opencode --agent OpenCoder
-```
-
-**Use quando:**
-- Sabe que vai implementar código
-- Quer desenvolvimento direto, sem passar pelo ProductManager
-- Está trabalhando em tarefas de código específicas
-- Não precisa de story/plano (já sabe o que fazer)
-
 ---
 
-## Diferença: OpenAgent vs OpenCoder
-
-| Característica | OpenAgent | OpenCoder |
-|----------------|-----------|-----------|
-| **Propósito** | Universal - faz tudo | Especializado em código |
-| **SDLC Pipeline** | Detecta automaticamente e inicia | Executa diretamente |
-| **Perguntas** | Responde diretamente | Redireciona para OpenAgent |
-| **Features completas** | PM → ⏸️ → Arch → ⏸️ → TechLead(full cycle) → ⏸️ | TechLead direto |
-| **Delegação** | Delega para qualquer subagent | Delega para agentes de código |
-| **Melhor para** | Início de qualquer tarefa | Implementação de código conhecido |
-
-### Quando Usar Cada Um
+## Fluxo de Decisão
 
 ```mermaid
 graph TD
-    Q{{"QUAL AGENTE USAR?"}}
-    Q -->|"Criar um app de finanças"| A1["OpenAgent<br/>detecta feature, inicia SDLC"]
-    Q -->|"Como funciona o JWT?"| A2["OpenAgent<br/>responde pergunta"]
-    Q -->|"Implemente a função de login"| A3["OpenCoder<br/>implementação direta"]
-    Q -->|"Corrija o bug em auth.ts"| A4["OpenCoder<br/>correção de código"]
-    Q -->|"Adicione testes"| A5["OpenCoder<br/>delega p/ TestEngineer"]
-    Q -->|"Analise a arquitetura"| A6["OpenAgent<br/>delega p/ Architect"]
+    Q{{"QUAL FLUXO USAR?"}}
+    Q -->|"Criar um app de finanças"| A1["Master detecta feature,<br/>inicia SDLC Pipeline"]
+    Q -->|"Como funciona o JWT?"| A2["Master responde pergunta<br/>(Sem execução)"]
+    Q -->|"Implemente a função de login"| A3["Master delega para especialista<br/>(Backend/Frontend)"]
+    Q -->|"Corrija o bug em auth.ts"| A4["Master delega para BugFixer"]
+    Q -->|"Analise a arquitetura"| A6["Master delega para Architect"]
 ```
 
 ---
@@ -74,7 +50,7 @@ graph TD
 **O que acontece:**
 ```mermaid
 graph TD
-    Start["Pedido: 'Crie um site de investimento...'"] --> Detect["OpenAgent detecta: SDLC Pipeline"]
+    Start["Pedido: 'Crie um site de investimento...'"] --> Detect["Master detecta: SDLC Pipeline"]
     Detect --> PM["1. ProductManager<br/>Cria STORY-001.md com acceptance criteria"]
     PM --> G1{{"GATE #1<br/>Você revê stories e aprova"}}
     G1 --> Arch["2. Architect<br/>Cria technical-analysis.md com batches"]
@@ -96,7 +72,7 @@ graph TD
 **O que acontece:**
 ```mermaid
 graph TD
-    Start["Pedido: 'Como funciona o sistema de contexto?'"] --> Detect["OpenAgent detecta: Pergunta"]
+    Start["Pedido: 'Como funciona o sistema de contexto?'"] --> Detect["Master detecta: Pergunta"]
     Detect --> Resp["Resposta direta<br/>Sem execução, sem pipeline, sem aprovação"]
 ```
 
@@ -112,7 +88,7 @@ graph TD
 **O que acontece:**
 ```mermaid
 graph TD
-    Start["Pedido: 'Mude a cor do botão para azul'"] --> Detect["OpenAgent detecta: Task simples"]
+    Start["Pedido: 'Mude a cor do botão para azul'"] --> Detect["Master detecta: Task simples"]
     Detect --> CS["1. ContextScout<br/>Carrega padrões de styling"]
     CS --> Exec["2. Execução direta<br/>Edita o arquivo (sem pipeline SDLC)"]
 ```
@@ -128,7 +104,7 @@ graph TD
 **O que acontece:**
 ```mermaid
 graph TD
-    Start["Pedido: 'O login não funciona, erro 500'"] --> Detect["OpenAgent/OpenCoder detecta: Bug"]
+    Start["Pedido: 'O login não funciona, erro 500'"] --> Detect["Master detecta: Bug"]
     Detect --> BF["1. BugFixer<br/>Reproduz o bug + Root cause analysis"]
     BF --> Prop["2. Proposta de correção<br/>Você aprova"]
     Prop --> Fix["3. Correção<br/>Implementa fix + testes de regressão"]
@@ -158,7 +134,7 @@ graph TD
 ### Fluxo com Comandos (Controle Passo a Passo)
 
 ```bash
-opencode --agent OpenAgent
+opencode --agent Master
 
 # Passo 1: Criar story
 > /story criar sistema de notificações por email
@@ -184,12 +160,12 @@ opencode --agent OpenAgent
 ### Fluxo com Linguagem Natural (Automático)
 
 ```bash
-opencode --agent OpenAgent
+opencode --agent Master
 
 # Uma frase, pipeline completo
 > "Crie um sistema de notificações por email com templates, fila, e retry"
 
-# OpenAgent orquestra o SDLC com 3 approval gates:
+# Master orquestra o SDLC com 3 approval gates:
 # 1. ProductManager cria stories
 #    ⏸️ GATE #1: Você aprova
 # 2. Architect cria plano
@@ -205,7 +181,7 @@ opencode --agent OpenAgent
 ### Exemplo 1: App de Finanças
 
 ```bash
-opencode --agent OpenAgent
+opencode --agent Master
 
 > "Crie um aplicativo de finanças pessoais com:
    - Dashboard de gastos mensais
@@ -214,62 +190,62 @@ opencode --agent OpenAgent
    - Exportação para Excel
    - Login com email/senha"
 
-# OpenAgent detecta: Feature completa
+# Master detecta: Feature completa
 # Pipeline: PM → ⏸️#1 → Architect → ⏸️#2 → TechLead(impl→test→QA→review→MR) → ⏸️#3
 ```
 
 ### Exemplo 2: Bug em Backend Node.js
 
 ```bash
-opencode --agent OpenCoder
+opencode --agent Master
 
 > "O endpoint /api/payments está retornando 500 quando o usuário usa cupom de desconto. Corrija."
 
-# OpenCoder detecta: Bug
+# Master detecta: Bug
 # Pipeline: BugFixerNodejs → Diagnóstico → Correção → Testes
 ```
 
 ### Exemplo 3: Adicionar Feature em Código Existente
 
 ```bash
-opencode --agent OpenCoder
+opencode --agent Master
 
 > "Adicione autenticação de dois fatores (2FA) no sistema de login existente"
 
-# OpenCoder detecta: Feature em código existente
-# Pipeline: ContextScout → Implementação direta → TestEngineer → CodeReviewer
+# Master detecta: Feature em código existente
+# Pipeline: ContextScout → Implementação direta (Especialista) → TestEngineer → CodeReviewer
 ```
 
 ### Exemplo 4: Análise de Arquitetura
 
 ```bash
-opencode --agent OpenAgent
+opencode --agent Master
 
 > /analyze
 
-# OpenAgent delega para CodeAnalyzer
+# Master delega para CodeAnalyzer
 # Output: Análise completa da arquitetura, padrões, e débitos técnicos
 ```
 
 ### Exemplo 5: Code Review
 
 ```bash
-opencode --agent OpenAgent
+opencode --agent Master
 
 > /review src/
 
-# OpenAgent delega para CodeReviewer
+# Master delega para CodeReviewer
 # Output: Relatório de segurança, qualidade, e sugestões
 ```
 
 ### Exemplo 6: Apenas Pergunta
 
 ```bash
-opencode --agent OpenAgent
+opencode --agent Master
 
 > "Como implementar websockets com Socket.io no Next.js?"
 
-# OpenAgent responde diretamente
+# Master responde diretamente
 # Sem execução, sem pipeline
 ```
 
@@ -281,7 +257,7 @@ opencode --agent OpenAgent
 
 ```mermaid
 graph TD
-    Start["Pedido: 'Crie um sistema de X com Y e Z'"] --> Detect["OpenAgent detecta: SDLC Pipeline"]
+    Start["Pedido: 'Crie um sistema de X com Y e Z'"] --> Detect["Master detecta: SDLC Pipeline"]
     Detect --> PM["1. ProductManager<br/>Cria STORY-XXX.md com acceptance criteria"]
     PM --> G1{{"GATE #1<br/>Você revê stories e aprova"}}
     G1 --> Arch["2. Architect<br/>Cria technical-analysis.md com batches"]
@@ -295,7 +271,7 @@ graph TD
 
 ```mermaid
 graph TD
-    Start["Pedido: 'Mude a cor do botão para azul'"] --> Detect["OpenAgent detecta: Task simples"]
+    Start["Pedido: 'Mude a cor do botão para azul'"] --> Detect["Master detecta: Task simples"]
     Detect --> CS["1. ContextScout<br/>Carrega padrões de styling"]
     CS --> Exec["2. Execução direta<br/>Edita o arquivo (sem pipeline SDLC)"]
 ```
@@ -304,7 +280,7 @@ graph TD
 
 ```mermaid
 graph TD
-    Start["Pedido: 'O login não funciona, erro 500'"] --> Detect["OpenAgent/OpenCoder detecta: Bug"]
+    Start["Pedido: 'O login não funciona, erro 500'"] --> Detect["Master detecta: Bug"]
     Detect --> BF["1. BugFixer<br/>Reproduz o bug + Root cause analysis"]
     BF --> Prop["2. Proposta de correção<br/>Você aprova"]
     Prop --> Fix["3. Correção<br/>Implementa fix + testes de regressão"]
@@ -315,7 +291,7 @@ graph TD
 
 ```mermaid
 graph TD
-    Start["Pedido: 'Como funciona X?'"] --> Detect["OpenAgent detecta: Pergunta"]
+    Start["Pedido: 'Como funciona X?'"] --> Detect["Master detecta: Pergunta"]
     Detect --> Resp["Resposta direta<br/>Sem execução, sem pipeline, sem aprovação"]
 ```
 
@@ -323,9 +299,9 @@ graph TD
 
 ## Dicas Práticas
 
-### 1. Comece com OpenAgent
+### 1. Comece com Master
 
-Sempre comece com `opencode --agent OpenAgent`. Ele sabe quando delegar para OpenCoder ou outros especialistas.
+Sempre comece com `opencode --agent Master`. Ele sabe como orquestrar e delegar para os especialistas certos.
 
 ### 2. Seja Específico
 
@@ -354,10 +330,10 @@ Se quer revisar antes de prosseguir:
 
 ### 4. Deixe o Pipeline Rodar
 
-Para features completas, use linguagem natural e deixe o OpenAgent gerenciar:
+Para features completas, use linguagem natural e deixe o Master gerenciar:
 ```
 "Crie um e-commerce completo com carrinho, checkout, e pagamentos"
-# OpenAgent orquestra tudo com 3 gates:
+# Master orquestra tudo com 3 gates:
 # ⏸️#1 após stories | ⏸️#2 após plano | ⏸️#3 após cada story completa
 ```
 
@@ -375,11 +351,11 @@ Para features completas, use linguagem natural e deixe o OpenAgent gerenciar:
 
 | Situação | Agente | Como Pedir |
 |----------|--------|------------|
-| Feature completa | OpenAgent | Linguagem natural: "Crie um..." (3 gates) |
-| Pergunta | OpenAgent | Linguagem natural: "Como funciona...?" |
-| Bug | OpenAgent ou OpenCoder | "O bug X acontece quando..." |
-| Modificação simples | OpenAgent ou OpenCoder | "Mude X para Y" |
-| Implementação direta | OpenCoder | "Implemente a função X" |
-| Code review | OpenAgent | `/review` |
-| Análise | OpenAgent | `/analyze` |
-| Controle passo a passo | OpenAgent | `/story` → `/plan` → `/implement` |
+| Feature completa | Master | Linguagem natural: "Crie um..." (3 gates) |
+| Pergunta | Master | Linguagem natural: "Como funciona...?" |
+| Bug | Master | "O bug X acontece quando..." |
+| Modificação simples | Master | "Mude X para Y" |
+| Implementação direta | Master | "Implemente a função X" |
+| Code review | Master | `/review` |
+| Análise | Master | `/analyze` |
+| Controle passo a passo | Master | `/story` → `/plan` → `/implement` |

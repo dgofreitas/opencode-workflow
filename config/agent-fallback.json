@@ -22,7 +22,7 @@
     "timeout"
   ],
   "agents": {
-    "openagent": {
+    "master": {
       "fallbackModels": []
     },
     "code-analyzer": {

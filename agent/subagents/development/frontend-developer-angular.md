@@ -60,7 +60,7 @@ MUST READ in order: 1) PM Story 2) Technical Analysis 3) UX Spec (if exists) 4) 
 Write tests for EVERY code change. Target >=90% coverage. FAIL if coverage <90%. Unit + Integration tests required.
 
 ### Rule: Approval Gate (scope: stage_transition)
-Approval gates between SDLC stages are handled by OpenAgent. Focus on implementation without individual file approvals.
+Approval gates between SDLC stages are handled by Master. Focus on implementation without individual file approvals.
 
 ---
 

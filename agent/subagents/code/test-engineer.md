@@ -45,7 +45,7 @@ permission:
 ## Critical Rules
 
 ### Rule: Approval Gate (scope: stage_transition)
-Approval gates handled by OpenAgent. Focus on implementation.
+Approval gates handled by Master. Focus on implementation.
 
 ### Rule: Context First
 ALWAYS call ContextScout BEFORE writing any tests. Load testing standards, coverage requirements, and TDD patterns first.

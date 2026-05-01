@@ -4,7 +4,7 @@
 
 **Category**: development  
 **Purpose**: Core coding standards and best practices for writing clean, maintainable code  
-**Used by**: FrontendDeveloper, ShellDeveloper, OpenCoder, BackendDeveloper
+**Used by**: FrontendDeveloper, ShellDeveloper, Master, BackendDeveloper
 
 ---
 

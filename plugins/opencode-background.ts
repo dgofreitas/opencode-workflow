@@ -21,6 +21,10 @@
 import { type Plugin, tool } from "@opencode-ai/plugin";
 // @ts-ignore
 import { spawn } from "node:child_process";
+// @ts-ignore
+import { existsSync, appendFileSync, statSync, renameSync, readdirSync, unlinkSync } from "node:fs";
+// @ts-ignore
+import { join } from "node:path";
 
 declare const process: any;
 
@@ -41,6 +45,56 @@ interface BackgroundTask {
   completedAt?: string;
   error?: string;
   outputStream: string[]; // rolling buffer, max 100 lines
+}
+
+// ─── Logger ───────────────────────────────────────────────────────────────────
+
+function getLocalTimestamp(): string {
+  const now = new Date();
+  const tzOffset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - tzOffset).toISOString().slice(0, -1);
+}
+
+const LOG_FILE = "/tmp/opencode-background.log";
+const MAX_LOG_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_LOG_FILES = 20;
+let logWriteCounter = 0;
+
+function rotateLogIfNeeded() {
+  logWriteCounter++;
+  if (logWriteCounter % 20 !== 0) return;
+
+  try {
+    if (!existsSync(LOG_FILE)) return;
+    const stats = statSync(LOG_FILE);
+    
+    if (stats.size >= MAX_LOG_SIZE) {
+      const timestamp = getLocalTimestamp().replace(/[:.]/g, "-");
+      const archiveName = `${LOG_FILE}.${timestamp}`;
+      renameSync(LOG_FILE, archiveName);
+
+      const dir = "/tmp";
+      const files = readdirSync(dir);
+      const logFiles = files
+        .filter((f: string) => f.startsWith("opencode-background.log."))
+        .map((f: string) => join(dir, f))
+        .sort();
+      
+      while (logFiles.length > MAX_LOG_FILES) {
+        const oldest = logFiles.shift();
+        if (oldest) unlinkSync(oldest);
+      }
+    }
+  } catch (err) {
+  }
+}
+
+function fileLog(msg: string, extra?: any) {
+  try {
+    rotateLogIfNeeded();
+    const logLine = `[${getLocalTimestamp()}] ${msg} ${extra ? JSON.stringify(extra) : ""}\n`;
+    appendFileSync(LOG_FILE, logLine);
+  } catch (err) { }
 }
 
 // ─── BackgroundProcessManager ─────────────────────────────────────────────────
@@ -69,7 +123,7 @@ class BackgroundProcessManager {
       tags: input.tags || [],
       global: input.global ?? false,
       sessionId: input.sessionId || "unknown",
-      startedAt: new Date().toISOString(),
+      startedAt: getLocalTimestamp(),
       outputStream: [],
     };
 
@@ -82,6 +136,8 @@ class BackgroundProcessManager {
 
     task.pid = child.pid;
     this.tasks.set(id, task);
+
+    fileLog(`[${id}] Task created`, { command: task.command, pid: task.pid, sessionId: task.sessionId });
 
     const recordOutput = (line: string, isError = false) => {
       const formatted = isError ? `[ERROR] ${line}` : line;
@@ -101,21 +157,27 @@ class BackgroundProcessManager {
     });
 
     child.on("close", (code: number | null) => {
-      if (task.status === "cancelled") return; // Already marked cancelled
-      task.completedAt = new Date().toISOString();
+      if (task.status === "cancelled") {
+        fileLog(`[${id}] Process closed after cancellation`, { code });
+        return; // Already marked cancelled
+      }
+      task.completedAt = getLocalTimestamp();
       if (code === 0) {
         task.status = "completed";
+        fileLog(`[${id}] Task completed successfully`);
       } else {
         task.status = "failed";
         task.error = `Process exited with code ${code}`;
+        fileLog(`[${id}] Task failed`, { code });
       }
     });
 
     child.on("error", (err: Error) => {
       task.status = "failed";
       task.error = err.message;
-      task.completedAt = new Date().toISOString();
+      task.completedAt = getLocalTimestamp();
       recordOutput(err.message, true);
+      fileLog(`[${id}] Task error`, { error: err.message });
     });
 
     // Unref so the OpenCode process itself can exit without waiting for the child
@@ -172,11 +234,12 @@ class BackgroundProcessManager {
     const kill = (task: BackgroundTask) => {
       try {
         if (task.pid) (process as any).kill(task.pid);
-      } catch {
-        // Process may already be dead
+        fileLog(`[${task.id}] Killed process`, { pid: task.pid });
+      } catch (err: any) {
+        fileLog(`[${task.id}] Failed to kill process`, { pid: task.pid, error: err.message });
       }
       task.status = "cancelled";
-      task.completedAt = new Date().toISOString();
+      task.completedAt = getLocalTimestamp();
       killed.push(task.id);
     };
 
@@ -207,7 +270,10 @@ class BackgroundProcessManager {
       .forEach((task) => {
         try {
           if (task.pid) (process as any).kill(task.pid);
-        } catch { }
+          fileLog(`[${task.id}] Cleaned up process`, { pid: task.pid });
+        } catch (err: any) {
+          fileLog(`[${task.id}] Cleanup failed to kill process`, { pid: task.pid, error: err.message });
+        }
         this.tasks.delete(task.id);
       });
   }
@@ -218,6 +284,8 @@ class BackgroundProcessManager {
 const manager = new BackgroundProcessManager();
 
 export const BackgroundPlugin: Plugin = async (ctx) => {
+  fileLog(`Plugin initialized`);
+
   const createBackgroundProcess = tool({
     description:
       "Run a shell command as a detached background process. Use this for any command that may take longer than 60 seconds (installs, builds, test suites, etc.) to avoid the 120s bash timeout. Returns a taskId to monitor progress.",
@@ -296,7 +364,11 @@ export const BackgroundPlugin: Plugin = async (ctx) => {
     event: async ({ event }: any) => {
       // Cleanup session-specific tasks when a session is deleted
       const sessionId = (event as any).session_id || (event as any).sessionID || event?.properties?.info?.id || event?.properties?.info?.parentID;
+      
+      fileLog(`Received event: ${event?.type}`, { sessionId });
+
       if (event?.type === "session.deleted" && sessionId) {
+        fileLog(`Session deleted, cleaning up tasks for ${sessionId}`);
         manager.cleanupSession(sessionId);
       }
     }

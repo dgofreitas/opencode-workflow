@@ -133,7 +133,7 @@ After CodeReviewer report, read the `VERDICT` before doing ANYTHING else.
 > Same rules as qa_gate: **NEVER skip, auto-decide, or jump steps.**
 
 ### Rule: Approval Gate (scope: stage_transition)
-Approval gates between SDLC stages are handled by OpenAgent. Focus on orchestrating the full story cycle without individual approvals between sub-stages.
+Approval gates between SDLC stages are handled by Master. Focus on orchestrating the full story cycle without individual approvals between sub-stages.
 
 ---
 

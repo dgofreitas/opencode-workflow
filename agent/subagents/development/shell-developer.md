@@ -45,7 +45,7 @@ permission:
 ## Critical Rules
 
 ### Rule: Approval Gate (scope: stage_transition)
-Approval gates between SDLC stages are handled by OpenAgent. Focus on implementation without individual file approvals.
+Approval gates between SDLC stages are handled by Master. Focus on implementation without individual file approvals.
 
 ### Rule: Context First (scope: all_execution)
 ALWAYS call ContextScout BEFORE any scripting work. Load project standards, existing scripts, and conventions first.

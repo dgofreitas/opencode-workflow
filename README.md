@@ -17,7 +17,7 @@ This workflow provides **26 specialized agents** covering the entire software de
 
 | Category | Agents | Description |
 |----------|--------|-------------|
-| **Core** (2) | OpenAgent, OpenCoder | Primary orchestration agents |
+| **Core** (1) | Master | Primary orchestration agent |
 | **SDLC** (5) | ProductManager, Architect, TechLead, QAAnalyst, MergeRequestCreator | Full lifecycle pipeline |
 | **Code** (5) | BackendDeveloper, TestEngineer, CodeReviewer, BugFixerNodejs, BuildAgent | Implementation, testing, review |
 | **Analysis** (2) | CodeAnalyzer, ImplReviewerNodejs | Pre-planning and post-implementation review |
@@ -37,7 +37,7 @@ The system is optimized for projects using:
 ```
 new-opencode-workflow/
   agent/
-    core/                    # OpenAgent, OpenCoder (primary agents)
+    core/                    # Master (primary agent)
     subagents/
       analysis/              # CodeAnalyzer, ImplReviewer variants
       code/                  # CoderAgent, BackendDeveloper, TestEngineer,
@@ -97,7 +97,7 @@ bun install
 
 | Document | Description |
 |----------|-------------|
-| **[USAGE_GUIDE.md](USAGE_GUIDE.md)** | **Practical guide: OpenAgent vs OpenCoder, natural language, commands** |
+| **[USAGE_GUIDE.md](USAGE_GUIDE.md)** | **Practical guide: Master agent, natural language, commands** |
 | **[INSTALLATION.md](INSTALLATION.md)** | How to install globally, locally, and hybrid setup |
 | **[HOW_IT_WORKS.md](HOW_IT_WORKS.md)** | Complete explanation of architecture, agent delegation, and workflow |
 | **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** | Visual quick reference for commands and language routing |
@@ -117,7 +117,7 @@ bash install.sh
 # bash install.sh --hybrid   # Global core + local project
 
 # Run OpenCode
-opencode --agent OpenAgent
+opencode --agent Master
 > "Create a finance app with dashboard and charts"
 ```
 

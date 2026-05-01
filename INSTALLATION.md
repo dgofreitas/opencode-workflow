@@ -97,7 +97,7 @@ ls ~/.config/opencode/
 
 # Verificar agentes
 ls ~/.config/opencode/agent/core/
-# Deve mostrar: openagent.md opencoder.md
+# Deve mostrar: master.md
 ```
 
 ### Passo 5: Executar
@@ -105,7 +105,7 @@ ls ~/.config/opencode/agent/core/
 ```bash
 # Em qualquer projeto
 cd /caminho/para/seu/projeto
-opencode --agent OpenAgent
+opencode --agent Master
 ```
 
 ---
@@ -162,7 +162,7 @@ git push
 
 ```bash
 # Na raiz do projeto
-opencode --agent OpenAgent
+opencode --agent Master
 ```
 
 ---
@@ -175,7 +175,7 @@ Use **global** para os padrões core + **local** para inteligência do projeto.
 
 ```
 ~/.config/opencode/           # Global (seus padrões pessoais)
-├── agent/core/               # OpenAgent, OpenCoder
+├── agent/core/               # Master
 ├── context/core/             # Standards, workflows
 └── ...
 
@@ -212,17 +212,17 @@ mkdir -p .opencode/context/project
 ### Modo Interativo (Recomendado)
 
 ```bash
-# Iniciar com OpenAgent (entry point universal)
-opencode --agent OpenAgent
+# Iniciar com Master (entry point universal)
+opencode --agent Master
 
-# Ou com OpenCoder (foco em desenvolvimento)
-opencode --agent OpenCoder
+# Inicie com o Master
+opencode --agent Master
 ```
 
 ### Usar Comandos Slash
 
 ```bash
-opencode --agent OpenAgent
+opencode --agent Master
 
 # Dentro do OpenCode, digite:
 /story criar um app de finanças
@@ -256,7 +256,7 @@ Para que os agentes gerem código que **combina com seu projeto**, configure o c
 ### Opção 1: Usar o comando /add-context
 
 ```bash
-opencode --agent OpenAgent
+opencode --agent Master
 
 # Dentro do OpenCode:
 /add-context
@@ -338,12 +338,12 @@ cat ~/.config/opencode/config/agent-metadata.json | grep -c '"id"'
 ### Teste Rápido
 
 ```bash
-opencode --agent OpenAgent
+opencode --agent Master
 
 # Digite:
 > "Olá, qual é o seu propósito?"
 
-# Resposta esperada: OpenAgent deve explicar que é o agente universal
+# Resposta esperada: Master deve explicar que é o agente universal
 # que recebe pedidos, classifica, e delega para especialistas.
 ```
 
@@ -357,8 +357,7 @@ opencode --agent OpenAgent
 ~/.config/opencode/
 ├── agent/
 │   ├── core/
-│   │   ├── openagent.md
-│   │   └── opencoder.md
+│   │   └── master.md
 │   └── subagents/
 │       ├── analysis/          # 2 agentes
 │       ├── code/              # 5 agentes
@@ -410,10 +409,10 @@ opencode --agent OpenAgent
 
 ```bash
 # Verificar se o agente existe
-ls ~/.config/opencode/agent/core/openagent.md
+ls ~/.config/opencode/agent/core/master.md
 
 # Verificar metadata
-cat ~/.config/opencode/config/agent-metadata.json | grep OpenAgent
+cat ~/.config/opencode/config/agent-metadata.json | grep Master
 ```
 
 ### "Context not loading"
@@ -465,8 +464,8 @@ cd ~/.config/opencode && bun install
 
 | Comando | Descrição |
 |---------|-----------|
-| `opencode --agent OpenAgent` | Inicia com agente universal |
-| `opencode --agent OpenCoder` | Inicia com agente de desenvolvimento |
+| `opencode --agent Master` | Inicia com agente universal |
+| `opencode --agent Master` | Inicia com o agente universal Master |
 | `/story <desc>` | Cria user story |
 | `/plan <story>` | Cria plano técnico |
 | `/implement <story>` | Executa implementação |

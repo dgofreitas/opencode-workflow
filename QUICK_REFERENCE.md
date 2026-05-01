@@ -38,8 +38,7 @@ Gate #3 repete para **cada story** (ciclo per-story). Cada story = branch própr
 ### Entry Points (Você fala com eles)
 | Agente | Quando usar |
 |--------|-------------|
-| **OpenAgent** | Qualquer pedido - ele roteia automaticamente |
-| **OpenCoder** | Tarefas de código diretas (sem SDLC completo) |
+| **Master** | Qualquer pedido - ele roteia automaticamente |
 
 ### SDLC Pipeline
 | Agente | Função | Output |
@@ -103,7 +102,7 @@ Gate #3 repete para **cada story** (ciclo per-story). Cada story = branch própr
 ```mermaid
 sequenceDiagram
     actor User as Você
-    participant OA as OpenAgent
+    participant OA as Master
     participant PM as ProductManager
     participant Arch as Architect
     participant TL as TechLead

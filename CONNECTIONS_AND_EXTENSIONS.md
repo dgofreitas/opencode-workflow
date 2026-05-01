@@ -10,7 +10,7 @@ Este documento explica tecnicamente como os componentes se conectam, onde cada c
 graph TD
     User["USUÁRIO"] --> OA
 
-    OA["OpenAgent - Core<br/>agent/core/openagent.md<br/>Orquestra SDLC com 3 approval gates"]
+    OA["Master - Core<br/>agent/core/master.md<br/>Orquestra SDLC com 3 approval gates"]
 
     OA -->|"task(PM) → GATE #1 → task(Arch)"| PM_Arch["ProductManager / Architect"]
     OA -->|"GATE #2 → task(TechLead)"| TL["TechLead<br/>ciclo completo per-story"]
@@ -33,10 +33,10 @@ graph TD
 
 **Onde está definido:** Cada agente tem uma seção que lista subagentes disponíveis e quando usá-los.
 
-**Exemplo - OpenAgent chamando ProductManager:**
+**Exemplo - Master chamando ProductManager:**
 
 ```javascript
-// Arquivo: agent/core/openagent.md
+// Arquivo: agent/core/master.md
 // Linhas: 318-322
 
 task(
@@ -46,14 +46,14 @@ task(
 )
 ```
 
-**Onde o OpenAgent sabe qual agente chamar:**
+**Onde o Master sabe qual agente chamar:**
 
 | Linha | Arquivo | O que faz |
 |-------|---------|-----------|
-| 88-101 | `agent/core/openagent.md` | Lista subagentes disponíveis |
-| 116-124 | `agent/core/openagent.md` | Tabela "When to Use SDLC Pipeline" |
-| 248-251 | `agent/core/openagent.md` | `<path type="sdlc">` define quando usar SDLC |
-| 318-322 | `agent/core/openagent.md` | Código de invocação do ProductManager |
+| 88-101 | `agent/core/master.md` | Lista subagentes disponíveis |
+| 116-124 | `agent/core/master.md` | Tabela "When to Use SDLC Pipeline" |
+| 248-251 | `agent/core/master.md` | `<path type="sdlc">` define quando usar SDLC |
+| 318-322 | `agent/core/master.md` | Código de invocação do ProductManager |
 
 **Exemplo - TechLead chamando BackendDeveloper:**
 
@@ -247,15 +247,15 @@ const config = loadEnv()
 
 ## 6. Mapa Completo de Conexões
 
-### OpenAgent → Subagentes
+### Master → Subagentes
 
 | Subagent | Arquivo | Linha da Invocação |
 |----------|---------|-------------------|
-| ProductManager | `agent/core/openagent.md` | 318-322 |
-| Architect | `agent/core/openagent.md` | 373-377 |
-| TechLead | `agent/core/openagent.md` | 435-439 |
-| ContextScout | `agent/core/openagent.md` | 317-326 |
-| ExternalScout | `agent/core/openagent.md` | (detectado dinamicamente) |
+| ProductManager | `agent/core/master.md` | 318-322 |
+| Architect | `agent/core/master.md` | 373-377 |
+| TechLead | `agent/core/master.md` | 435-439 |
+| ContextScout | `agent/core/master.md` | 317-326 |
+| ExternalScout | `agent/core/master.md` | (detectado dinamicamente) |
 
 ### TechLead → Ciclo Completo (impl→test→QA→review→MR)
 
@@ -341,7 +341,7 @@ permission:
 </rule>
 
 <rule id="approval_gate" scope="stage_transition">
-  Approval gates between SDLC stages are handled by OpenAgent.
+  Approval gates between SDLC stages are handled by Master.
   Focus on implementation without individual file approvals.
 </rule>
 
@@ -371,7 +371,7 @@ permission:
 4. **Adicionar aos routing tables (se necessário):**
 
 ```markdown
-<!-- Arquivo: agent/core/openagent.md -->
+<!-- Arquivo: agent/core/master.md -->
 <!-- Adicionar na seção "Available Subagents" -->
 
 - `NovoAgente` - O que faz
@@ -558,7 +558,7 @@ import { minhaTool } from '../../tool/{nome}/index.js'
 - [ ] Adicionar frontmatter (name, description, mode, temperature, permission)
 - [ ] Adicionar regras `context_first` e `approval_gate`
 - [ ] Registrar em `config/agent-metadata.json`
-- [ ] Adicionar aos routing tables (OpenAgent, TechLead, etc.)
+- [ ] Adicionar aos routing tables (Master, TechLead, etc.)
 - [ ] Testar invocação via `task(subagent_type="Nome", ...)`
 
 ### Novo Contexto
@@ -598,7 +598,7 @@ import { minhaTool } from '../../tool/{nome}/index.js'
 graph TD
     subgraph Agente["NOVO AGENTE"]
         A1["agent/subagents/categoria/nome.md"] --> A2["config/agent-metadata.json"]
-        A2 --> A3["agent/core/openagent.md<br/>Adicionar routing"]
+        A2 --> A3["agent/core/master.md<br/>Adicionar routing"]
     end
 
     subgraph Contexto["NOVO CONTEXTO"]
