@@ -10,7 +10,12 @@
       "type": "agent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["universal", "coordination", "primary", "sdlc"],
+      "tags": [
+        "universal",
+        "coordination",
+        "primary",
+        "sdlc"
+      ],
       "dependencies": [
         "subagent:task-manager",
         "subagent:documentation",
@@ -21,31 +26,6 @@
         "subagent:tech-lead"
       ]
     },
-    "opencoder": {
-      "id": "opencoder",
-      "name": "OpenCoder",
-      "category": "core",
-      "type": "agent",
-      "version": "1.0.0",
-      "author": "opencode",
-      "tags": ["development", "coding", "implementation", "language-routing"],
-      "dependencies": [
-        "subagent:documentation",
-        "subagent:task-manager",
-        "subagent:coder-agent",
-        "subagent:coder-agent-python",
-        "subagent:coder-agent-c",
-        "subagent:test-engineer",
-        "subagent:test-engineer-python",
-        "subagent:test-engineer-c",
-        "subagent:code-reviewer",
-        "subagent:code-reviewer-python",
-        "subagent:code-reviewer-c",
-        "subagent:build-agent",
-        "subagent:contextscout",
-        "subagent:externalscout"
-      ]
-    },
     "contextscout": {
       "id": "contextscout",
       "name": "ContextScout",
@@ -53,7 +33,11 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["context", "discovery", "knowledge-base"],
+      "tags": [
+        "context",
+        "discovery",
+        "knowledge-base"
+      ],
       "dependencies": []
     },
     "externalscout": {
@@ -63,7 +47,12 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["external", "documentation", "libraries", "context7"],
+      "tags": [
+        "external",
+        "documentation",
+        "libraries",
+        "context7"
+      ],
       "dependencies": [
         "skill:context7"
       ]
@@ -75,7 +64,12 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["task", "planning", "decomposition", "json"],
+      "tags": [
+        "task",
+        "planning",
+        "decomposition",
+        "json"
+      ],
       "dependencies": [
         "skill:task-management"
       ]
@@ -87,7 +81,11 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["documentation", "markdown", "technical-writing"],
+      "tags": [
+        "documentation",
+        "markdown",
+        "technical-writing"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -99,7 +97,13 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["backend", "nodejs", "express", "fastify", "nestjs"],
+      "tags": [
+        "backend",
+        "nodejs",
+        "express",
+        "fastify",
+        "nestjs"
+      ],
       "dependencies": [
         "subagent:contextscout",
         "subagent:externalscout",
@@ -113,7 +117,13 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["testing", "jest", "vitest", "tdd", "nodejs"],
+      "tags": [
+        "testing",
+        "jest",
+        "vitest",
+        "tdd",
+        "nodejs"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -125,7 +135,12 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["review", "security", "quality", "nodejs"],
+      "tags": [
+        "review",
+        "security",
+        "quality",
+        "nodejs"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -137,7 +152,12 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["build", "validation", "type-check", "compilation"],
+      "tags": [
+        "build",
+        "validation",
+        "type-check",
+        "compilation"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -149,7 +169,12 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["bugfix", "debugging", "nodejs", "rca"],
+      "tags": [
+        "bugfix",
+        "debugging",
+        "nodejs",
+        "rca"
+      ],
       "dependencies": [
         "subagent:contextscout",
         "subagent:externalscout"
@@ -162,7 +187,12 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["analysis", "architecture", "patterns", "nodejs"],
+      "tags": [
+        "analysis",
+        "architecture",
+        "patterns",
+        "nodejs"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -174,7 +204,12 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["review", "implementation", "validation", "nodejs"],
+      "tags": [
+        "review",
+        "implementation",
+        "validation",
+        "nodejs"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -186,7 +221,12 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["frontend", "ui", "generic", "accessibility"],
+      "tags": [
+        "frontend",
+        "ui",
+        "generic",
+        "accessibility"
+      ],
       "dependencies": [
         "subagent:contextscout",
         "subagent:externalscout",
@@ -200,7 +240,13 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["frontend", "react", "nextjs", "ui", "accessibility"],
+      "tags": [
+        "frontend",
+        "react",
+        "nextjs",
+        "ui",
+        "accessibility"
+      ],
       "dependencies": [
         "subagent:contextscout",
         "subagent:externalscout",
@@ -214,7 +260,13 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["frontend", "vue", "nuxt", "ui", "accessibility"],
+      "tags": [
+        "frontend",
+        "vue",
+        "nuxt",
+        "ui",
+        "accessibility"
+      ],
       "dependencies": [
         "subagent:contextscout",
         "subagent:externalscout",
@@ -228,7 +280,13 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["frontend", "angular", "rxjs", "ui", "enterprise"],
+      "tags": [
+        "frontend",
+        "angular",
+        "rxjs",
+        "ui",
+        "enterprise"
+      ],
       "dependencies": [
         "subagent:contextscout",
         "subagent:externalscout",
@@ -242,7 +300,13 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["shell", "bash", "automation", "cli", "systems"],
+      "tags": [
+        "shell",
+        "bash",
+        "automation",
+        "cli",
+        "systems"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -254,7 +318,14 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["ux", "ui", "design", "wireframes", "accessibility", "wcag"],
+      "tags": [
+        "ux",
+        "ui",
+        "design",
+        "wireframes",
+        "accessibility",
+        "wcag"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -266,7 +337,15 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["devops", "cicd", "docker", "kubernetes", "terraform", "infrastructure", "deployment"],
+      "tags": [
+        "devops",
+        "cicd",
+        "docker",
+        "kubernetes",
+        "terraform",
+        "infrastructure",
+        "deployment"
+      ],
       "dependencies": [
         "subagent:contextscout",
         "subagent:externalscout"
@@ -279,7 +358,13 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["sdlc", "product", "stories", "requirements", "planning"],
+      "tags": [
+        "sdlc",
+        "product",
+        "stories",
+        "requirements",
+        "planning"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -291,7 +376,12 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["sdlc", "architecture", "planning", "delegation"],
+      "tags": [
+        "sdlc",
+        "architecture",
+        "planning",
+        "delegation"
+      ],
       "dependencies": [
         "subagent:contextscout",
         "subagent:code-analyzer",
@@ -306,7 +396,12 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["sdlc", "execution", "coordination", "quality"],
+      "tags": [
+        "sdlc",
+        "execution",
+        "coordination",
+        "quality"
+      ],
       "dependencies": [
         "subagent:contextscout",
         "subagent:code-analyzer",
@@ -324,7 +419,13 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["sdlc", "qa", "testing", "validation", "acceptance"],
+      "tags": [
+        "sdlc",
+        "qa",
+        "testing",
+        "validation",
+        "acceptance"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -336,7 +437,12 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["sdlc", "merge-request", "pull-request", "delivery"],
+      "tags": [
+        "sdlc",
+        "merge-request",
+        "pull-request",
+        "delivery"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
@@ -348,7 +454,11 @@
       "type": "subagent",
       "version": "1.0.0",
       "author": "opencode",
-      "tags": ["context", "organization", "knowledge-management"],
+      "tags": [
+        "context",
+        "organization",
+        "knowledge-management"
+      ],
       "dependencies": [
         "subagent:contextscout"
       ]
