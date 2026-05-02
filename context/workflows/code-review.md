@@ -1,16 +1,22 @@
-<!-- Context: workflows/review | Priority: high | Version: 2.0 | Updated: 2025-01-21 -->
+<!-- Context: workflows/review | Priority: high | Version: 3.0 | Updated: 2026-05-02 -->
+<!-- Source of truth: /HOW_IT_WORKS.md + /QUICK_REFERENCE.md (gates, SDLC, coverage ≥0.90).
+     This file = operational protocol loaded by CodeReviewer at runtime. -->
 
 # Code Review Guidelines
 
 ## Quick Reference
 
-**Golden Rule**: Review code as you'd want yours reviewed - thoroughly but kindly
+**Invoked by**: TechLead during full-cycle (step 4 of impl→test→QA→review→MR). Never gates internally — returns report to TechLead.
 
-**Checklist**: Functionality, Code Quality, Security, Testing, Performance, Maintainability
+**Variants by language**: `CodeReviewer` (Node.js/TS, default) | `CodeReviewerPython` | `CodeReviewerC`. TechLead routes based on stack detection.
 
-**Report Format**: Summary, Assessment, Issues (🔴🟡🔵), Positive Observations, Recommendations
+**Golden Rule**: Review code as you'd want yours reviewed — thoroughly but kindly.
 
-**Principles**: Constructive, Thorough, Timely
+**Checklist**: Functionality, Code Quality, Security, Testing, Performance, Maintainability.
+
+**Report Format**: Summary, Assessment, Issues (🔴🟡🔵), Positive Observations, Recommendations.
+
+**Principles**: Constructive, Thorough, Timely.
 
 ---
 
@@ -49,6 +55,7 @@
 - [ ] Edge cases covered
 - [ ] Error cases covered
 - [ ] All tests pass
+- [ ] **Coverage ≥ 90%** (mandatory per HOW_IT_WORKS §3)
 
 ### Performance
 - [ ] No obvious performance issues
@@ -117,8 +124,8 @@
 🟡 Unclear naming
 
 ### Testing
-🟡 Missing tests
-🟡 Low coverage (<80%)
+� Missing tests
+� Coverage <90% (project minimum)
 🟡 Flaky tests
 🟡 Tests testing implementation
 

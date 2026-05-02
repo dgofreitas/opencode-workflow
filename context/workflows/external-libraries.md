@@ -1,4 +1,7 @@
-<!-- Context: workflows/external-libraries | Priority: high | Version: 3.0 | Updated: 2026-05-02 -->
+<!-- Context: workflows/external-libraries | Priority: high | Version: 3.1 | Updated: 2026-05-02 -->
+<!-- Source of truth: /HOW_IT_WORKS.md §2 (ExternalScout mandatory).
+     This file = operational protocol loaded by ExternalScout/agents at runtime. -->
+
 # External Libraries
 
 **Purpose**: Complete workflow for fetching, caching, integrating, and troubleshooting external library documentation via ExternalScout.
@@ -160,7 +163,7 @@ Before implementing with external libraries:
 
 ## Related
 
-- `.opencode/agent/subagents/core/externalscout.md` — ExternalScout agent
-- `.opencode/skills/context7/library-registry.md` — Supported libraries + IDs
-- `.opencode/context/core/workflows/task-delegation-basics.md` — Delegation workflow
-- `.opencode/context/core/workflows/session-management.md` — Session lifecycle
+- `agent/subagents/core/externalscout.md` — ExternalScout agent
+- `skills/context7/library-registry.md` — Supported libraries + IDs
+- `context/workflows/task-delegation.md` — Delegation workflow
+- `context/workflows/session-management.md` — Session lifecycle

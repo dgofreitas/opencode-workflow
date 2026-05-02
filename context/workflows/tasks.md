@@ -1,4 +1,7 @@
-<!-- Context: workflows/tasks | Priority: critical | Version: 1.0 | Updated: 2026-05-02 -->
+<!-- Context: workflows/tasks | Priority: critical | Version: 1.1 | Updated: 2026-05-02 -->
+<!-- Source of truth: /HOW_IT_WORKS.md (TaskManager role).
+     This file = JSON schema + lifecycle loaded by TaskManager at runtime. -->
+
 # Task Management
 
 **Purpose**: JSON-driven task system — schema, lifecycle, decomposition, and CLI reference.

@@ -1,234 +1,166 @@
-<!-- Context: workflows/task-breakdown | Priority: high | Version: 2.0 | Updated: 2025-01-21 -->
+<!-- Context: workflows/feature-breakdown | Priority: high | Version: 3.0 | Updated: 2026-05-02 -->
+<!-- Source of truth: /HOW_IT_WORKS.md (SDLC: Architect produces breakdown).
+     This file = breakdown technique loaded by Architect/PM/TaskManager at runtime.
+     Output integrates with workflows/tasks.md (JSON schema). -->
 
-# Task Breakdown Guidelines
+# Feature Breakdown
 
-## Quick Reference
+**Purpose**: Decompose a feature into atomic, dependency-aware subtasks ready for `tasks.md` JSON schema.
 
-**When to Use**: 4+ files, >60 min effort, complex dependencies, multi-step coordination
-
-**Process**: Scope → Phases → Small Tasks (1-2h) → Dependencies → Estimates
-
-**Template Sections**: Overview, Prerequisites, Tasks (by Phase), Testing Strategy, Total Estimate, Notes
-
-**Best Practices**: Keep tasks small (1-2h), make dependencies clear, include verification, be realistic with estimates
+**Used by**: `Architect` (within technical-analysis) | `ProductManager` (story sizing) | `TaskManager` (subtask creation).
 
 ---
 
-## Purpose
-Framework for breaking down complex tasks into manageable, sequential subtasks.
+## When to break down
 
-## When to Use
-Reference this when:
-- Task involves 4+ files
-- Estimated effort >60 minutes
-- Complex dependencies exist
-- Multi-step coordination needed
-- User requests task breakdown
+- 4+ files affected
+- Estimated effort >60 min
+- Cross-layer (DB + API + UI)
+- Dependencies between components
 
-## Breakdown Process
+If <4 files and <60 min: skip breakdown, deliver as single task.
 
-### 1. Understand the Full Scope
-- What's the complete requirement?
-- What are all the components needed?
-- What's the end goal?
-- What are the constraints?
+---
 
-### 2. Identify Major Phases
-- What are the logical groupings?
-- What must happen first?
-- What can happen in parallel?
-- What depends on what?
+## Process
 
-### 3. Break Into Small Tasks
-- Each task should be 1-2 hours max
-- Clear, actionable items
-- Independently completable
-- Easy to verify completion
-
-### 4. Define Dependencies
-- What must be done first?
-- What can be done in parallel?
-- What blocks what?
-- What's the critical path?
-
-### 5. Estimate Effort
-- Realistic time estimates
-- Include testing time
-- Account for unknowns
-- Add buffer for complexity
-
-## Breakdown Template
-
-```markdown
-# Task Breakdown: {Task Name}
-
-## Overview
-{1-2 sentence description of what we're building}
-
-## Prerequisites
-- [ ] {Prerequisite 1}
-- [ ] {Prerequisite 2}
-
-## Tasks
-
-### Phase 1: {Phase Name}
-**Goal:** {What this phase accomplishes}
-
-- [ ] **Task 1.1:** {Description}
-  - **Files:** {files to create/modify}
-  - **Estimate:** {time estimate}
-  - **Dependencies:** {none / task X}
-  - **Verification:** {how to verify it's done}
-
-- [ ] **Task 1.2:** {Description}
-  - **Files:** {files to create/modify}
-  - **Estimate:** {time estimate}
-  - **Dependencies:** {task 1.1}
-  - **Verification:** {how to verify it's done}
-
-### Phase 2: {Phase Name}
-**Goal:** {What this phase accomplishes}
-
-- [ ] **Task 2.1:** {Description}
-  - **Files:** {files to create/modify}
-  - **Estimate:** {time estimate}
-  - **Dependencies:** {phase 1 complete}
-  - **Verification:** {how to verify it's done}
-
-## Testing Strategy
-- [ ] Unit tests for {component}
-- [ ] Integration tests for {flow}
-- [ ] Manual testing: {scenarios}
-
-## Total Estimate
-**Time:** {X} hours
-**Complexity:** {Low / Medium / High}
-
-## Notes
-{Any important context, decisions, or considerations}
+```
+SCOPE → PHASES → ATOMIC TASKS (1–2h) → DEPENDENCIES → ESTIMATES → JSON
 ```
 
-## Example Breakdown
+### 1. Scope
+
+What's the complete requirement? End goal? Constraints? Out-of-scope?
+
+### 2. Phases
+
+Logical groupings. What must happen first? What runs in parallel?
+
+### 3. Atomic tasks (1–2h each)
+
+Each task must be:
+- Single clear outcome
+- Independently testable
+- Concrete deliverables (files/endpoints, not adjectives)
+- Binary acceptance criteria
+
+Bad: "Implement authentication" → Good: "Create password hashing utility in `src/auth/hash.ts`".
+
+### 4. Dependencies
+
+Map `depends_on` chains. Mark `parallel: true` when no shared files and no runtime coupling.
+
+### 5. Estimates
+
+Realistic, include test time, add buffer. Overestimate > underestimate.
+
+---
+
+## Output: integrate with tasks.md
+
+The breakdown produces input for `task.json` + `subtask_NN.json` per `workflows/tasks.md`. Map fields:
+
+| Breakdown concept | tasks.md field |
+|-------------------|----------------|
+| Phase + task title | `subtask.title` |
+| Files to modify | `subtask.deliverables` |
+| Dependencies | `subtask.depends_on` |
+| Parallel flag | `subtask.parallel` |
+| Verification | `subtask.acceptance_criteria` |
+| Suggested specialist | `subtask.suggested_agent` |
+| Total effort | `task.objective` (informal) |
+
+---
+
+## Markdown template (planning artifact)
+
+Use during planning before generating JSON. Save to `docs/stories/STORY-XXX/breakdown.md` if SDLC, else `.tmp/sessions/{id}/breakdown.md`.
 
 ```markdown
-# Task Breakdown: User Authentication System
+# Breakdown: {Feature}
 
 ## Overview
-Build authentication system with login, registration, and password reset.
+{1–2 sentences}
 
 ## Prerequisites
-- [ ] Database schema designed
-- [ ] Email service configured
+- [ ] {Prereq 1}
 
-## Tasks
+## Phase 1: {Name}
+**Goal:** {what this phase accomplishes}
 
-### Phase 1: Core Authentication
-**Goal:** Basic login/logout functionality
+- [ ] **Task 1.1:** {description}
+  - **Files:** `path/to/file.ts`
+  - **Estimate:** 1h
+  - **Depends on:** none
+  - **Parallel:** yes
+  - **Verify:** {binary check}
+  - **Agent:** BackendDeveloper
 
-- [ ] **Task 1.1:** Create user model and database schema
-  - **Files:** `models/user.js`, `migrations/001_users.sql`
-  - **Estimate:** 1 hour
-  - **Dependencies:** none
-  - **Verification:** Can create user in database
+- [ ] **Task 1.2:** {description}
+  - **Files:** `path/to/other.ts`
+  - **Estimate:** 30m
+  - **Depends on:** Task 1.1
+  - **Parallel:** no
+  - **Verify:** Tests pass
+  - **Agent:** TestEngineer
 
-- [ ] **Task 1.2:** Implement password hashing
-  - **Files:** `utils/password.js`
-  - **Estimate:** 30 min
-  - **Dependencies:** Task 1.1
-  - **Verification:** Passwords are hashed, not plain text
+## Phase 2: {Name}
+**Goal:** {...}
+- [ ] **Task 2.1:** ...
 
-- [ ] **Task 1.3:** Create login endpoint
-  - **Files:** `routes/auth.js`, `controllers/auth.js`
-  - **Estimate:** 1.5 hours
-  - **Dependencies:** Task 1.1, 1.2
-  - **Verification:** Can login with valid credentials
+## Testing strategy
+- Unit: {scope}
+- Integration: {flows}
+- E2E: {journeys}
+- **Coverage target:** ≥90% (mandatory)
 
-### Phase 2: Registration
-**Goal:** New user registration
-
-- [ ] **Task 2.1:** Create registration endpoint
-  - **Files:** `routes/auth.js`, `controllers/auth.js`
-  - **Estimate:** 1 hour
-  - **Dependencies:** Phase 1 complete
-  - **Verification:** Can create new user account
-
-- [ ] **Task 2.2:** Add email validation
-  - **Files:** `utils/validation.js`
-  - **Estimate:** 30 min
-  - **Dependencies:** Task 2.1
-  - **Verification:** Invalid emails rejected
-
-### Phase 3: Password Reset
-**Goal:** Users can reset forgotten passwords
-
-- [ ] **Task 3.1:** Generate reset tokens
-  - **Files:** `utils/tokens.js`
-  - **Estimate:** 1 hour
-  - **Dependencies:** Phase 1 complete
-  - **Verification:** Tokens generated and validated
-
-- [ ] **Task 3.2:** Create reset endpoints
-  - **Files:** `routes/auth.js`, `controllers/auth.js`
-  - **Estimate:** 1.5 hours
-  - **Dependencies:** Task 3.1
-  - **Verification:** Can request and complete password reset
-
-- [ ] **Task 3.3:** Send reset emails
-  - **Files:** `services/email.js`
-  - **Estimate:** 1 hour
-  - **Dependencies:** Task 3.2
-  - **Verification:** Reset emails sent successfully
-
-## Testing Strategy
-- [ ] Unit tests for password hashing
-- [ ] Unit tests for token generation
-- [ ] Integration tests for login flow
-- [ ] Integration tests for registration flow
-- [ ] Integration tests for password reset flow
-- [ ] Manual testing: Complete user journey
-
-## Total Estimate
-**Time:** 8.5 hours
-**Complexity:** Medium
-
-## Notes
-- Use bcrypt for password hashing (industry standard)
-- Reset tokens expire after 1 hour
-- Rate limit password reset requests
-- Email service must be configured before Phase 3
+## Total
+**Time:** {X}h | **Complexity:** Low/Med/High
 ```
 
-## Best Practices
+---
 
-- **Small tasks**: 1-2h max, completable in one sitting; break down further if larger
-- **Clear dependencies**: Explicitly state blockers, identify parallel work
-- **Verification**: Define how to know each task is done
-- **Realistic estimates**: Include testing time, add buffer for complexity, overestimate > underestimate
-- **Group related work**: Organize by feature/component, keep phases logical
+## Decomposition checklist
 
-## Common Patterns
+- [ ] Each task ≤2h?
+- [ ] Dependencies form valid DAG (no cycles)?
+- [ ] Parallel tasks correctly flagged (no shared files)?
+- [ ] Acceptance criteria binary (pass/fail, not subjective)?
+- [ ] Deliverables concrete (paths, endpoints, not adjectives)?
+- [ ] Coverage target ≥90% included?
+- [ ] Each task mapped to a specialist agent?
 
-### Database-First Pattern
-1. Design schema
-2. Create migrations
-3. Build models
-4. Implement business logic
-5. Add API endpoints
-6. Write tests
+---
 
-### Feature-First Pattern
-1. Define requirements
-2. Design interface
-3. Implement core logic
-4. Add error handling
-5. Write tests
-6. Document usage
+## Common patterns
 
-### Refactoring Pattern
-1. Add tests for existing behavior
-2. Refactor small section
-3. Verify tests still pass
-4. Repeat for next section
-5. Clean up and optimize
-6. Update documentation
+### Database-first
+1. Schema → 2. Migrations → 3. Models → 4. Business logic → 5. API → 6. Tests
 
+### API-first (contract-driven)
+1. OpenAPI spec → 2. Mock server → 3. Frontend (against mock) || Backend (impl) → 4. Integration → 5. Tests
+
+### Vertical slice
+1. Pick smallest end-to-end path → 2. Build through all layers → 3. Add next slice
+   (preferred for new features — delivers value early)
+
+### Refactor
+1. Add tests for existing behavior → 2. Refactor small slice → 3. Verify green → 4. Repeat
+
+---
+
+## Anti-patterns
+
+- ❌ Mega-tasks ("Implement payment system" — break into 10–15 atomic tasks)
+- ❌ Hidden dependencies (always declare via `depends_on`)
+- ❌ Non-binary criteria ("Code is clean" → unprovable)
+- ❌ Parallel tasks touching same file (race conditions)
+- ❌ Skipping test estimates (always include)
+
+---
+
+## Related
+
+- `context/workflows/tasks.md` — JSON schema, lifecycle, CLI
+- `context/workflows/task-delegation.md` — How to delegate after breakdown
+- `context/workflows/component-planning.md` — Two-level planning (system + component)

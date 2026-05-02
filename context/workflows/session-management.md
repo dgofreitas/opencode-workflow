@@ -1,157 +1,160 @@
-<!-- Context: workflows/sessions | Priority: medium | Version: 2.0 | Updated: 2025-01-21 -->
+<!-- Context: workflows/sessions | Priority: medium | Version: 3.0 | Updated: 2026-05-02 -->
+<!-- Source of truth: /HOW_IT_WORKS.md (3-gate SDLC) + workflows/task-delegation.md (canonical session model).
+     This file = session lifecycle protocol. Aligned: ID format, structure, cleanup. -->
+
 # Session Management
 
-## Quick Reference
-
-**Key Principle**: Lazy initialization - only create when needed
-
-**Session ID**: `{timestamp}-{random-4-chars}` (e.g., `20250118-143022-a4f2`)
-
-**Cleanup**: Always ask user confirmation before deleting
-
-**Safety**: NEVER delete outside current session, ONLY delete tracked files, ALWAYS confirm
+**Purpose**: Lifecycle of `.tmp/sessions/{id}/` — when to create, what to put inside, how to clean up.
 
 ---
 
-## Lazy Initialization
+## Quick Reference
 
-**Only create session when first context file needed**
+- **When to create**: only for approved, multi-file tasks (4+ files, >60 min) or when delegating to TaskManager. Skip for 1–3 file tasks.
+- **Session ID**: `{YYYY-MM-DD}-{slug}` (e.g., `2026-05-02-user-auth`). Slug = kebab-case, ≤30 chars.
+- **Lazy init**: only on first delegation that needs persisted context.
+- **Cleanup**: ask user, then delete entire session dir.
+- **Safety**: NEVER touch files outside current session.
 
-- Don't create sessions for simple questions or direct execution
-- Initialize on first delegation that requires context file
-- Session ID format: `{timestamp}-{random-4-chars}`
-- Example: `20250118-143022-a4f2`
+---
 
-## Session Structure
+## Structure
 
 ```
-.tmp/sessions/{session-id}/
-├── .manifest.json
-├── features/
-│   └── {task-name}-context.md
-├── documentation/
-│   └── {task-name}-context.md
-├── code/
-│   └── {task-name}-context.md
-├── tasks/
-│   └── {task-name}-tasks.md
-└── general/
-    └── {task-name}-context.md
+.tmp/sessions/{YYYY-MM-DD}-{slug}/
+├── context.md           # Single source of context for this session
+├── .manifest.json       # Tracks files, cache, activity
+└── .cache/              # Optional — cached standards (see task-delegation.md)
+    ├── code-quality.md
+    └── test-coverage.md
 ```
 
-## Session Isolation
+**Single `context.md` model** (replaces older `features/code/tasks/general/` subdirs). One context file = one cognitive entry point per session.
 
-**Each session has unique ID - prevents concurrent agent conflicts**
+---
 
-✅ Multiple agent instances can run simultaneously
-✅ No file conflicts between sessions
-✅ Each session tracks only its own files
-✅ Safe cleanup - only deletes own session folder
+## context.md template
 
-## Manifest Structure
+See `workflows/task-delegation.md` §Session Context Template. Canonical structure:
 
-**Location**: `.tmp/sessions/{session-id}/.manifest.json`
+```markdown
+# Task Context: {Task Name}
+
+Session ID: {YYYY-MM-DD}-{slug}
+Created: {ISO timestamp}
+Status: in_progress
+
+## Current Request
+{verbatim or close paraphrase}
+
+## Context Files (Standards)
+- context/standards/code-quality.md
+
+## Reference Files (Source)
+- src/existing-module.ts
+
+## External Context Fetched
+- .tmp/external-context/{package}/{topic}.md
+
+## Components / Constraints / Exit Criteria
+{...}
+```
+
+---
+
+## Manifest
+
+`.tmp/sessions/{id}/.manifest.json`:
 
 ```json
 {
-  "session_id": "20250118-143022-a4f2",
-  "created_at": "2025-01-18T14:30:22Z",
-  "last_activity": "2025-01-18T14:35:10Z",
-  "context_files": {
-    "features/user-auth-context.md": {
-      "created": "2025-01-18T14:30:22Z",
-      "for": "@TaskManager",
-      "keywords": ["user-auth", "authentication", "features"]
-    },
-    "tasks/user-auth-tasks.md": {
-      "created": "2025-01-18T14:32:15Z",
-      "for": "@TaskManager",
-      "keywords": ["user-auth", "tasks", "breakdown"]
+  "session_id": "2026-05-02-user-auth",
+  "created_at": "2026-05-02T14:30:22Z",
+  "last_activity": "2026-05-02T14:35:10Z",
+  "context_files": ["context.md"],
+  "delegations": [
+    { "agent": "TaskManager", "at": "2026-05-02T14:32:00Z" },
+    { "agent": "BackendDeveloper", "at": "2026-05-02T14:33:10Z" }
+  ],
+  "cache": {
+    "code-quality.md": {
+      "source": "context/standards/code-quality.md",
+      "cached_at": "2026-05-02T14:30:25Z",
+      "status": "valid"
     }
-  },
-  "context_index": {
-    "user-auth": [
-      "features/user-auth-context.md",
-      "tasks/user-auth-tasks.md"
-    ]
   }
 }
 ```
 
-## Activity Tracking
+Update `last_activity` after each delegation or context write.
 
-**Update timestamp after each context file creation or delegation**
+---
 
-- Update `last_activity` field in manifest
-- Used for stale session detection
-- Helps identify active vs abandoned sessions
+## Lifecycle
 
-## Cleanup Policy
+```
+1. CREATE  → on first delegation needing persisted context
+2. WRITE   → context.md + manifest.json
+3. DELEGATE → pass session path to specialist (no re-discovery)
+4. CACHE   → optional, for repeated standards across subtasks
+5. CLEANUP → ask user → delete entire session dir
+```
 
-### Manual Cleanup (Preferred)
-**Ask user confirmation before cleanup**
+---
+
+## Isolation rules
+
+- ✅ Multiple sessions can coexist (different IDs)
+- ✅ Each session reads/writes only its own dir
+- ✅ Cleanup deletes only own session folder
+- ❌ NEVER access files from another session
+- ❌ NEVER delete `.tmp/sessions/` root or sibling sessions
+
+---
+
+## Cleanup
+
+### Manual (preferred)
 
 After task completion:
-1. Ask: "Should I clean up temporary session files at `.tmp/sessions/{session-id}/`?"
-2. Wait for user confirmation
-3. Only delete files tracked in current session's manifest
-4. Remove entire session folder: `.tmp/sessions/{session-id}/`
+1. Ask: "Should I clean up `.tmp/sessions/{id}/`?"
+2. Wait for confirmation.
+3. `rm -rf .tmp/sessions/{id}/`.
 
-### Safety Rules
-- **NEVER** delete files outside current session
-- **ONLY** delete files tracked in manifest
-- **ALWAYS** confirm with user before cleanup
+### Stale auto-cleanup
 
-### Stale Session Cleanup
-**Auto-remove sessions >24 hours old**
+Sessions with `last_activity` >24h old are safe to auto-remove. See `scripts/cleanup-stale-sessions.sh` if present.
 
-- Check `last_activity` timestamp in manifest
-- Safe to run periodically (see `scripts/cleanup-stale-sessions.sh`)
-- Won't affect active sessions
+### Safety
 
-## Error Handling
+- NEVER delete outside current session.
+- ONLY delete files tracked in own manifest.
+- ALWAYS confirm before destructive ops.
 
-### Subagent Failure
-- Report error to user
-- Ask if should retry or abort
-- Don't auto-retry without approval
+---
 
-### Context File Error
-- Fall back to inline context in delegation prompt
-- Warn user that context file creation failed
-- Continue with task if possible
+## Error handling
 
-### Session Creation Error
-- Continue without session
-- Warn user
-- Use inline context for delegation
-- Don't block task execution
+| Error | Action |
+|-------|--------|
+| Subagent failure | Report → ask user retry/abort. No auto-retry. |
+| context.md write fail | Fall back to inline context in delegation prompt; warn user. |
+| Session creation fail | Continue without session; warn user; use inline context. |
 
-## Best Practices
+---
 
-1. **Lazy Init**: Only create session when actually needed
-2. **Track Everything**: Add all context files to manifest
-3. **Update Activity**: Touch `last_activity` on each operation
-4. **Clean Promptly**: Remove files after task completion
-5. **Isolate Sessions**: Never access files from other sessions
-6. **Confirm Cleanup**: Always ask user before deleting
+## Best practices
 
-## Example Workflow
+1. **Lazy init** — only when needed.
+2. **One context.md per session** — no proliferation of subdirs.
+3. **Update activity** — touch `last_activity` on every op.
+4. **Confirm cleanup** — never silent delete.
+5. **Cache standards only** — never cache external library docs (always fresh).
 
-```bash
-# User: "Build user authentication system"
-# → Complex task, needs context file
-# → Create session: 20250118-143022-a4f2
-# → Create: .tmp/sessions/20250118-143022-a4f2/features/user-auth-context.md
-# → Delegate to @task-manager
+---
 
-# User: "Implement login component"
-# → Same session, add context
-# → Create: .tmp/sessions/20250118-143022-a4f2/code/login-context.md
-# → Delegate to @coder-agent
+## Related
 
-# Task complete
-# → Ask: "Clean up session files?"
-# → User confirms
-# → Delete: .tmp/sessions/20250118-143022-a4f2/
-```
+- `context/workflows/task-delegation.md` — DISCOVER→DELEGATE flow, context.md template, cache rules
+- `context/workflows/tasks.md` — Task JSON schema (lives in `.tmp/tasks/`, not in sessions)
+- `context/workflows/external-libraries.md` — `.tmp/external-context/` (separate from sessions)

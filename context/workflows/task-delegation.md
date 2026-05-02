@@ -1,4 +1,8 @@
-<!-- Context: workflows/task-delegation | Priority: high | Version: 1.0 | Updated: 2026-05-02 -->
+<!-- Context: workflows/task-delegation | Priority: high | Version: 1.1 | Updated: 2026-05-02 -->
+<!-- Source of truth: /HOW_IT_WORKS.md (SDLC pipeline, gates, TechLead delegation rules).
+     This file = operational protocol loaded by Master/TechLead at runtime.
+     Session ID standard: {YYYY-MM-DD}-{slug} (canonical). Aligned with session-management.md. -->
+
 # Task Delegation
 
 **Purpose**: Complete guide to delegating work to subagents — from discovery through cleanup, with caching and specialist selection.
