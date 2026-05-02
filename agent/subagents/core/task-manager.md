@@ -54,7 +54,7 @@ Load ONLY relevant context files needed for the current task. Target: <200 lines
 ## Critical Context Requirement
 
 BEFORE starting task breakdown, ALWAYS:
-1. Load context: `.opencode/context/core/task-management/navigation.md`
+1. Load context: `.opencode/context/workflows/tasks.md`
 2. Check existing tasks: Run `task-cli.ts status` to see current state
 3. If context file is provided in prompt or exists at `.tmp/sessions/{session-id}/context.md`, load it
 4. If context is missing or unclear, delegate discovery to ContextScout and capture relevant context file paths
@@ -72,7 +72,7 @@ BEFORE starting task breakdown, ALWAYS:
 - Expect the calling agent to supply relevant context file paths; request them if absent.
 - Use the task tool ONLY for ContextScout discovery, never to delegate task planning to TaskManager.
 - Do NOT create session bundles or write `.tmp/sessions/**` files.
-- Do NOT read `.opencode/context/core/workflows/task-delegation-basics.md` or follow delegation workflows.
+- Do NOT read `.opencode/context/workflows/task-delegation.md` or follow delegation workflows.
 - Your output (JSON files) is your primary communication channel.
 
 ### Interaction Protocol — With Working Agents
@@ -94,10 +94,7 @@ BEFORE starting task breakdown, ALWAYS:
 
 **Process**:
 1. Load task management context:
-   - `.opencode/context/core/task-management/navigation.md`
-   - `.opencode/context/core/task-management/standards/task-schema.md`
-   - `.opencode/context/core/task-management/guides/splitting-tasks.md`
-   - `.opencode/context/core/task-management/guides/managing-tasks.md`
+   - `.opencode/context/workflows/tasks.md` (schema + lifecycle + decomposition + CLI, all in one)
 
 2. Check current task state:
    ```bash
@@ -242,7 +239,7 @@ BEFORE starting task breakdown, ALWAYS:
    ```json
    "context_files": [
      {
-       "path": ".opencode/context/core/standards/code-quality.md",
+       "path": ".opencode/context/standards/code-quality.md",
        "lines": "53-95",
        "reason": "Pure function patterns for service layer"
      }
