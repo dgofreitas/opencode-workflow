@@ -476,8 +476,6 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
     event: async ({ event }: any) => {
       const e = event as { type: string; properties: Record<string, any> };
 
-      fileLog(`--- EVENT RECEIVED: ${e.type} ---`);
-
       switch (e.type) {
 
         // ── message.updated ─────────────────────────────────────────────────
@@ -494,6 +492,7 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
         //   info.providerID / info.modelID → modelo usado
         //   info.error     → ProviderAuthError | ApiError | UnknownError | ...
         case "message.updated": {
+          fileLog(`[HANDLING] message.updated`);
           const info = e.properties?.info;
           if (!info?.sessionID) break;
 
@@ -536,6 +535,7 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
         // Tipo: EventMessagePartUpdated → { part: Part, delta?: string }
         // Captura texto de user messages e detecta RetryPart de rate limit
         case "message.part.updated": {
+          fileLog(`[HANDLING] message.part.updated`);
           const part = e.properties?.part;
           if (!part?.sessionID) break;
 
@@ -559,6 +559,7 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
         // Tipo: EventSessionStatus → { sessionID, status: SessionStatus }
         // SessionStatus retry: { type: "retry", attempt: number, message: string, next: number }
         case "session.status": {
+          fileLog(`[HANDLING] session.status`);
           const { sessionID, status } = e.properties ?? {};
           if (!sessionID || status?.type !== "retry" || !status?.message) break;
 
@@ -571,6 +572,7 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
         // Tipo: EventSessionError → { sessionID?: string, error?: Error }
         // error é opcional nos tipos oficiais — verificamos antes de usar
         case "session.error": {
+          fileLog(`[HANDLING] session.error`);
           const { sessionID, error } = e.properties ?? {};
           if (!sessionID || !error) break;
 
@@ -585,6 +587,7 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
         // FIX #9: Session NÃO tem agentID nem mode — não tentar ler esses campos aqui.
         // O agentID só aparece nas mensagens (UserMessage.agent, AssistantMessage.mode).
         case "session.created": {
+          fileLog(`[HANDLING] session.created`);
           const info = e.properties?.info;
           if (!info?.id) break;
 
@@ -598,6 +601,7 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
         // ── session.deleted ─────────────────────────────────────────────────
         // Tipo: EventSessionDeleted → { info: Session }
         case "session.deleted": {
+          fileLog(`[HANDLING] session.deleted`);
           const info = e.properties?.info;
           if (info?.id) {
             sessions.delete(info.id);
@@ -611,6 +615,7 @@ export const AgentFallbackPlugin: Plugin = async ({ client, directory, worktree 
         // Reseta o fallbackIndex ao completar com sucesso,
         // para que o próximo rate limit tente da frente da lista.
         case "session.idle": {
+          fileLog(`[HANDLING] session.idle`);
           const { sessionID } = e.properties ?? {};
           if (sessionID) {
             const state = sessions.get(sessionID);
