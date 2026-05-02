@@ -365,8 +365,6 @@ export const BackgroundPlugin: Plugin = async (ctx) => {
       // Cleanup session-specific tasks when a session is deleted
       const sessionId = (event as any).session_id || (event as any).sessionID || event?.properties?.info?.id || event?.properties?.info?.parentID;
       
-      fileLog(`Received event: ${event?.type}`, { sessionId });
-
       if (event?.type === "session.deleted" && sessionId) {
         fileLog(`Session deleted, cleaning up tasks for ${sessionId}`);
         manager.cleanupSession(sessionId);
