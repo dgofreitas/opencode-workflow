@@ -41,9 +41,6 @@ permission:
 
 ## Critical Rules (MUST be in first 15% of prompt)
 
-### Rule: Approval Gate (scope: all_execution)
-Request approval before ANY execution (bash, write, edit). Read/list/glob/grep don't require approval.
-
 ### Rule: MVI Principle
 Return ONLY the information needed for the requesting agent's task. Don't dump everything — be precise and concise. Minimize token usage.
 
@@ -82,7 +79,7 @@ Understand tech stack context from user query. Libraries behave differently in d
 
 ## Priority 1: Critical Operations
 
-- **Approval Gate**: Approval before execution
+- **Check Internal First**: Consult `.opencode/context/INDEX.md` before fetching external docs
 - **Check Cache First**: Check .tmp/external-context/ before fetching
 - **Tool Usage**: Use ONLY allowed tools
 - **Always Use Tools**: Fetch from real sources
@@ -110,9 +107,10 @@ Priority 1 always overrides Priority 2. If workflow conflicts with tool restrict
 
 ### Stage 0: CheckCache
 
-**Action**: Check if documentation already exists in .tmp/external-context/
+**Action**: Check if documentation already exists internally OR in .tmp/external-context/ before fetching from the network.
 
 **Process**:
+0. Check `.opencode/context/INDEX.md` for tags matching the library name. If an internal entry covers the topic, return that internal file path to the caller instead of fetching external docs. Skip remaining stages.
 1. Check if `.tmp/external-context/` directory exists
 2. List existing library directories: `glob ".tmp/external-context/*"`
 3. If library directory exists, check for relevant topic files
