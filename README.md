@@ -1,168 +1,324 @@
+<div align="center">
+
+<!-- TODO: Adicionar logo/banner em docs/assets/banner.png e descomentar -->
+<!-- <img src="docs/assets/banner.png" alt="New OpenCode Workflow" width="720" /> -->
+
 # 🚀 New OpenCode Workflow
 
-> **Seu time de 25 agentes IA especializados, coordenados por 3 Approval Gates, entregando features completas do zero ao merge request.**
->
-> Do briefing ao PR, sem você sair do terminal. Humano no comando das decisões estratégicas, IA cuidando da execução.
+### Pipeline SDLC com IA, sem perder o controle.
+
+**Agentes IA que aprendem os padrões do seu projeto e entregam features completas — do briefing ao merge request — com você no comando das decisões.**
+
+🎯 **SDLC end-to-end** — Story → Plano → Código → Testes → QA → Review → MR
+🛑 **3 Approval Gates** — Você aprova nos momentos certos, IA executa o resto
+🧠 **Contexto on-demand** — ContextScout + Context7 (~80% menos tokens)
+✅ **Coverage ≥90% obrigatório** — Não é meta, é portão
+🏗️ **Stack-aware** — Detecta React/Vue/Angular/Node e roteia para o especialista
+📦 **Instalação em 1 comando** — Single-file installer auto-contido (252 KB)
+
+**Stacks:** TypeScript • JavaScript • React • Vue • Angular • Node.js
+**Runtime:** [OpenCode CLI](https://opencode.ai) + [Bun](https://bun.sh)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-3fb950?style=flat-square&labelColor=black)](https://opensource.org/licenses/MIT)
+[![GitHub](https://img.shields.io/badge/GitHub-dgofreitas%2Fopencode--workflow-181717?style=flat-square&logo=github&labelColor=black)](https://github.com/dgofreitas/opencode-workflow)
+[![OpenCode](https://img.shields.io/badge/Built%20on-OpenCode-8957e5?style=flat-square&labelColor=black)](https://opencode.ai)
+[![PT-BR](https://img.shields.io/badge/Docs-PT--BR-009c3b?style=flat-square&labelColor=black)](GUIDE.md)
+
+[⚡ Quick Start](#-quick-start) • [💻 Exemplo](#-exemplo-de-fluxo) • [🎯 É pra mim?](#-isso-é-pra-mim) • [📘 Guia Completo](GUIDE.md)
+
+</div>
 
 ---
 
-## ✨ Por que usar?
-
-- 🎯 **Pipeline SDLC completo** — Story → Plano técnico → Código → Testes → QA → Review → Merge Request, tudo em uma sessão
-- 🛑 **3 Approval Gates** — Você aprova em 3 momentos críticos. O resto, a IA coordena sozinha
-- 🧠 **Contexto on-demand** — ContextScout + ExternalScout (Context7) carregam só o necessário. **~80% menos tokens** que abordagens tradicionais
-- ✅ **Qualidade obrigatória** — Cobertura de testes **≥90%** é gate, não sugestão
-- 🏗️ **Stack-aware** — Detecta React/Vue/Angular/Node e roteia para o especialista certo
-- 📦 **Instalação num comando** — Single script auto-contido de 252 KB
+> **Construído sobre [OpenCode](https://opencode.ai)** — framework open-source de agentes IA. Este workflow estende o OpenCode com 25 agentes especializados em SDLC, sistema de contexto on-demand e 3 gates de aprovação humana.
 
 ---
 
-## ⚡ Instalação (1 comando)
+## 🤔 O Problema
+
+A maioria dos agentes IA é como contratar um dev que não conhece sua codebase. Geram código genérico, você reescreve por horas, queima tokens, e no fim entrega nada produção-ready.
+
+**Exemplo:**
+
+```typescript
+// O que a IA genérica entrega
+export async function POST(request: Request) {
+  const data = await request.json();
+  return Response.json({ success: true });
+}
+
+// O que seu projeto realmente precisa
+export async function POST(request: Request) {
+  const body = await request.json();
+  const validated = LoginSchema.parse(body);          // sua validação Zod
+  const user = await authService.login(validated);    // seu padrão de service
+  return apiResponse(user, { status: 200 });          // seu wrapper de response
+}
+```
+
+## ✅ A Solução
+
+**O New OpenCode Workflow ensina os padrões do seu projeto aos agentes antes deles tocarem código.** Eles descobrem suas convenções via ContextScout, propõem planos antes de implementar, executam incrementalmente com validação e param em **3 momentos críticos** para você aprovar.
+
+**Resultado**: código que sai produção-ready, com cobertura de testes ≥90%, code review automatizado e PR pronto pra merge — em uma sessão só.
+
+---
+
+## 🆚 Comparação Rápida
+
+| Funcionalidade | New OpenCode Workflow | Cursor / Copilot | Aider | Agentes autônomos |
+|----------------|------------------------|-------------------|-------|---------------------|
+| **Aprende seus padrões** | ✅ Context System + 5 buckets | ❌ | ❌ | ⚠️ Setup manual |
+| **Approval Gates** | ✅ 3 gates explícitos | ⚠️ Opcional | ❌ Auto-executa | ❌ Autônomo |
+| **Eficiência de tokens** | ✅ MVI (~80% redução) | ❌ Carrega tudo | ❌ Carrega tudo | ❌ Alto consumo |
+| **Pipeline SDLC completo** | ✅ Story→Plan→Impl→Test→QA→Review→MR | ❌ | ❌ | ⚠️ Manual |
+| **Coverage como gate** | ✅ ≥90% obrigatório | ❌ | ❌ | ❌ |
+| **Multi-stack auto-detect** | ✅ React/Vue/Angular/Node | ⚠️ Genérico | ⚠️ Genérico | ⚠️ Genérico |
+| **Agentes editáveis** | ✅ Markdown direto | ❌ Proprietário | ⚠️ Limitado | ✅ |
+| **Docs externas atualizadas** | ✅ ExternalScout + Context7 | ❌ Training data | ❌ Training data | ⚠️ Variável |
+
+**Use este workflow quando:**
+
+- ✅ Tem padrões estabelecidos e quer código que combina com o projeto
+- ✅ Precisa de gates de qualidade auditáveis (coverage, review, QA)
+- ✅ Trabalha em time e precisa repetibilidade
+- ✅ Custos de token importam
+
+---
+
+## ⚡ Quick Start
+
+**Pré-requisitos:** [OpenCode CLI](https://opencode.ai/docs) • [Bun ≥ 1.0](https://bun.sh) • Git
+
+### 1️⃣ Instalar (1 comando)
 
 ```bash
 bash opencode-workflow-installer.sh --dest /caminho/para/seu-projeto
 ```
 
-O instalador auto-contido extrai e configura tudo em `<projeto>/.opencode/`. Pré-requisitos: [OpenCode CLI](https://opencode.ai/docs) + [Bun](https://bun.sh).
+<sub>Instalador auto-contido (252 KB com payload base64). Extrai e configura tudo em <code>&lt;projeto&gt;/.opencode/</code>.</sub>
+
+### 2️⃣ Começar a construir
 
 ```bash
-# Depois, no seu projeto:
+cd /caminho/para/seu-projeto
 opencode --agent Master
-> "Crie uma feature de login com JWT, validação Zod e testes E2E"
-# → Pipeline SDLC dispara com 3 gates de aprovação
+> "Crie uma feature de autenticação com email/senha, validação Zod e testes E2E"
 ```
 
-> 📘 Instalação detalhada, verificação manual e troubleshooting em **[GUIDE.md](GUIDE.md)**
+### 3️⃣ Aprovar e enviar
+
+O que acontece:
+
+1. **PM** cria a user story com critérios de aceitação
+2. ⏸️ **GATE #1** — Você aprova a story
+3. **Architect** monta o plano técnico
+4. ⏸️ **GATE #2** — Você aprova o plano
+5. **TechLead** orquestra: impl → testes (≥90%) → QA → review → MR
+6. ⏸️ **GATE #3** — Você aprova antes da próxima story
+
+**Pronto.** Funciona com seu modelo padrão. Zero configuração inicial.
 
 ---
 
-## 🎬 O fluxo em 1 diagrama
+## 📖 Como Funciona
+
+### A ideia central
+
+> **Maioria das ferramentas IA**: código genérico → você refatora
+> **Este workflow**: seus padrões → IA gera código que combina
+
+### O fluxo visual
 
 ```mermaid
 graph LR
-    User["👤 Você"] --> OA["🎯 Master"]
-    OA --> PM[📝 ProductManager]
+    User["👤 Você"] --> Master["🎯 Master"]
+    Master --> PM[📝 PM]
     PM --> G1{{⏸️ GATE 1}}
     G1 --> Arch[🏛️ Architect]
     Arch --> G2{{⏸️ GATE 2}}
-    G2 --> TL["👷 TechLead<br/>(full cycle)"]
+    G2 --> TL["👷 TechLead"]
     TL --> Impl[💻 Impl]
-    Impl --> Test[🧪 Tests ≥90%]
+    Impl --> Test[🧪 Test ≥90%]
     Test --> QA[✔️ QA]
     QA --> Review[🔍 Review]
     Review --> MR[🚀 MR]
     MR --> G3{{⏸️ GATE 3}}
-    G3 -->|next story| TL
+    G3 -.->|próxima story| TL
 ```
 
-**3 gates, zero surpresas**: você aprova depois do PM, depois do Architect, e entre stories. No ciclo do TechLead, a IA trabalha sem interrupção.
+### Os 6 princípios
+
+**🎯 Context First**
+ContextScout descobre os padrões do projeto **antes** de qualquer write. Código sai combinando com a codebase de cara.
+
+**🌐 ExternalScout para libs externas**
+Trabalhando com Drizzle? Next.js 15? Mastra? ExternalScout busca docs **atualizadas** via Context7. Nunca training data desatualizada.
+
+**📏 MVI — Minimal Viable Information**
+Cada arquivo de contexto ≤200 linhas, scannable em <30s. **~750 tokens por contexto vs 8.000+ tradicional**. ~80% de redução.
+
+**✋ Approval Gates — Human-Guided AI**
+`write` / `edit` / `bash` / `task` SEMPRE pedem aprovação. `read` / `grep` / `ls` não precisam. Você fica no controle.
+
+**🧪 Coverage ≥90% é gate**
+TestEngineer não delivera abaixo disso. Não é métrica de vaidade — é portão de qualidade.
+
+**👷 TechLead NUNCA escreve código**
+Coordena impl → test → QA → review → MR delegando para specialists. Separação clara entre quem decide e quem executa.
 
 ---
 
-## 🤖 25 Agentes Especializados
+## 🛠️ O que vem incluído
 
-| Categoria | Quem mora aqui |
-|-----------|----------------|
-| **🎯 Core** | `Master` — ponto de entrada universal |
-| **📋 SDLC** (5) | `ProductManager` `Architect` `TechLead` `QAAnalyst` `MergeRequestCreator` |
-| **💻 Code** (5) | `BackendDeveloper` `TestEngineer` `CodeReviewer` `BugFixerNodejs` `BuildAgent` |
-| **🎨 Frontend** (4) | `FrontendDeveloperReact` `FrontendDeveloperVue` `FrontendDeveloperAngular` `FrontendDeveloper` |
-| **🛠️ Dev Support** (3) | `DevOpsSpecialist` `UXDesigner` `ShellDeveloper` |
-| **🧠 Infra** (4) | `ContextScout` `ExternalScout` `TaskManager` `DocWriter` |
-| **🔍 Análise** (2) | `CodeAnalyzer` `ImplReviewerNodejs` |
-| **⚙️ System** (1) | `ContextOrganizer` |
+### 🤖 25 Agentes especializados
 
----
+**Core (1):** `Master` — entry point universal, classifica e roteia
 
-## ⌨️ 17 Comandos Slash
+**SDLC (5):** `ProductManager` `Architect` `TechLead` `QAAnalyst` `MergeRequestCreator`
 
-**Pipeline SDLC** (8):
+**Code (5):** `BackendDeveloper` `TestEngineer` `CodeReviewer` `BugFixerNodejs` `BuildAgent`
+
+**Frontend (4):** `FrontendDeveloperReact` `FrontendDeveloperVue` `FrontendDeveloperAngular` `FrontendDeveloper`
+
+**Dev Support (3):** `DevOpsSpecialist` `UXDesigner` `ShellDeveloper`
+
+**Infra (4):** `ContextScout` `ExternalScout` `TaskManager` `DocWriter`
+
+**Análise (2):** `CodeAnalyzer` `ImplReviewerNodejs`
+
+**System (1):** `ContextOrganizer`
+
+### ⌨️ 17 Comandos slash
+
+**Pipeline SDLC:**
 `/story` `/plan` `/implement` `/review` `/qa` `/mr` `/bugfix` `/analyze`
 
-**Utilitários** (9):
-`/commit` `/test` `/context` `/add-context` `/clean` `/caveman` `/caveman-commit` `/caveman-compress` `/caveman-review`
+**Utilitários:**
+`/commit` `/test` `/context` `/add-context` `/clean` `/caveman*` (4 variantes)
 
----
+### 🛠️ 8 Skills + 🔌 4 Plugins
 
-## 🛠️ 8 Skills + 🔌 4 Plugins
+**Skills:** `task-management` `context7` `caveman` (+ 3 variantes) `compress` `cove`
 
-**Skills** — habilidades reutilizáveis carregadas on-demand:
+**Plugins:** `opencode-agent-fallback` `opencode-background` `opencode-token-logger` `rtk`
 
-| Skill | Para quê |
-|-------|----------|
-| `task-management` | Decomposição e tracking de tasks JSON |
-| `context7` | Fetch de docs atualizadas de 50+ libs populares |
-| `caveman` / `-commit` / `-review` / `-help` | Modo ultra-compressed (economia de tokens) |
-| `compress` | Compressão de arquivos de contexto |
-| `cove` | Toolkit auxiliar |
-
-**Plugins** — estendem o OpenCode runtime:
-
-| Plugin | Função |
-|--------|--------|
-| `opencode-agent-fallback` | Fallback automático entre agentes |
-| `opencode-background` | Execução em background |
-| `opencode-token-logger` | Log de uso de tokens |
-| `rtk` | Runtime toolkit |
-
----
-
-## 📜 Princípios Operacionais
-
-- **🎯 Context First** — Todo agente chama ContextScout antes de tocar código. Sem padrões do projeto, sem PR.
-- **🌐 ExternalScout sempre** — Libs externas? Docs frescas via Context7, nunca training data desatualizada.
-- **📏 MVI (Minimal Viable Information)** — Cada arquivo de contexto ≤200 linhas. Scannable em <30s. ~750 tokens/contexto vs 8.000+ tradicional.
-- **🛑 Approval Gates** — Human-Guided AI: write/edit/bash sempre pedem aprovação. Read-only não precisa.
-- **🧪 Coverage ≥90%** — Não é meta, é portão. TestEngineer garante.
-- **👷 TechLead NUNCA escreve código** — Só delega. Specialists executam.
-
----
-
-## 🗂️ Estrutura (visão rápida)
+### 📚 Sistema de contexto (5 buckets flat)
 
 ```
-.opencode/
-├── agent/        # 25 agentes (.md) com YAML frontmatter
-├── command/      # 17 comandos slash
-├── config/       # agent-metadata.json (registry)
-├── context/      # 5 buckets flat: standards/ workflows/ stacks/ meta/ project/
-├── skills/       # 8 skills reutilizáveis
-├── plugins/      # 4 plugins TypeScript
-└── tool/env/     # Loader de variáveis de ambiente
+context/
+├── INDEX.md          # índice semântico flat (33 entradas)
+├── standards/        # padrões de código, segurança, API
+├── workflows/        # processos: review, delegation, breakdown
+├── stacks/           # tech-específico: React, Node, Mastra, design system
+├── meta/             # como o sistema de contexto funciona
+└── project/          # específico do seu projeto: living-notes, decisions
 ```
+
+ContextScout lê apenas o `INDEX.md`, filtra por tags relevantes, e carrega só os arquivos necessários. **Lazy loading puro.**
 
 ---
 
-## 📚 Quer mais?
+## 💻 Exemplo de Fluxo
 
-| Documento | O que tem |
+```bash
+opencode --agent Master
+> "Crie um sistema de autenticação com login, registro, JWT e testes"
+```
+
+**O que acontece:**
+
+### 1️⃣ Discover (~1-2 min)
+Master invoca **ContextScout**, que descobre:
+- Sua stack: Next.js 15 + TypeScript + Drizzle + PostgreSQL
+- Seu padrão de API: Zod validation, error middleware centralizado
+- Seu padrão de service: classes com DI manual
+- Suas convenções: kebab-case files, PascalCase types
+
+### 2️⃣ Story + Plano (~3-4 min) — ⏸️ 2 gates
+**PM** cria `docs/stories/STORY-001-auth.md` com 6 acceptance criteria.
+→ ⏸️ **GATE #1**: você aprova
+**Architect** cria `STORY-001-technical-analysis.md` com:
+- Endpoints: `/api/auth/login`, `/api/auth/register`, `/api/auth/me`
+- Schema Drizzle: `users`, `sessions`
+- Componentes: `login-form.tsx`, `register-form.tsx`, `auth-guard.tsx`
+- Estratégia de testes: unit (Vitest) + E2E (Playwright)
+→ ⏸️ **GATE #2**: você aprova
+
+### 3️⃣ Execução TechLead (~12-18 min) — sem gates
+**TechLead** cria branch `feat/STORY-001-auth` e delega:
+
+```
+BackendDeveloper      → endpoints + schema + service
+FrontendDeveloperReact → components + hooks
+TestEngineer          → unit (Vitest) + E2E (Playwright) — 92% coverage
+QAAnalyst             → valida vs acceptance criteria → APPROVE
+CodeReviewer          → segurança + performance + padrões → APPROVE
+MergeRequestCreator   → cria PR com sumário, métricas, checklist
+```
+
+### 4️⃣ Resultado — ⏸️ GATE #3
+- ✅ Branch `feat/STORY-001-auth` com 24 commits incrementais
+- ✅ PR #42 aberto, base `main`
+- ✅ Coverage: 92% (gate ≥90%)
+- ✅ QA Report: APPROVE
+- ✅ Code Review: 0 críticos, 2 sugestões já aplicadas
+- ⏸️ **GATE #3**: você aprova → próxima story (ou fecha sessão)
+
+**Tempo total: ~15-25 min** para uma feature completa, com aprovação humana nos 3 momentos críticos.
+
+---
+
+## 🎯 Isso é pra mim?
+
+### ✅ Use este workflow se você:
+
+- Trabalha com **Node.js / TypeScript** (React, Vue, Angular ou backend Express/Fastify/NestJS)
+- Já usa o **[OpenCode CLI](https://opencode.ai)** e quer turbinar o workflow SDLC
+- Quer **padronizar SDLC em time** sem perder controle humano
+- Precisa de **qualidade auditável**: coverage, review, QA report
+- Liga pra **custos de token** (MVI cuida disso)
+- Tem **padrões estabelecidos** e quer código que combina com o projeto desde o primeiro draft
+
+### ⚠️ Pule se você:
+
+- Quer **execução totalmente autônoma** sem gates de aprovação
+- Trabalha em **prototipagem rápida** sem padrões estabelecidos
+- Não usa OpenCode CLI nem Bun
+- Não trabalha com stacks Node/JS/TS
+
+### 🤔 Não tem certeza?
+
+Comece pelo Quick Start. Os agentes são **arquivos markdown editáveis** — sem vendor lock-in, dá pra customizar tudo. Se não bater, `bash uninstall.sh --dest /seu-projeto` e remove em 5 segundos.
+
+---
+
+## 📚 Documentação
+
+| Documento | Para quem |
 |-----------|-----------|
-| **[📘 GUIDE.md](GUIDE.md)** | Guia completo (10 seções): arquitetura profunda, catálogo detalhado de agentes, configuração de projeto, troubleshooting, glossário |
-| `opencode-workflow-installer.sh` | Instalador auto-contido (252 KB, payload base64 embutido) |
-| `install.sh` / `update.sh` / `uninstall.sh` | Scripts individuais para dev local do workflow |
+| **[📘 GUIDE.md](GUIDE.md)** | Guia completo (10 seções, 828 linhas): arquitetura profunda, catálogo detalhado de agentes, configuração de projeto, troubleshooting, glossário |
+| `opencode-workflow-installer.sh` | Instalador auto-contido (recomendado para usuários) |
+| `install.sh` / `update.sh` / `uninstall.sh` | Scripts individuais (para dev local do workflow) |
 | `build-installer.sh` | Gera o instalador auto-contido a partir dos fontes |
-
----
-
-## 🎯 Ideal para
-
-- Times que querem **padronizar SDLC** com agentes IA sem perder controle humano
-- Projetos **Node.js / TypeScript** com React, Vue, Angular
-- Quem **já usa [OpenCode CLI](https://opencode.ai)** e quer turbinar o workflow
-- Equipes que precisam de **qualidade auditável** (coverage, review, QA estruturado)
 
 ---
 
 ## 🚦 Status
 
-Versão: **2.0** · Modo de instalação: **local apenas** (`<projeto>/.opencode/`) · Runtime: **Bun ≥ 1.0**
+**Versão**: 2.0 · **Modo**: instalação local apenas (`<projeto>/.opencode/`) · **Runtime**: Bun ≥ 1.0 · **Idioma docs**: PT-BR
 
 ---
 
-> **Comece agora:**
-> ```bash
-> bash opencode-workflow-installer.sh --dest /meu-projeto
-> cd /meu-projeto && opencode --agent Master
-> ```
->
-> Detalhes completos em **[📘 GUIDE.md](GUIDE.md)**.
+<div align="center">
+
+### 🚀 Comece agora
+
+```bash
+bash opencode-workflow-installer.sh --dest /meu-projeto
+cd /meu-projeto && opencode --agent Master
+```
+
+**Detalhes completos em [📘 GUIDE.md](GUIDE.md)**
+
+</div>
