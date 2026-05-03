@@ -1,20 +1,23 @@
 /**
  * opencode-background
  *
- * Self-contained OpenCode plugin for managing long-running background processes.
- * Prevents agent freeze caused by the 120s bash tool timeout.
+ * Plugin para OpenCode que intercepta automaticamente comandos bash de longa
+ * duração e os executa como processos background detached.
  *
- * Based on: https://github.com/zenobi-us/opencode-background (MIT License)
- * Adapted to be dependency-free (no execa), using Node.js native child_process.
+ * Evita o timeout do servidor LLM (120s) mantendo cada tool call curta.
+ * O agente não precisa decidir nada — a interceptação é automática.
  *
- * Tools exposed to the agent:
- *   - createBackgroundProcess  → Start a command in the background
- *   - getBackgroundProcess     → Get status + last output lines of a task
- *   - listBackgroundProcesses  → List/filter all tasks
- *   - killBackgroundProcesses  → Kill tasks by id, session, status or tags
+ * Fluxo:
+ *   1. agente chama bash "npm test"
+ *   2. interceptor (tool.execute.before) substitui por echo + taskId  <- retorna em < 1s
+ *   3. agente lê o echo e chama getBackgroundProcess(taskId)          <- retorna em < 1s
+ *   4. agente faz polling a cada 30s até status=completed|failed
+ *   5. agente lê output final e continua o workflow
  *
- * Installation:
- *   Copy this file to ~/.config/opencode/plugins/opencode-background.ts
+ * Baseado em: https://github.com/zenobi-us/opencode-background (MIT License)
+ *
+ * Instalação:
+ *   Copie este arquivo para .opencode/plugins/opencode-background.ts
  */
 
 // @ts-ignore
@@ -34,12 +37,8 @@ type TaskStatus = "running" | "completed" | "failed" | "cancelled";
 
 interface BackgroundTask {
   id: string;
-  name: string;
   command: string;
   status: TaskStatus;
-  tags: string[];
-  global: boolean;
-  sessionId: string;
   pid?: number;
   startedAt: string;
   completedAt?: string;
@@ -67,26 +66,23 @@ function rotateLogIfNeeded() {
   try {
     if (!existsSync(LOG_FILE)) return;
     const stats = statSync(LOG_FILE);
-    
+
     if (stats.size >= MAX_LOG_SIZE) {
       const timestamp = getLocalTimestamp().replace(/[:.]/g, "-");
-      const archiveName = `${LOG_FILE}.${timestamp}`;
-      renameSync(LOG_FILE, archiveName);
+      renameSync(LOG_FILE, `${LOG_FILE}.${timestamp}`);
 
-      const dir = "/tmp";
-      const files = readdirSync(dir);
+      const files = readdirSync("/tmp");
       const logFiles = files
         .filter((f: string) => f.startsWith("opencode-background.log."))
-        .map((f: string) => join(dir, f))
+        .map((f: string) => join("/tmp", f))
         .sort();
-      
+
       while (logFiles.length > MAX_LOG_FILES) {
         const oldest = logFiles.shift();
         if (oldest) unlinkSync(oldest);
       }
     }
-  } catch (err) {
-  }
+  } catch { }
 }
 
 function fileLog(msg: string, extra?: any) {
@@ -94,282 +90,274 @@ function fileLog(msg: string, extra?: any) {
     rotateLogIfNeeded();
     const logLine = `[${getLocalTimestamp()}] ${msg} ${extra ? JSON.stringify(extra) : ""}\n`;
     appendFileSync(LOG_FILE, logLine);
-  } catch (err) { }
+  } catch { }
 }
 
-// ─── BackgroundProcessManager ─────────────────────────────────────────────────
+// ─── Long-Running Command Detector ───────────────────────────────────────────
 
-class BackgroundProcessManager {
-  private tasks = new Map<string, BackgroundTask>();
+/**
+ * Padrões que identificam comandos que podem exceder o timeout do servidor LLM.
+ * Adicione aqui qualquer comando que costume demorar mais de 30s no seu projeto.
+ */
+const LONG_RUNNING_PATTERNS: RegExp[] = [
+  // Testes
+  /\bnpm\s+(run\s+)?test\b/,
+  /\bvitest\b/,
+  /\bjest\b/,
+  /\bplaywright\b/,
+  /\bcypress\b/,
+  /\bmocha\b/,
+  /\bpytest\b/,
+  /\bnpx\s+.*test\b/,
 
-  private generateId(): string {
-    return "task-" + Math.random().toString(36).substring(2, 9);
-  }
+  // Builds
+  /\bnpm\s+run\s+build\b/,
+  /\bvite\s+build\b/,
+  /\bnext\s+build\b/,
+  /\btsc\b/,
+  /\bwebpack\b/,
+  /\besbuild\b/,
+  /\brollup\b/,
 
-  createTask(input: {
-    command: string;
-    name?: string;
-    tags?: string[];
-    global?: boolean;
-    sessionId?: string;
-  }): string {
-    const id = this.generateId();
+  // Installs
+  /\bnpm\s+install\b/,
+  /\bnpm\s+ci\b/,
+  /\bpnpm\s+install\b/,
+  /\byarn\s+install\b/,
+  /\bbun\s+install\b/,
 
-    const task: BackgroundTask = {
-      id,
-      name: input.name || input.command,
-      command: input.command,
-      status: "running",
-      tags: input.tags || [],
-      global: input.global ?? false,
-      sessionId: input.sessionId || "unknown",
-      startedAt: getLocalTimestamp(),
-      outputStream: [],
-    };
+  // Dev servers (nunca terminam — sempre precisam de background)
+  /\bnpm\s+run\s+dev\b/,
+  /\bnpm\s+run\s+start\b/,
+  /\bnext\s+dev\b/,
+  /\bvite\b(?!\s+build)/,
+];
 
-    // Spawn via shell so pipes, redirects, etc. work as expected
-    const child = spawn(input.command, {
-      shell: true,
-      detached: true, // Detach from parent so OpenCode's bash tool doesn't block
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+function isLongRunning(command: string): boolean {
+  const lower = command.toLowerCase().trim();
+  return LONG_RUNNING_PATTERNS.some((pattern) => pattern.test(lower));
+}
 
-    task.pid = child.pid;
-    this.tasks.set(id, task);
+// ─── Background Process Manager ──────────────────────────────────────────────
 
-    fileLog(`[${id}] Task created`, { command: task.command, pid: task.pid, sessionId: task.sessionId });
+const tasks = new Map<string, BackgroundTask>();
 
-    const recordOutput = (line: string, isError = false) => {
-      const formatted = isError ? `[ERROR] ${line}` : line;
-      task.outputStream.push(formatted);
-      // Rolling buffer: keep only the last 100 lines
-      if (task.outputStream.length > 100) {
-        task.outputStream.shift();
-      }
-    };
+function generateId(): string {
+  return "bg-" + Math.random().toString(36).substring(2, 9);
+}
 
-    child.stdout?.on("data", (chunk: any) => {
-      chunk.toString().split("\n").filter(Boolean).forEach((l) => recordOutput(l));
-    });
+function runInBackground(command: string): BackgroundTask {
+  const id = generateId();
 
-    child.stderr?.on("data", (chunk: any) => {
-      chunk.toString().split("\n").filter(Boolean).forEach((l) => recordOutput(l, true));
-    });
+  const task: BackgroundTask = {
+    id,
+    command,
+    status: "running",
+    startedAt: getLocalTimestamp(),
+    outputStream: [],
+  };
 
-    child.on("close", (code: number | null) => {
-      if (task.status === "cancelled") {
-        fileLog(`[${id}] Process closed after cancellation`, { code });
-        return; // Already marked cancelled
-      }
-      task.completedAt = getLocalTimestamp();
-      if (code === 0) {
-        task.status = "completed";
-        fileLog(`[${id}] Task completed successfully`);
-      } else {
-        task.status = "failed";
-        task.error = `Process exited with code ${code}`;
-        fileLog(`[${id}] Task failed`, { code });
-      }
-    });
+  const child = spawn(command, {
+    shell: true,
+    detached: true,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
 
-    child.on("error", (err: Error) => {
-      task.status = "failed";
-      task.error = err.message;
-      task.completedAt = getLocalTimestamp();
-      recordOutput(err.message, true);
-      fileLog(`[${id}] Task error`, { error: err.message });
-    });
+  task.pid = child.pid;
+  tasks.set(id, task);
 
-    // Unref so the OpenCode process itself can exit without waiting for the child
-    child.unref();
+  fileLog(`[${id}] Started`, { command, pid: task.pid });
 
-    return JSON.stringify({ taskId: id, pid: task.pid, name: task.name });
-  }
+  const record = (line: string, isErr = false) => {
+    const formatted = isErr ? `[stderr] ${line}` : line;
+    task.outputStream.push(formatted);
+    if (task.outputStream.length > 100) task.outputStream.shift();
+  };
 
-  getTask(taskId: string): string {
-    const task = this.tasks.get(taskId);
-    if (!task) {
-      return JSON.stringify({ error: `Task ${taskId} not found` });
-    }
-    return JSON.stringify({ ...task, outputStream: task.outputStream.slice(-20) });
-  }
+  child.stdout?.on("data", (chunk: any) =>
+    chunk.toString().split("\n").filter(Boolean).forEach((l: string) => record(l))
+  );
 
-  listTasks(filters: { sessionId?: string; status?: string; tags?: string[] }): string {
-    const results = Array.from(this.tasks.values()).filter((task) => {
-      const sessionMatch = !filters.sessionId || task.sessionId === filters.sessionId;
-      const statusMatch = !filters.status || task.status === filters.status;
-      const tagMatch =
-        !filters.tags ||
-        filters.tags.length === 0 ||
-        filters.tags.some((t) => task.tags.includes(t));
-      return sessionMatch && statusMatch && tagMatch;
-    });
+  child.stderr?.on("data", (chunk: any) =>
+    chunk.toString().split("\n").filter(Boolean).forEach((l: string) => record(l, true))
+  );
 
-    return JSON.stringify(
-      results.map((t) => ({
-        id: t.id,
-        name: t.name,
-        command: t.command,
-        status: t.status,
-        tags: t.tags,
-        global: t.global,
-        sessionId: t.sessionId,
-        pid: t.pid,
-        startedAt: t.startedAt,
-        completedAt: t.completedAt,
-        error: t.error,
-        lastOutput: t.outputStream.slice(-5), // summary: last 5 lines only
-      }))
-    );
-  }
+  child.on("close", (code: number | null) => {
+    if (task.status === "cancelled") return;
+    task.completedAt = getLocalTimestamp();
+    task.status = code === 0 ? "completed" : "failed";
+    if (code !== 0) task.error = `Process exited with code ${code}`;
+    fileLog(`[${id}] Finished`, { code, status: task.status });
+  });
 
-  killTasks(input: {
-    taskId?: string;
-    sessionId?: string;
-    status?: string;
-    tags?: string[];
-  }): string {
-    const killed: string[] = [];
+  child.on("error", (err: Error) => {
+    task.status = "failed";
+    task.error = err.message;
+    task.completedAt = getLocalTimestamp();
+    record(err.message, true);
+    fileLog(`[${id}] Error`, { error: err.message });
+  });
 
-    const kill = (task: BackgroundTask) => {
-      try {
-        if (task.pid) (process as any).kill(task.pid);
-        fileLog(`[${task.id}] Killed process`, { pid: task.pid });
-      } catch (err: any) {
-        fileLog(`[${task.id}] Failed to kill process`, { pid: task.pid, error: err.message });
-      }
-      task.status = "cancelled";
-      task.completedAt = getLocalTimestamp();
-      killed.push(task.id);
-    };
+  child.unref();
 
-    if (input.taskId) {
-      const t = this.tasks.get(input.taskId);
-      if (t) kill(t);
-      return JSON.stringify({ killed });
-    }
-
-    Array.from(this.tasks.values())
-      .filter((task) => {
-        const sessionMatch = !input.sessionId || task.sessionId === input.sessionId;
-        const statusMatch = !input.status || task.status === input.status;
-        const tagMatch =
-          !input.tags ||
-          input.tags.length === 0 ||
-          input.tags.some((t) => task.tags.includes(t));
-        return sessionMatch && statusMatch && tagMatch;
-      })
-      .forEach(kill);
-
-    return JSON.stringify({ killed });
-  }
-
-  cleanupSession(sessionId: string): void {
-    Array.from(this.tasks.values())
-      .filter((t) => t.sessionId === sessionId && !t.global)
-      .forEach((task) => {
-        try {
-          if (task.pid) (process as any).kill(task.pid);
-          fileLog(`[${task.id}] Cleaned up process`, { pid: task.pid });
-        } catch (err: any) {
-          fileLog(`[${task.id}] Cleanup failed to kill process`, { pid: task.pid, error: err.message });
-        }
-        this.tasks.delete(task.id);
-      });
-  }
+  return task;
 }
 
 // ─── Plugin ───────────────────────────────────────────────────────────────────
 
-const manager = new BackgroundProcessManager();
+export const BackgroundPlugin: Plugin = async (_ctx) => {
+  fileLog("Plugin initialized");
 
-export const BackgroundPlugin: Plugin = async (ctx) => {
-  fileLog(`Plugin initialized`);
-
-  const createBackgroundProcess = tool({
-    description:
-      "Run a shell command as a detached background process. Use this for any command that may take longer than 60 seconds (installs, builds, test suites, etc.) to avoid the 120s bash timeout. Returns a taskId to monitor progress.",
-    args: {
-      command: tool.schema.string().describe("The shell command to execute"),
-      name: tool.schema.string().optional().describe("Human-readable name for this task"),
-      tags: tool.schema.array(tool.schema.string()).optional().describe("Tags for filtering (e.g. ['test', 'build'])"),
-      global: tool.schema.boolean().optional().describe("If true, task persists across sessions (default: false)"),
-    },
-    async execute(args, toolCtx) {
-      return manager.createTask({
-        command: args.command,
-        name: args.name,
-        tags: args.tags,
-        global: args.global,
-        sessionId: (toolCtx as any)?.sessionID || (toolCtx as any)?.session_id,
-      });
-    }
-  });
-
+  // ── Tool: getBackgroundProcess ─────────────────────────────────────────────
   const getBackgroundProcess = tool({
     description:
-      "Get the current status, PID, and last 20 output lines of a specific background task by its taskId.",
+      "Get the current status and last output lines of a background process. " +
+      "ALWAYS use this to poll progress after a long-running bash command is intercepted. " +
+      "Poll every 30 seconds until status is 'completed' or 'failed'. " +
+      "Never use bash tool to wait — use this tool only.",
     args: {
-      taskId: tool.schema.string().describe("The task ID returned by createBackgroundProcess"),
+      taskId: tool.schema
+        .string()
+        .describe("The taskId received when the bash command was intercepted"),
     },
     async execute(args) {
-      return manager.getTask(args.taskId);
-    }
+      const task = tasks.get(args.taskId);
+      if (!task) {
+        return JSON.stringify({ error: `Task ${args.taskId} not found` });
+      }
+
+      return JSON.stringify({
+        taskId: task.id,
+        command: task.command,
+        status: task.status,
+        pid: task.pid,
+        startedAt: task.startedAt,
+        completedAt: task.completedAt ?? null,
+        error: task.error ?? null,
+        lastOutput: task.outputStream.slice(-20),
+        // Lembrete explícito enquanto ainda está rodando
+        ...(task.status === "running" && {
+          reminder: "Still running. Poll again in 30 seconds with getBackgroundProcess.",
+        }),
+      });
+    },
   });
 
+  // ── Tool: killBackgroundProcess ────────────────────────────────────────────
+  const killBackgroundProcess = tool({
+    description: "Kill a background process by taskId. Use when a process is stuck or no longer needed.",
+    args: {
+      taskId: tool.schema.string().describe("The taskId of the process to kill"),
+    },
+    async execute(args) {
+      const task = tasks.get(args.taskId);
+      if (!task) {
+        return JSON.stringify({ error: `Task ${args.taskId} not found` });
+      }
+
+      try {
+        if (task.pid) (process as any).kill(task.pid);
+        fileLog(`[${task.id}] Killed`, { pid: task.pid });
+      } catch (err: any) {
+        fileLog(`[${task.id}] Kill failed`, { error: err.message });
+      }
+
+      task.status = "cancelled";
+      task.completedAt = getLocalTimestamp();
+
+      return JSON.stringify({ taskId: task.id, status: "cancelled" });
+    },
+  });
+
+  // ── Tool: listBackgroundProcesses ──────────────────────────────────────────
   const listBackgroundProcesses = tool({
-    description:
-      "List all background tasks with optional filtering by sessionId, status, or tags. Returns id, name, status, and last 5 output lines per task.",
+    description: "List all background processes. Useful to check if any process is still running.",
     args: {
-      sessionId: tool.schema.string().optional().describe("Filter by session ID"),
-      status: tool.schema.string().optional().describe("Filter by status: running | completed | failed | cancelled"),
-      tags: tool.schema.array(tool.schema.string()).optional().describe("Filter by tags"),
+      status: tool.schema
+        .string()
+        .optional()
+        .describe("Filter by status: running | completed | failed | cancelled"),
     },
     async execute(args) {
-      return manager.listTasks({
-        sessionId: args.sessionId,
-        status: args.status,
-        tags: args.tags
-      });
-    }
-  });
+      const results = Array.from(tasks.values()).filter(
+        (t) => !args.status || t.status === args.status
+      );
 
-  const killBackgroundProcesses = tool({
-    description:
-      "Kill one or more background tasks. Specify taskId to kill a specific task, or use sessionId/status/tags to kill matching tasks in bulk.",
-    args: {
-      taskId: tool.schema.string().optional().describe("Kill a specific task by ID"),
-      sessionId: tool.schema.string().optional().describe("Kill all tasks in a session"),
-      status: tool.schema.string().optional().describe("Kill all tasks with this status"),
-      tags: tool.schema.array(tool.schema.string()).optional().describe("Kill all tasks with these tags"),
+      return JSON.stringify(
+        results.map((t) => ({
+          taskId: t.id,
+          command: t.command,
+          status: t.status,
+          pid: t.pid,
+          startedAt: t.startedAt,
+          completedAt: t.completedAt ?? null,
+          error: t.error ?? null,
+          lastOutput: t.outputStream.slice(-5),
+        }))
+      );
     },
-    async execute(args) {
-      return manager.killTasks({
-        taskId: args.taskId,
-        sessionId: args.sessionId,
-        status: args.status,
-        tags: args.tags || []
-      });
-    }
   });
 
   return {
     tool: {
-      createBackgroundProcess,
       getBackgroundProcess,
+      killBackgroundProcess,
       listBackgroundProcesses,
-      killBackgroundProcesses,
+    },
+
+    /**
+     * Intercepta todo bash/shell call ANTES da execução.
+     * Se o comando for de longa duração, substitui por um echo com taskId
+     * e instrução de polling — o servidor LLM nunca fica esperando.
+     */
+    "tool.execute.before": async (input: any, output: any) => {
+      const toolName = String(input?.tool ?? "").toLowerCase();
+      if (toolName !== "bash" && toolName !== "shell") return;
+
+      const args = output?.args as Record<string, unknown> | undefined;
+      if (!args) return;
+
+      const command = args.command;
+      if (typeof command !== "string" || !command.trim()) return;
+      if (!isLongRunning(command)) return;
+
+      // Interceptado — inicia em background, retorna taskId em < 1s
+      const task = runInBackground(command);
+
+      fileLog(`[intercepted] bash → background`, { command, taskId: task.id });
+
+      // Substitui o bash por um echo com JSON estruturado.
+      // O agente lê isso como output do bash e sabe exatamente o que fazer.
+      const payload = JSON.stringify({
+        intercepted: true,
+        taskId: task.id,
+        pid: task.pid,
+        command: task.command,
+        status: "running",
+        startedAt: task.startedAt,
+        instructions: [
+          "Command intercepted — running as background process to avoid LLM timeout.",
+          "Use getBackgroundProcess tool with this taskId to check progress.",
+          "Poll every 30 seconds until status is 'completed' or 'failed'.",
+          "Do NOT use bash tool to wait — use getBackgroundProcess only.",
+        ],
+      });
+
+      // Escapamos as aspas simples para o shell não quebrar o echo
+      const escaped = payload.replace(/'/g, "'\\''");
+      args.command = `echo '${escaped}'`;
     },
 
     event: async ({ event }: any) => {
-      // Cleanup session-specific tasks when a session is deleted
-      const sessionId = (event as any).session_id || (event as any).sessionID || event?.properties?.info?.id || event?.properties?.info?.parentID;
-      
-      if (event?.type === "session.deleted" && sessionId) {
-        fileLog(`Session deleted, cleaning up tasks for ${sessionId}`);
-        manager.cleanupSession(sessionId);
+      if (event?.type === "session.deleted") {
+        const sessionId =
+          event?.properties?.info?.id ||
+          event?.properties?.sessionID;
+        if (sessionId) {
+          fileLog(`Session deleted: ${sessionId}`);
+        }
       }
-    }
+    },
   };
 };
 
