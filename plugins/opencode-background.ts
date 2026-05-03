@@ -7,8 +7,10 @@
  * Evita o timeout do servidor LLM (120s) mantendo cada tool call curta.
  * O agente não precisa decidir nada — a interceptação é automática.
  *
+ * Compatível com o plugin rtk — detecta comandos com ou sem prefixo "rtk".
+ *
  * Fluxo:
- *   1. agente chama bash "npm test"
+ *   1. agente chama bash "npm test" (ou "rtk npm test" se rtk plugin estiver ativo)
  *   2. interceptor (tool.execute.before) substitui por echo + taskId  <- retorna em < 1s
  *   3. agente lê o echo e chama getBackgroundProcess(taskId)          <- retorna em < 1s
  *   4. agente faz polling a cada 30s até status=completed|failed
@@ -96,41 +98,46 @@ function fileLog(msg: string, extra?: any) {
 // ─── Long-Running Command Detector ───────────────────────────────────────────
 
 /**
- * Padrões que identificam comandos que podem exceder o timeout do servidor LLM.
+ * Prefixo opcional "rtk " — compatibilidade com o plugin rtk que pode
+ * reescrever o comando antes deste hook rodar.
+ * Cada padrão aceita: "npm test" e "rtk npm test"
+ *
  * Adicione aqui qualquer comando que costume demorar mais de 30s no seu projeto.
  */
+const RTK = /^(rtk\s+)?/; // prefixo opcional para todos os padrões
+
 const LONG_RUNNING_PATTERNS: RegExp[] = [
   // Testes
-  /\bnpm\s+(run\s+)?test\b/,
-  /\bvitest\b/,
-  /\bjest\b/,
-  /\bplaywright\b/,
-  /\bcypress\b/,
-  /\bmocha\b/,
-  /\bpytest\b/,
-  /\bnpx\s+.*test\b/,
+  new RegExp(RTK.source + /npm\s+(run\s+)?test\b/.source),
+  new RegExp(RTK.source + /vitest\b/.source),
+  new RegExp(RTK.source + /jest\b/.source),
+  new RegExp(RTK.source + /playwright\b/.source),
+  new RegExp(RTK.source + /cypress\b/.source),
+  new RegExp(RTK.source + /mocha\b/.source),
+  new RegExp(RTK.source + /pytest\b/.source),
+  new RegExp(RTK.source + /npx\s+.*test\b/.source),
 
   // Builds
-  /\bnpm\s+run\s+build\b/,
-  /\bvite\s+build\b/,
-  /\bnext\s+build\b/,
-  /\btsc\b/,
-  /\bwebpack\b/,
-  /\besbuild\b/,
-  /\brollup\b/,
+  new RegExp(RTK.source + /npm\s+run\s+build\b/.source),
+  new RegExp(RTK.source + /vite\s+build\b/.source),
+  new RegExp(RTK.source + /next\s+build\b/.source),
+  new RegExp(RTK.source + /tsc\b/.source),
+  new RegExp(RTK.source + /webpack\b/.source),
+  new RegExp(RTK.source + /esbuild\b/.source),
+  new RegExp(RTK.source + /rollup\b/.source),
 
   // Installs
-  /\bnpm\s+install\b/,
-  /\bnpm\s+ci\b/,
-  /\bpnpm\s+install\b/,
-  /\byarn\s+install\b/,
-  /\bbun\s+install\b/,
+  new RegExp(RTK.source + /npm\s+install\b/.source),
+  new RegExp(RTK.source + /npm\s+ci\b/.source),
+  new RegExp(RTK.source + /pnpm\s+install\b/.source),
+  new RegExp(RTK.source + /yarn\s+install\b/.source),
+  new RegExp(RTK.source + /bun\s+install\b/.source),
 
   // Dev servers (nunca terminam — sempre precisam de background)
-  /\bnpm\s+run\s+dev\b/,
-  /\bnpm\s+run\s+start\b/,
-  /\bnext\s+dev\b/,
-  /\bvite\b(?!\s+build)/,
+  new RegExp(RTK.source + /npm\s+run\s+dev\b/.source),
+  new RegExp(RTK.source + /npm\s+run\s+start\b/.source),
+  new RegExp(RTK.source + /next\s+dev\b/.source),
+  new RegExp(RTK.source + /vite\b(?!\s+build)/.source),
 ];
 
 function isLongRunning(command: string): boolean {
@@ -307,7 +314,8 @@ export const BackgroundPlugin: Plugin = async (_ctx) => {
 
     /**
      * Intercepta todo bash/shell call ANTES da execução.
-     * Se o comando for de longa duração, substitui por um echo com taskId
+     * Compatível com rtk — detecta "npm test" e "rtk npm test".
+     * Se o comando for de longa duração, substitui por echo com taskId
      * e instrução de polling — o servidor LLM nunca fica esperando.
      */
     "tool.execute.before": async (input: any, output: any) => {
@@ -343,7 +351,7 @@ export const BackgroundPlugin: Plugin = async (_ctx) => {
         ],
       });
 
-      // Escapamos as aspas simples para o shell não quebrar o echo
+      // Escapa aspas simples para o shell não quebrar o echo
       const escaped = payload.replace(/'/g, "'\\''");
       args.command = `echo '${escaped}'`;
     },
