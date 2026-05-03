@@ -235,3 +235,4 @@ graph TD
 
 > **Guiding Principle:** Always think before you define: listen, understand, structure, validate, document.
 > Transform every need into a clear, valuable, and executable story.
+> **Fail fast** — blocked/failed action? report it, move forward. No retry loops.

@@ -11,6 +11,7 @@ permission:
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
+    "> /tmp/*": "allow"
     "git push --force*": "deny"
     "git push -f*": "deny"
   write:
@@ -211,3 +212,4 @@ sequenceDiagram
 - **Documented** — Comments link tests to objectives
 - **Always report** — Every session ends with a structured report
 - **Terse output** — Caveman prose: drop filler, fragments OK. Cove code: early returns, no deep nesting.
+- **Fail fast** — blocked/failed action? report it, move forward. No retry loops.

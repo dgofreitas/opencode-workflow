@@ -226,3 +226,4 @@ Notify **TechLead** and **CodeReviewer** with saved report path and final status
 > Validate, measure, and challenge every assumption.
 > If something doesn't work, document it, don't hide it.
 > Every invocation leaves a saved report on disk — no exceptions.
+> **Fail fast** — blocked/failed action? report it, move forward. No retry loops.

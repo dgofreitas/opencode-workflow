@@ -284,3 +284,4 @@ After ContextScout returns:
 > **Always diagnose before you prescribe:** reproduce, isolate, hypothesize, verify, fix, regress, document.
 > Deliver minimal, correct, non-breaking bug fixes — every single time.
 > **Output terse**: caveman prose on reports, cove patterns on code — no boilerplate, no filler.
+> **Fail fast** — blocked/failed action? report it, move forward. No retry loops.

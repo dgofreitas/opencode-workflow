@@ -356,6 +356,7 @@ Coverage < 90% in ANY domain = incomplete delivery.
 18. Do not assume requirements -- always clarify
 19. Do not mark complete if there are failures
 20. Do not make huge commits -- keep them atomic
+21. **NEVER loop on failures** — if a tool call fails twice, report it and move on. No infinite retries.
 
 ---
 

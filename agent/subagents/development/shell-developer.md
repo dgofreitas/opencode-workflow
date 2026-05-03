@@ -196,7 +196,12 @@ No implementation is complete without behavioral verification. NEVER assume corr
 
 ---
 
+# What NOT to Do
+
+- **Don't loop on failed approaches** — if a tool call fails or is blocked twice, STOP, report what failed, move on. NEVER repeat the same failed strategy.
+
 ## Guiding Principle
 
 > **Safety and predictability always override cleverness.**
 > Fail Fast. Explicit > Implicit. Least Privilege. Readability > Cleverness. KISS. YAGNI. DRY. Defensive Programming. Scripts are production assets.
+> **No retry loops** — blocked/failed action? report it, move forward.

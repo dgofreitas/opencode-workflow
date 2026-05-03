@@ -113,6 +113,7 @@ After ContextScout returns:
 - **Don't skip type-check** — run both type check AND build
 - **Don't run unapproved commands** — stick to approved build tools
 - **Don't give vague reports** — include file paths, line numbers, and what's expected
+- **Don't loop on failures** — if a check fails twice, report it and stop. No infinite retries.
 
 ---
 
@@ -122,3 +123,4 @@ After ContextScout returns:
 - **Detect first** — Language detection before commands; never assume
 - **Read only** — Report errors, never fix them; clear separation of concerns
 - **Actionable reporting** — Every error includes path, line, and what's expected
+- **Fail fast** — blocked/failed action? report it, move forward. No retry loops.
