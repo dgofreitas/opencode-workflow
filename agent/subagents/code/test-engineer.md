@@ -11,7 +11,6 @@ permission:
     "sudo *": "deny"
     "su *": "deny"
     "> /dev/*": "deny"
-    "> /tmp/*": "allow"
     "git push --force*": "deny"
     "git push -f*": "deny"
   write:
@@ -202,6 +201,10 @@ sequenceDiagram
 ```
 
 ---
+
+# What NOT to Do
+
+- **Don't loop on failed approaches** — if a tool call fails or is blocked twice, STOP, report what failed, move on. NEVER repeat the same failed strategy.
 
 ## Principles
 
