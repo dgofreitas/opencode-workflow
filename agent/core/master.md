@@ -5,17 +5,16 @@ mode: primary
 temperature: 0.1
 permission:
   bash:
-    "*": "deny"
-    "ls *": "allow"
-    "cat *": "allow"
-    "git status": "allow"
-    "git log *": "allow"
-    "glob *": "allow"
-    "grep *": "allow"
+    "*": "allow"
+    "rm -rf *": "deny"
+    "rm -rf /*": "deny"
+    "sudo *": "deny"
+    "su *": "deny"
+    "> /dev/*": "deny"
   edit:
-    "**/*": "deny"
+    "**/*": "allow"
   write:
-    "**/*": "deny"
+    "**/*": "allow"
   task:
     "*": "allow"
   skill:

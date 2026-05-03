@@ -25,6 +25,18 @@
     "master": {
       "fallbackModels": []
     },
+    "architect": {
+      "fallbackModels": []
+    },
+    "backend-developer": {
+      "fallbackModels": []
+    },
+    "bug-fixer-nodejs": {
+      "fallbackModels": []
+    },
+    "build-agent": {
+      "fallbackModels": []
+    },
     "code-analyzer": {
       "fallbackModels": [
         {
@@ -40,31 +52,6 @@
           "modelID": "glm-4.5-air"
         }
       ]
-    },
-    "impl-reviewer-nodejs": {
-      "fallbackModels": [
-        {
-          "providerID": "opencode",
-          "modelID": "minimax-m2.5-free"
-        },
-        {
-          "providerID": "openrouter",
-          "modelID": "nvidia/nemotron-3-super-120b-a12b:free"
-        },
-        {
-          "providerID": "zai-coding-plan",
-          "modelID": "glm-4.5-air"
-        }
-      ]
-    },
-    "backend-developer": {
-      "fallbackModels": []
-    },
-    "bug-fixer-nodejs": {
-      "fallbackModels": []
-    },
-    "build-agent": {
-      "fallbackModels": []
     },
     "code-reviewer": {
       "fallbackModels": [
@@ -82,11 +69,7 @@
         }
       ]
     },
-    "frontend-developer-react": {
-      "fallbackModels": []
-    },
-    "test-engineer": {
-      "cooldownMs": 30000,
+    "context-organizer": {
       "fallbackModels": [
         {
           "providerID": "opencode",
@@ -103,6 +86,22 @@
       ]
     },
     "contextscout": {
+      "fallbackModels": [
+        {
+          "providerID": "opencode",
+          "modelID": "minimax-m2.5-free"
+        },
+        {
+          "providerID": "openrouter",
+          "modelID": "nvidia/nemotron-3-super-120b-a12b:free"
+        },
+        {
+          "providerID": "zai-coding-plan",
+          "modelID": "glm-4.5-air"
+        }
+      ]
+    },
+    "devops-specialist": {
       "fallbackModels": [
         {
           "providerID": "opencode",
@@ -150,48 +149,19 @@
         }
       ]
     },
-    "task-manager": {
-      "fallbackModels": [
-        {
-          "providerID": "opencode",
-          "modelID": "minimax-m2.5-free"
-        },
-        {
-          "providerID": "openrouter",
-          "modelID": "nvidia/nemotron-3-super-120b-a12b:free"
-        },
-        {
-          "providerID": "zai-coding-plan",
-          "modelID": "glm-4.5-air"
-        }
-      ]
-    },
-    "devops-specialist": {
-      "fallbackModels": [
-        {
-          "providerID": "opencode",
-          "modelID": "minimax-m2.5-free"
-        },
-        {
-          "providerID": "openrouter",
-          "modelID": "nvidia/nemotron-3-super-120b-a12b:free"
-        },
-        {
-          "providerID": "zai-coding-plan",
-          "modelID": "glm-4.5-air"
-        }
-      ]
+    "frontend-developer": {
+      "fallbackModels": []
     },
     "frontend-developer-angular": {
+      "fallbackModels": []
+    },
+    "frontend-developer-react": {
       "fallbackModels": []
     },
     "frontend-developer-vue": {
       "fallbackModels": []
     },
-    "frontend-developer": {
-      "fallbackModels": []
-    },
-    "shell-developer": {
+    "impl-reviewer-nodejs": {
       "fallbackModels": [
         {
           "providerID": "opencode",
@@ -206,12 +176,6 @@
           "modelID": "glm-4.5-air"
         }
       ]
-    },
-    "ux-designer": {
-      "fallbackModels": []
-    },
-    "architect": {
-      "fallbackModels": []
     },
     "merge-request-creator": {
       "fallbackModels": [
@@ -248,10 +212,7 @@
         }
       ]
     },
-    "tech-lead": {
-      "fallbackModels": []
-    },
-    "context-organizer": {
+    "shell-developer": {
       "fallbackModels": [
         {
           "providerID": "opencode",
@@ -266,6 +227,45 @@
           "modelID": "glm-4.5-air"
         }
       ]
+    },
+    "task-manager": {
+      "fallbackModels": [
+        {
+          "providerID": "opencode",
+          "modelID": "minimax-m2.5-free"
+        },
+        {
+          "providerID": "openrouter",
+          "modelID": "nvidia/nemotron-3-super-120b-a12b:free"
+        },
+        {
+          "providerID": "zai-coding-plan",
+          "modelID": "glm-4.5-air"
+        }
+      ]
+    },
+    "tech-lead": {
+      "fallbackModels": []
+    },
+    "test-engineer": {
+      "cooldownMs": 30000,
+      "fallbackModels": [
+        {
+          "providerID": "opencode",
+          "modelID": "minimax-m2.5-free"
+        },
+        {
+          "providerID": "openrouter",
+          "modelID": "nvidia/nemotron-3-super-120b-a12b:free"
+        },
+        {
+          "providerID": "zai-coding-plan",
+          "modelID": "glm-4.5-air"
+        }
+      ]
+    },
+    "ux-designer": {
+      "fallbackModels": []
     }
   },
   "fallbackModels": [
