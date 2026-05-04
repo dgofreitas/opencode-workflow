@@ -42,6 +42,7 @@ readonly WORKFLOW_REQUIRED_ITEMS=(
     "package.json"
     "opencode.json"
     "instructions.md"
+    "bin"
 )
 
 COUNT_AGENTS=0
@@ -74,16 +75,17 @@ calculateMetrics() {
     COUNT_SKILLS=$(find "${baseDir}/skills"  -name "SKILL.md" 2>/dev/null | wc -l)
     COUNT_PLUGINS=$(find "${baseDir}/plugins" -name "*.ts"    2>/dev/null | wc -l)
     COUNT_CONTEXT=$(find "${baseDir}/context" -name "*.md"    2>/dev/null | wc -l)
+    COUNT_BIN=$(ls "${baseDir}/bin"    2>/dev/null | wc -l)
 }
 
 printBanner() {
     echo -e "${BLUE}"
-    echo "╔════════════════════════════════════════════════════════════════╗"
-    echo "║        🚀 OpenCode Workflow - Instalador v${SCRIPT_VERSION}                ║"
-    echo "║                                                                ║"
-    echo "║  🤖 Agentes: ${COUNT_AGENTS} | ⌨️  Comandos: ${COUNT_COMMANDS} | 🛠️  Skills: ${COUNT_SKILLS}               ║"
-    echo "║  🔌 Plugins: ${COUNT_PLUGINS} | 📂 Contexto: ${COUNT_CONTEXT}                              ║"
-    echo "╚════════════════════════════════════════════════════════════════╝"
+    echo "╔═══════════════════════════════════════════════════════════════════════════╗"
+    echo "║        🚀 OpenCode Workflow - Instalador v${SCRIPT_VERSION}                   ║"
+    echo "║                                                                           ║"
+    echo "║  🤖 Agentes: ${COUNT_AGENTS} | ⌨️  Comandos: ${COUNT_COMMANDS} | 🛠️  Skills: ${COUNT_SKILLS}                ║"   
+    echo "║  🔌 Plugins: ${COUNT_PLUGINS} | 📂 Contexto: ${COUNT_CONTEXT} | 🧰 Bin: ${COUNT_BIN}                  ║"
+    echo "╚═══════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 }
 

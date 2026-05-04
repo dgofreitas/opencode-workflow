@@ -42,6 +42,7 @@ readonly WORKFLOW_REQUIRED_ITEMS=(
     "opencode.json"
     "instructions.md"
     "install.sh"
+    "bin"
 )
 
 # ==============================================================================

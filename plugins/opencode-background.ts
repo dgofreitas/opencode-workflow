@@ -1,51 +1,66 @@
 /**
  * opencode-background
  *
- * Plugin para OpenCode que intercepta automaticamente comandos bash de longa
- * duração e os executa como processos background detached.
+ * Plugin unificado que substitui rtk.ts + opencode-background.ts.
  *
- * Evita o timeout do servidor LLM (120s) mantendo cada tool call curta.
- * O agente não precisa decidir nada — a interceptação é automática.
+ * Todo comando bash passa por aqui:
+ *   1. Reescrita via rtk (se disponível no PATH, timeout 5s, fallback silencioso)
+ *   2. Execução em background com timer de 100s
+ *      - Terminou em < 100s → retorna output normal (agente não percebe nada)
+ *      - Terminou em > 100s → retorna JSON com taskId para polling
+ *   3. Paracaídas de 20min → mata o processo + JSON estruturado com output parcial
  *
- * Compatível com o plugin rtk — detecta comandos com ou sem prefixo "rtk".
- *
- * Fluxo:
- *   1. agente chama bash "npm test" (ou "rtk npm test" se rtk plugin estiver ativo)
- *   2. interceptor (tool.execute.before) substitui por echo + taskId  <- retorna em < 1s
- *   3. agente lê o echo e chama getBackgroundProcess(taskId)          <- retorna em < 1s
- *   4. agente faz polling a cada 30s até status=completed|failed
- *   5. agente lê output final e continua o workflow
+ * Tools expostas para polling:
+ *   - getBackgroundProcess   → status + últimas 20 linhas (polling a cada 30s)
+ *   - killBackgroundProcess  → mata processo por taskId
+ *   - listBackgroundProcesses → lista todos os processos
  *
  * Baseado em: https://github.com/zenobi-us/opencode-background (MIT License)
  *
  * Instalação:
- *   Copie este arquivo para .opencode/plugins/opencode-background.ts
+ *   Copie para .opencode/plugins/opencode-background.ts
+ *   Remova rtk.ts e o opencode-background.ts anterior
  */
 
 // @ts-ignore
 import { type Plugin, tool } from "@opencode-ai/plugin";
 // @ts-ignore
-import { spawn } from "node:child_process";
+import { spawn, execSync } from "node:child_process";
 // @ts-ignore
-import { existsSync, appendFileSync, statSync, renameSync, readdirSync, unlinkSync } from "node:fs";
+import {
+  existsSync,
+  appendFileSync,
+  statSync,
+  renameSync,
+  readdirSync,
+  unlinkSync,
+} from "node:fs";
 // @ts-ignore
 import { join } from "node:path";
 
 declare const process: any;
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const SYNC_TIMEOUT_MS = 100_000; // 100s — se ultrapassar, vira background
+const KILL_TIMEOUT_MS = 20 * 60 * 1000; // 20min — paracaídas, mata o processo
+const RTK_TIMEOUT_MS = 5_000;  // 5s — timeout para rtk rewrite
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type TaskStatus = "running" | "completed" | "failed" | "cancelled";
+type TaskStatus = "running" | "completed" | "failed" | "cancelled" | "killed";
 
 interface BackgroundTask {
   id: string;
-  command: string;
+  originalCommand: string;
+  command: string; // comando após reescrita rtk (pode ser igual ao original)
   status: TaskStatus;
   pid?: number;
   startedAt: string;
   completedAt?: string;
   error?: string;
   outputStream: string[]; // rolling buffer, max 100 lines
+  killTimer?: any;
 }
 
 // ─── Logger ───────────────────────────────────────────────────────────────────
@@ -64,21 +79,17 @@ let logWriteCounter = 0;
 function rotateLogIfNeeded() {
   logWriteCounter++;
   if (logWriteCounter % 20 !== 0) return;
-
   try {
     if (!existsSync(LOG_FILE)) return;
     const stats = statSync(LOG_FILE);
-
     if (stats.size >= MAX_LOG_SIZE) {
       const timestamp = getLocalTimestamp().replace(/[:.]/g, "-");
       renameSync(LOG_FILE, `${LOG_FILE}.${timestamp}`);
-
       const files = readdirSync("/tmp");
       const logFiles = files
         .filter((f: string) => f.startsWith("opencode-background.log."))
         .map((f: string) => join("/tmp", f))
         .sort();
-
       while (logFiles.length > MAX_LOG_FILES) {
         const oldest = logFiles.shift();
         if (oldest) unlinkSync(oldest);
@@ -95,54 +106,56 @@ function fileLog(msg: string, extra?: any) {
   } catch { }
 }
 
-// ─── Long-Running Command Detector ───────────────────────────────────────────
+// ─── RTK Rewriter ─────────────────────────────────────────────────────────────
 
-/**
- * Prefixo opcional "rtk " — compatibilidade com o plugin rtk que pode
- * reescrever o comando antes deste hook rodar.
- * Cada padrão aceita: "npm test" e "rtk npm test"
- *
- * Adicione aqui qualquer comando que costume demorar mais de 30s no seu projeto.
- */
-const RTK = /^(rtk\s+)?/; // prefixo opcional para todos os padrões
+let rtkPath: string | null | undefined = undefined; // undefined = não testado ainda
 
-const LONG_RUNNING_PATTERNS: RegExp[] = [
-  // Testes
-  new RegExp(RTK.source + /npm\s+(run\s+)?test\b/.source),
-  new RegExp(RTK.source + /vitest\b/.source),
-  new RegExp(RTK.source + /jest\b/.source),
-  new RegExp(RTK.source + /playwright\b/.source),
-  new RegExp(RTK.source + /cypress\b/.source),
-  new RegExp(RTK.source + /mocha\b/.source),
-  new RegExp(RTK.source + /pytest\b/.source),
-  new RegExp(RTK.source + /npx\s+.*test\b/.source),
+// Ordem de busca:
+// 1. .opencode/bin/rtk  (projeto — preferencial)
+// 2. which rtk          (PATH global — fallback)
 
-  // Builds
-  new RegExp(RTK.source + /npm\s+run\s+build\b/.source),
-  new RegExp(RTK.source + /vite\s+build\b/.source),
-  new RegExp(RTK.source + /next\s+build\b/.source),
-  new RegExp(RTK.source + /tsc\b/.source),
-  new RegExp(RTK.source + /webpack\b/.source),
-  new RegExp(RTK.source + /esbuild\b/.source),
-  new RegExp(RTK.source + /rollup\b/.source),
+function getRtkPath(): string | null {
+  if (rtkPath !== undefined) return rtkPath;
 
-  // Installs
-  new RegExp(RTK.source + /npm\s+install\b/.source),
-  new RegExp(RTK.source + /npm\s+ci\b/.source),
-  new RegExp(RTK.source + /pnpm\s+install\b/.source),
-  new RegExp(RTK.source + /yarn\s+install\b/.source),
-  new RegExp(RTK.source + /bun\s+install\b/.source),
+  // 1. Tenta path local do projeto
+  try {
+    const localPath = execSync("git rev-parse --show-toplevel", { timeout: 3_000 })
+      .toString().trim() + "/.opencode/bin/rtk";
 
-  // Dev servers (nunca terminam — sempre precisam de background)
-  new RegExp(RTK.source + /npm\s+run\s+dev\b/.source),
-  new RegExp(RTK.source + /npm\s+run\s+start\b/.source),
-  new RegExp(RTK.source + /next\s+dev\b/.source),
-  new RegExp(RTK.source + /vite\b(?!\s+build)/.source),
-];
+    if (existsSync(localPath)) {
+      rtkPath = localPath;
+      fileLog(`rtk found locally: ${rtkPath}`);
+      return rtkPath;
+    }
+  } catch { }
 
-function isLongRunning(command: string): boolean {
-  const lower = command.toLowerCase().trim();
-  return LONG_RUNNING_PATTERNS.some((pattern) => pattern.test(lower));
+  // 2. Fallback para PATH global
+  try {
+    rtkPath = execSync("which rtk", { timeout: RTK_TIMEOUT_MS }).toString().trim() || null;
+    fileLog(`rtk found in PATH: ${rtkPath}`);
+  } catch {
+    rtkPath = null;
+    fileLog("rtk not found — rewrite disabled");
+  }
+
+  return rtkPath;
+}
+
+function rewriteWithRtk(command: string): string {
+  const rtk = getRtkPath();
+  if (!rtk) return command;
+  try {
+    const rewritten = execSync(`rtk rewrite ${command}`, {
+      timeout: RTK_TIMEOUT_MS,
+    }).toString().trim();
+    if (rewritten && rewritten !== command) {
+      fileLog(`rtk rewrite`, { original: command, rewritten });
+      return rewritten;
+    }
+  } catch {
+    // rtk rewrite falhou — passa o comando original silenciosamente
+  }
+  return command;
 }
 
 // ─── Background Process Manager ──────────────────────────────────────────────
@@ -153,61 +166,163 @@ function generateId(): string {
   return "bg-" + Math.random().toString(36).substring(2, 9);
 }
 
-function runInBackground(command: string): BackgroundTask {
-  const id = generateId();
+function killProcess(task: BackgroundTask, reason: string) {
+  try {
+    if (task.pid) (process as any).kill(task.pid);
+    fileLog(`[${task.id}] Process killed`, { pid: task.pid, reason });
+  } catch (err: any) {
+    fileLog(`[${task.id}] Kill failed`, { error: err.message });
+  }
+  if (task.killTimer) clearTimeout(task.killTimer);
+  task.status = "killed";
+  task.completedAt = getLocalTimestamp();
+  task.error = reason;
+}
 
-  const task: BackgroundTask = {
-    id,
-    command,
+interface RunResult {
+  timedOut: boolean;
+  task: BackgroundTask;
+}
+
+/**
+ * Roda o comando em background e aguarda até SYNC_TIMEOUT_MS.
+ * - Se terminar antes: resolve com timedOut=false e output completo
+ * - Se não terminar:   resolve com timedOut=true e taskId para polling
+ */
+function runWithTimeout(command: string, originalCommand: string): Promise<RunResult> {
+  return new Promise((resolve) => {
+    const id = generateId();
+
+    const task: BackgroundTask = {
+      id,
+      originalCommand,
+      command,
+      status: "running",
+      startedAt: getLocalTimestamp(),
+      outputStream: [],
+    };
+
+    const child = spawn(command, {
+      shell: true,
+      detached: true,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    task.pid = child.pid;
+    tasks.set(id, task);
+
+    fileLog(`[${id}] Started`, { command, pid: task.pid });
+
+    const record = (line: string, isErr = false) => {
+      const formatted = isErr ? `[stderr] ${line}` : line;
+      task.outputStream.push(formatted);
+      if (task.outputStream.length > 100) task.outputStream.shift();
+    };
+
+    child.stdout?.on("data", (chunk: any) =>
+      chunk.toString().split("\n").filter(Boolean).forEach((l: string) => record(l))
+    );
+    child.stderr?.on("data", (chunk: any) =>
+      chunk.toString().split("\n").filter(Boolean).forEach((l: string) => record(l, true))
+    );
+
+    let resolved = false;
+
+    // ── Timer 1: SYNC_TIMEOUT (100s) ─────────────────────────────────────────
+    // Se o processo ainda estiver rodando após 100s, resolve com timedOut=true
+    // O processo continua em background — não é morto aqui.
+    const syncTimer = setTimeout(() => {
+      if (resolved) return;
+      resolved = true;
+      fileLog(`[${id}] Sync timeout reached (${SYNC_TIMEOUT_MS}ms) — continuing in background`);
+
+      // ── Timer 2: KILL_TIMEOUT (20min) ──────────────────────────────────────
+      // Paracaídas — mata o processo se ainda estiver rodando após 20min
+      task.killTimer = setTimeout(() => {
+        if (task.status !== "running") return;
+        fileLog(`[${id}] Kill timeout reached (20min) — terminating`);
+        killProcess(task, `Process exceeded maximum allowed runtime of 20 minutes and was forcefully terminated.`);
+      }, KILL_TIMEOUT_MS);
+
+      resolve({ timedOut: true, task });
+    }, SYNC_TIMEOUT_MS);
+
+    // ── Processo terminou antes do sync timeout ───────────────────────────────
+    child.on("close", (code: number | null) => {
+      if (task.status === "killed") return;
+      clearTimeout(syncTimer);
+      if (task.killTimer) clearTimeout(task.killTimer);
+      task.completedAt = getLocalTimestamp();
+      task.status = code === 0 ? "completed" : "failed";
+      if (code !== 0) task.error = `Process exited with code ${code}`;
+      fileLog(`[${id}] Finished`, { code, status: task.status });
+
+      if (!resolved) {
+        resolved = true;
+        resolve({ timedOut: false, task });
+      }
+    });
+
+    child.on("error", (err: Error) => {
+      clearTimeout(syncTimer);
+      if (task.killTimer) clearTimeout(task.killTimer);
+      task.status = "failed";
+      task.error = err.message;
+      task.completedAt = getLocalTimestamp();
+      record(err.message, true);
+      fileLog(`[${id}] Error`, { error: err.message });
+
+      if (!resolved) {
+        resolved = true;
+        resolve({ timedOut: false, task });
+      }
+    });
+
+    child.unref();
+  });
+}
+
+// ─── Payload Builders ─────────────────────────────────────────────────────────
+
+function buildTimeoutPayload(task: BackgroundTask): string {
+  const payload = {
+    intercepted: true,
+    taskId: task.id,
+    pid: task.pid,
+    command: task.command,
     status: "running",
-    startedAt: getLocalTimestamp(),
-    outputStream: [],
+    startedAt: task.startedAt,
+    instructions: [
+      "Command is still running after 100s — now tracked as a background process.",
+      "Use getBackgroundProcess tool with this taskId to check progress.",
+      "Poll every 30 seconds until status is 'completed' or 'failed'.",
+      "Do NOT use bash tool to wait — use getBackgroundProcess only.",
+    ],
   };
+  const escaped = JSON.stringify(payload).replace(/'/g, "'\\''");
+  return `echo '${escaped}'`;
+}
 
-  const child = spawn(command, {
-    shell: true,
-    detached: true,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-
-  task.pid = child.pid;
-  tasks.set(id, task);
-
-  fileLog(`[${id}] Started`, { command, pid: task.pid });
-
-  const record = (line: string, isErr = false) => {
-    const formatted = isErr ? `[stderr] ${line}` : line;
-    task.outputStream.push(formatted);
-    if (task.outputStream.length > 100) task.outputStream.shift();
+function buildKilledPayload(task: BackgroundTask): string {
+  const payload = {
+    intercepted: true,
+    taskId: task.id,
+    pid: task.pid,
+    command: task.command,
+    status: "killed",
+    startedAt: task.startedAt,
+    completedAt: task.completedAt,
+    error: task.error,
+    partialOutput: task.outputStream.slice(-20),
+    instructions: [
+      "Process was forcefully terminated after 20 minutes without completing.",
+      "Review the partial output above to understand what happened.",
+      "Consider breaking the command into smaller parts.",
+      "Or investigate why the process is taking too long.",
+    ],
   };
-
-  child.stdout?.on("data", (chunk: any) =>
-    chunk.toString().split("\n").filter(Boolean).forEach((l: string) => record(l))
-  );
-
-  child.stderr?.on("data", (chunk: any) =>
-    chunk.toString().split("\n").filter(Boolean).forEach((l: string) => record(l, true))
-  );
-
-  child.on("close", (code: number | null) => {
-    if (task.status === "cancelled") return;
-    task.completedAt = getLocalTimestamp();
-    task.status = code === 0 ? "completed" : "failed";
-    if (code !== 0) task.error = `Process exited with code ${code}`;
-    fileLog(`[${id}] Finished`, { code, status: task.status });
-  });
-
-  child.on("error", (err: Error) => {
-    task.status = "failed";
-    task.error = err.message;
-    task.completedAt = getLocalTimestamp();
-    record(err.message, true);
-    fileLog(`[${id}] Error`, { error: err.message });
-  });
-
-  child.unref();
-
-  return task;
+  const escaped = JSON.stringify(payload).replace(/'/g, "'\\''");
+  return `echo '${escaped}'`;
 }
 
 // ─── Plugin ───────────────────────────────────────────────────────────────────
@@ -215,24 +330,26 @@ function runInBackground(command: string): BackgroundTask {
 export const BackgroundPlugin: Plugin = async (_ctx) => {
   fileLog("Plugin initialized");
 
+  // Detecta rtk na inicialização (não bloqueia)
+  setTimeout(() => getRtkPath(), 0);
+
   // ── Tool: getBackgroundProcess ─────────────────────────────────────────────
   const getBackgroundProcess = tool({
     description:
       "Get the current status and last output lines of a background process. " +
-      "ALWAYS use this to poll progress after a long-running bash command is intercepted. " +
-      "Poll every 30 seconds until status is 'completed' or 'failed'. " +
+      "ALWAYS use this to poll progress after a long-running command exceeds 100s. " +
+      "Poll every 30 seconds until status is 'completed', 'failed', or 'killed'. " +
       "Never use bash tool to wait — use this tool only.",
     args: {
       taskId: tool.schema
         .string()
-        .describe("The taskId received when the bash command was intercepted"),
+        .describe("The taskId received when the command timed out"),
     },
     async execute(args) {
       const task = tasks.get(args.taskId);
       if (!task) {
         return JSON.stringify({ error: `Task ${args.taskId} not found` });
       }
-
       return JSON.stringify({
         taskId: task.id,
         command: task.command,
@@ -242,9 +359,14 @@ export const BackgroundPlugin: Plugin = async (_ctx) => {
         completedAt: task.completedAt ?? null,
         error: task.error ?? null,
         lastOutput: task.outputStream.slice(-20),
-        // Lembrete explícito enquanto ainda está rodando
         ...(task.status === "running" && {
           reminder: "Still running. Poll again in 30 seconds with getBackgroundProcess.",
+        }),
+        ...(task.status === "killed" && {
+          instructions: [
+            "Process was forcefully terminated after 20 minutes.",
+            "Review partialOutput and consider breaking the command into smaller parts.",
+          ],
         }),
       });
     },
@@ -261,17 +383,7 @@ export const BackgroundPlugin: Plugin = async (_ctx) => {
       if (!task) {
         return JSON.stringify({ error: `Task ${args.taskId} not found` });
       }
-
-      try {
-        if (task.pid) (process as any).kill(task.pid);
-        fileLog(`[${task.id}] Killed`, { pid: task.pid });
-      } catch (err: any) {
-        fileLog(`[${task.id}] Kill failed`, { error: err.message });
-      }
-
-      task.status = "cancelled";
-      task.completedAt = getLocalTimestamp();
-
+      killProcess(task, "Manually killed by agent");
       return JSON.stringify({ taskId: task.id, status: "cancelled" });
     },
   });
@@ -283,13 +395,12 @@ export const BackgroundPlugin: Plugin = async (_ctx) => {
       status: tool.schema
         .string()
         .optional()
-        .describe("Filter by status: running | completed | failed | cancelled"),
+        .describe("Filter by status: running | completed | failed | cancelled | killed"),
     },
     async execute(args) {
       const results = Array.from(tasks.values()).filter(
         (t) => !args.status || t.status === args.status
       );
-
       return JSON.stringify(
         results.map((t) => ({
           taskId: t.id,
@@ -313,10 +424,13 @@ export const BackgroundPlugin: Plugin = async (_ctx) => {
     },
 
     /**
-     * Intercepta todo bash/shell call ANTES da execução.
-     * Compatível com rtk — detecta "npm test" e "rtk npm test".
-     * Se o comando for de longa duração, substitui por echo com taskId
-     * e instrução de polling — o servidor LLM nunca fica esperando.
+     * Intercepta todo bash/shell call.
+     *
+     * 1. Reescreve com rtk se disponível (timeout 5s, fallback silencioso)
+     * 2. Roda em background com timer de 100s
+     *    - < 100s: injeta output real de volta no args.command via echo
+     *    - > 100s: injeta JSON com taskId para polling
+     * 3. Paracaídas de 20min: mata o processo e sinaliza erro estruturado
      */
     "tool.execute.before": async (input: any, output: any) => {
       const toolName = String(input?.tool ?? "").toLowerCase();
@@ -325,35 +439,42 @@ export const BackgroundPlugin: Plugin = async (_ctx) => {
       const args = output?.args as Record<string, unknown> | undefined;
       if (!args) return;
 
-      const command = args.command;
-      if (typeof command !== "string" || !command.trim()) return;
-      if (!isLongRunning(command)) return;
+      const originalCommand = args.command;
+      if (typeof originalCommand !== "string" || !originalCommand.trim()) return;
 
-      // Interceptado — inicia em background, retorna taskId em < 1s
-      const task = runInBackground(command);
+      // Reescrita rtk (fallback silencioso se indisponível ou falhar)
+      const command = rewriteWithRtk(originalCommand);
 
-      fileLog(`[intercepted] bash → background`, { command, taskId: task.id });
+      // Roda em background e aguarda até 100s
+      const { timedOut, task } = await runWithTimeout(command, originalCommand);
 
-      // Substitui o bash por um echo com JSON estruturado.
-      // O agente lê isso como output do bash e sabe exatamente o que fazer.
-      const payload = JSON.stringify({
-        intercepted: true,
-        taskId: task.id,
-        pid: task.pid,
-        command: task.command,
-        status: "running",
-        startedAt: task.startedAt,
-        instructions: [
-          "Command intercepted — running as background process to avoid LLM timeout.",
-          "Use getBackgroundProcess tool with this taskId to check progress.",
-          "Poll every 30 seconds until status is 'completed' or 'failed'.",
-          "Do NOT use bash tool to wait — use getBackgroundProcess only.",
-        ],
-      });
+      if (!timedOut) {
+        if (task.status === "killed") {
+          // Paracaídas ativado durante janela síncrona (edge case improvável)
+          args.command = buildKilledPayload(task);
+          return;
+        }
 
-      // Escapa aspas simples para o shell não quebrar o echo
-      const escaped = payload.replace(/'/g, "'\\''");
-      args.command = `echo '${escaped}'`;
+        // Terminou dentro de 100s — injeta output real via echo
+        // O agente recebe exatamente o que receberia de um bash normal
+        const output = task.outputStream.join("\n").replace(/'/g, "'\\''");
+        args.command = output
+          ? `echo '${output}'`
+          : `echo '[bg:${task.id}] Command completed with no output. Exit status: ${task.status}'`;
+        return;
+      }
+
+      // Ultrapassou 100s — retorna JSON com taskId para polling
+      args.command = buildTimeoutPayload(task);
+
+      // Registra listener para atualizar o payload se o processo for morto
+      // pelo paracaídas de 20min enquanto o agente faz polling
+      const interval = setInterval(() => {
+        if (task.status !== "killed") return;
+        clearInterval(interval);
+        // O agente vai descobrir via getBackgroundProcess na próxima poll
+        fileLog(`[${task.id}] Kill detected during polling window`);
+      }, 5_000);
     },
 
     event: async ({ event }: any) => {
