@@ -2,9 +2,9 @@
 
 # 📘 New OpenCode Workflow — Guia Completo
 
-> **Sistema de agentes IA para SDLC com 3 Approval Gates, instalação local por projeto.**
+> **Sistema de agentes IA para SDLC com 4 Approval Gates, instalação local por projeto.**
 >
-> Master orquestra ProductManager → Architect → TechLead, que coordena especialistas
+> Master orquestra ProductOwner → ProductManager → Architect → TechLead, que coordena especialistas
 > (BackendDev, FrontendDev, TestEngineer, CodeReviewer, QAAnalyst, MR Creator).
 > Contexto carregado on-demand via ContextScout (5 buckets) + ExternalScout (Context7).
 
@@ -31,7 +31,7 @@
 
 ## 🔭 1. Visão Geral
 
-**O que é**: um conjunto de 25 agentes especializados que trabalham em pipeline para entregar features completas (story → plano técnico → código → testes → QA → review → merge request), com **3 momentos de aprovação humana** entre etapas críticas.
+**O que é**: um conjunto de 26 agentes especializados que trabalham em pipeline para entregar features completas (visão/épicos → story → plano técnico → código → testes → QA → review → merge request), com **4 momentos de aprovação humana** entre etapas críticas.
 
 **Por que existe**:
 
@@ -50,7 +50,9 @@ graph TD
     OA --> QI["Pergunta direta<br/>→ Resposta imediata"]
     OA --> DT["Task simples<br/>→ Specialist direto"]
 
-    SDLC --> PM[ProductManager]
+    SDLC --> PO[ProductOwner]
+    PO --> G0{{"⏸️ GATE #0"}}
+    G0 --> PM[ProductManager]
     PM --> G1{{"⏸️ GATE #1"}}
     G1 --> Arch[Architect]
     Arch --> G2{{"⏸️ GATE #2"}}
@@ -79,7 +81,7 @@ opencode --agent Master
 
 # 3. Falar em linguagem natural
 > "Crie uma feature de login com email e senha, validação Zod e testes."
-# → Master detecta intenção, dispara pipeline SDLC com 3 gates
+# → Master detecta intenção, dispara pipeline SDLC com 4 gates
 ```
 
 > **Nota**: instalação só na modalidade **local** (`<projeto>/.opencode/`). Modos global e híbrido foram removidos para simplicidade.
@@ -211,7 +213,7 @@ Você **não precisa** de slash commands na maioria dos casos. O Master detecta 
 
 | O que você diz | O que o Master faz |
 |----------------|---------------------|
-| "Crie um site de investimento com dashboard" | **SDLC automático**: PM → ⏸️ → Arch → ⏸️ → TechLead(full cycle) → ⏸️ → next story |
+| "Crie um site de investimento com dashboard" | **SDLC automático**: PO(épicos) → PM(stories) → ⏸️#1 → Arch → ⏸️#2 → TechLead(full cycle) → ⏸️#3 → next story |
 | "Implemente um sistema de pagamentos" | **SDLC automático**: pipeline completo |
 | "Fix this bug in `auth.ts`" | **Task direto**: correção simples (sem SDLC) |
 | "Add a button to the header" | **Task direto**: modificação simples |
@@ -221,6 +223,7 @@ Use comandos slash quando quiser **controle granular**:
 
 | Comando | Quando usar |
 |---------|-------------|
+| `/epic` | Criar/análise de épicos, visão, roadmap estratégico (ProductOwner) |
 | `/story` | Apenas criar a user story (sem implementar) |
 | `/plan` | Apenas plano técnico, revisar antes |
 | `/implement` | Já tem story+plano, executar |
@@ -228,18 +231,30 @@ Use comandos slash quando quiser **controle granular**:
 | `/qa` | Validação QA em trabalho completado |
 | `/mr` | Criar merge request para trabalho finalizado |
 
-### 4.2 Pipeline SDLC com 3 Approval Gates
+### 4.2 Pipeline SDLC com 4 Approval Gates
+
+> **GATE #0 (opcional)**: Para requests estratégicos (visão, épicos, roadmap, personas, OKRs), ProductOwner cria artefatos antes do ProductManager. Para tasks simples, salta direto para PM.
 
 ```mermaid
 sequenceDiagram
     actor User as Você
     participant OA as Master
+    participant PO as ProductOwner
     participant PM as ProductManager
     participant Arch as Architect
     participant TL as TechLead
     participant Devs as Specialists<br/>(Backend/Frontend/Test/Review/QA/MR)
 
     User->>OA: "Criar app de finanças com dashboard"
+    alt request estratégico
+        OA->>PO: Cria visão, épicos, roadmap
+        PO-->>OA: docs/product/PM-HANDOFF.md, PERSONAS.md, OKRs.md
+        rect rgb(255, 243, 224)
+            Note over User,OA: ⏸️ GATE #0 — Épicos aprovados
+            OA->>User: Prosseguir para ProductManager? [Y/n]
+            User->>OA: aprova
+        end
+    end
     OA->>PM: Cria stories
     PM-->>OA: STORY-001.md, STORY-002.md
 
@@ -413,11 +428,12 @@ graph TD
 #### Core (1)
 | Agente | Função |
 |--------|--------|
-| **Master** | Recebe pedidos, classifica (query / task / story), orquestra SDLC com 3 gates |
+| **Master** | Recebe pedidos, classifica (query / task / epic / story), orquestra SDLC com 4 gates |
 
-#### SDLC (5)
+#### SDLC (6)
 | Agente | Output |
 |--------|--------|
+| **ProductOwner** | `docs/product/PM-HANDOFF.md`, `PERSONAS.md`, `OKRs.md`, `docs/epics/EPIC-XXX.md` |
 | **ProductManager** | `docs/stories/STORY-XXX.md` |
 | **Architect** | `docs/stories/STORY-XXX-technical-analysis.md` |
 | **TechLead** | Coordena impl→test→QA→review→MR (NUNCA escreve código) |
@@ -465,9 +481,10 @@ graph TD
 
 ### 5.4 Catálogo de comandos slash (17)
 
-#### Pipeline SDLC (`command/sdlc/` — 8)
+#### Pipeline SDLC (`command/sdlc/` — 9)
 | Comando | Agente invocado | Descrição |
 |---------|------------------|-----------|
+| `/epic <desc>` | ProductOwner | Cria visão, épicos, roadmap estratégico |
 | `/story <desc>` | ProductManager | Cria user story |
 | `/plan <story>` | Architect | Cria plano técnico |
 | `/implement <story>` | TechLead | Executa ciclo completo |
@@ -667,9 +684,10 @@ Ou edite manualmente `.opencode/context/project/living-notes.md` conforme descob
 ### 8.1 Comandos slash
 
 ```bash
-/story <desc>        # Cria story (ProductManager)
-/plan <story>        # Cria plano técnico (Architect)
-/implement <story>   # Executa ciclo completo (TechLead)
+/epic <desc>       # Cria épicos e visão estratégica (ProductOwner)
+/story <desc>      # Cria story (ProductManager)
+/plan <story>      # Cria plano técnico (Architect)
+/implement <story> # Executa ciclo completo (TechLead)
 /review [files]      # Code review (CodeReviewer*)
 /qa <story>          # Validação QA (QAAnalyst)
 /mr [base]           # Cria MR (MergeRequestCreator)
@@ -782,11 +800,12 @@ rm -rf .tmp/external-context/<package-name>/
 
 ### "Story trava no Gate"
 
-Os 3 gates exigem aprovação humana explícita. Se estiver travado:
+Os 4 gates exigem aprovação humana explícita. Se estiver travado:
 
+- Gate #0: revise `docs/epics/EPIC-XXX.md` (apenas para requests estratégicos)
 - Gate #1: revise `docs/stories/STORY-XXX.md` e responda `y` ou peça ajustes
 - Gate #2: revise `docs/stories/STORY-XXX-technical-analysis.md`
-- Gate #3: revise o MR criado e aprove para próxima story
+- Gate #3: revise o MR criado e approve para próxima story
 
 ### "TechLead começou a escrever código"
 
@@ -802,6 +821,7 @@ Bug. TechLead **nunca** deve escrever código — apenas delegar. Reporte e forc
 
 | Termo | Definição |
 |-------|-----------|
+| **ProductOwner** | Agente estratégico que opera no nível de visão, épicos, roadmap, personas e OKRs. Gera artefatos em `docs/product/` e `docs/epics/` antes do ProductManager |
 | **Approval Gate** | Ponto de pausa onde o usuário aprova explicitamente antes do próximo agente |
 | **ContextScout** | Subagente read-only que descobre arquivos de contexto relevantes via INDEX.md |
 | **ExternalScout** | Subagente que busca docs atualizadas de libs via Context7 API |

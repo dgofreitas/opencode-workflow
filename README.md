@@ -9,8 +9,8 @@
 
 **Agentes IA que aprendem os padrões do seu projeto e entregam features completas — do briefing ao merge request — com você no comando das decisões.**
 
-🎯 **SDLC end-to-end** — Story → Plano → Código → Testes → QA → Review → MR
-🛑 **3 Approval Gates** — Você aprova nos momentos certos, IA executa o resto
+🎯 **SDLC end-to-end** — Visão/Épicos → Story → Plano → Código → Testes → QA → Review → MR
+🛑 **4 Approval Gates** — Você aprova nos momentos certos, IA executa o resto
 🧠 **Contexto on-demand** — ContextScout + Context7 (~80% menos tokens)
 ✅ **Coverage ≥90% obrigatório** — Não é meta, é portão
 🏗️ **Stack-aware** — Detecta React/Vue/Angular/Node e roteia para o especialista
@@ -30,7 +30,7 @@
 
 ---
 
-> **Construído sobre [OpenCode](https://opencode.ai)** — framework open-source de agentes IA. Este workflow estende o OpenCode com 25 agentes especializados em SDLC, sistema de contexto on-demand e 3 gates de aprovação humana.
+> **Construído sobre [OpenCode](https://opencode.ai)** — framework open-source de agentes IA. Este workflow estende o OpenCode com 26 agentes especializados em SDLC (com ProductOwner estratégico), sistema de contexto on-demand e 4 gates de aprovação humana.
 
 ---
 
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
 | Funcionalidade | New OpenCode Workflow | Cursor / Copilot | Aider | Agentes autônomos |
 |----------------|------------------------|-------------------|-------|---------------------|
 | **Aprende seus padrões** | ✅ Context System + 5 buckets | ❌ | ❌ | ⚠️ Setup manual |
-| **Approval Gates** | ✅ 3 gates explícitos | ⚠️ Opcional | ❌ Auto-executa | ❌ Autônomo |
+| **Approval Gates** | ✅ 4 gates explícitos (GATE #0 opcional para estratégica) | ⚠️ Opcional | ❌ Auto-executa | ❌ Autônomo |
 | **Eficiência de tokens** | ✅ MVI (~80% redução) | ❌ Carrega tudo | ❌ Carrega tudo | ❌ Alto consumo |
 | **Pipeline SDLC completo** | ✅ Story→Plan→Impl→Test→QA→Review→MR | ❌ | ❌ | ⚠️ Manual |
 | **Coverage como gate** | ✅ ≥90% obrigatório | ❌ | ❌ | ❌ |
@@ -110,12 +110,14 @@ opencode --agent Master
 
 O que acontece:
 
-1. **PM** cria a user story com critérios de aceitação
-2. ⏸️ **GATE #1** — Você aprova a story
-3. **Architect** monta o plano técnico
-4. ⏸️ **GATE #2** — Você aprova o plano
-5. **TechLead** orquestra: impl → testes (≥90%) → QA → review → MR
-6. ⏸️ **GATE #3** — Você aprova antes da próxima story
+1. **ProductOwner** cria visão e épicos (para requests estratégicos)
+2. ⏸️ **GATE #0** — Você aprova os épicos (se aplicável)
+3. **PM** cria a user story com critérios de aceitação
+4. ⏸️ **GATE #1** — Você aprova a story
+5. **Architect** monta o plano técnico
+6. ⏸️ **GATE #2** — Você aprova o plano
+7. **TechLead** orquestra: impl → testes (≥90%) → QA → review → MR
+8. ⏸️ **GATE #3** — Você aprova antes da próxima story
 
 **Pronto.** Funciona com seu modelo padrão. Zero configuração inicial.
 
@@ -133,7 +135,9 @@ O que acontece:
 ```mermaid
 graph LR
     User["👤 Você"] --> Master["🎯 Master"]
-    Master --> PM[📝 PM]
+    Master --> PO["🎯 ProductOwner"]
+    PO --> G0{{⏸️ GATE 0}}
+    G0 --> PM[📝 PM]
     PM --> G1{{⏸️ GATE 1}}
     G1 --> Arch[🏛️ Architect]
     Arch --> G2{{⏸️ GATE 2}}
@@ -171,11 +175,11 @@ Coordena impl → test → QA → review → MR delegando para specialists. Sepa
 
 ## 🛠️ O que vem incluído
 
-### 🤖 25 Agentes especializados
+### 🤖 26 Agentes especializados
 
 **Core (1):** `Master` — entry point universal, classifica e roteia
 
-**SDLC (5):** `ProductManager` `Architect` `TechLead` `QAAnalyst` `MergeRequestCreator`
+**SDLC (6):** `ProductOwner` `ProductManager` `Architect` `TechLead` `QAAnalyst` `MergeRequestCreator`
 
 **Code (5):** `BackendDeveloper` `TestEngineer` `CodeReviewer` `BugFixerNodejs` `BuildAgent`
 
@@ -189,10 +193,10 @@ Coordena impl → test → QA → review → MR delegando para specialists. Sepa
 
 **System (1):** `ContextOrganizer`
 
-### ⌨️ 17 Comandos slash
+### ⌨️ 18 Comandos slash
 
 **Pipeline SDLC:**
-`/story` `/plan` `/implement` `/review` `/qa` `/mr` `/bugfix` `/analyze`
+`/epic` `/story` `/plan` `/implement` `/review` `/qa` `/mr` `/bugfix` `/analyze`
 
 **Utilitários:**
 `/commit` `/test` `/context` `/add-context` `/clean` `/caveman*` (4 variantes)
@@ -265,7 +269,7 @@ MergeRequestCreator   → cria PR com sumário, métricas, checklist
 - ✅ Code Review: 0 críticos, 2 sugestões já aplicadas
 - ⏸️ **GATE #3**: você aprova → próxima story (ou fecha sessão)
 
-**Tempo total: ~15-25 min** para uma feature completa, com aprovação humana nos 3 momentos críticos.
+**Tempo total: ~15-25 min** para uma feature completa, com aprovação humana nos 4 momentos críticos.
 
 ---
 
@@ -306,7 +310,7 @@ Comece pelo Quick Start. Os agentes são **arquivos markdown editáveis** — se
 
 ## 🚦 Status
 
-**Versão**: 2.0 · **Modo**: instalação local apenas (`<projeto>/.opencode/`) · **Runtime**: Bun ≥ 1.0 · **Idioma docs**: PT-BR
+**Versão**: 2.1 · **Modo**: instalação local apenas (`<projeto>/.opencode/`) · **Runtime**: Bun ≥ 1.0 · **Idioma docs**: PT-BR
 
 ---
 
