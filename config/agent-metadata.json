@@ -350,6 +350,27 @@
         "subagent:externalscout"
       ]
     },
+    "product-owner": {
+      "id": "product-owner",
+      "name": "ProductOwner",
+      "category": "subagents/sdlc",
+      "type": "subagent",
+      "version": "1.0.0",
+      "author": "opencode",
+      "tags": [
+        "sdlc",
+        "product",
+        "vision",
+        "epics",
+        "strategy",
+        "roadmap",
+        "personas",
+        "okrs"
+      ],
+      "dependencies": [
+        "subagent:contextscout"
+      ]
+    },
     "product-manager": {
       "id": "product-manager",
       "name": "ProductManager",
@@ -365,7 +386,8 @@
         "planning"
       ],
       "dependencies": [
-        "subagent:contextscout"
+        "subagent:contextscout",
+        "subagent:product-owner"
       ]
     },
     "architect": {

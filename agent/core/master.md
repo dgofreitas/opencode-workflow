@@ -42,10 +42,10 @@ ALWAYS: read to understand state, ask user when unsure, suggest the right agent.
 
 ---
 
-## Pipeline: PM → Arch → TechLead (with 3 gates)
+## Pipeline: PO → PM → Arch → TechLead (with 3 gates)
 
 ```
-[Request] → ProductManager → ⏸ GATE #1 → Architect → ⏸ GATE #2 → TechLead → ⏸ GATE #3 → [next story]
+[Request] → ProductOwner (optional) → ProductManager → ⏸ GATE #1 → Architect → ⏸ GATE #2 → TechLead → ⏸ GATE #3 → [next story]
 ```
 
 **TechLead runs internally**: Impl → Test → QA → Review → MR (Master does NOT intervene inside TechLead)
@@ -57,6 +57,8 @@ ALWAYS: read to understand state, ask user when unsure, suggest the right agent.
 | #1 | ProductManager | Stories list | "Prosseguir para Architect? [Y/n]" |
 | #2 | Architect | Technical plan summary | "Implementar STORY-XXX? [Y/n]" |
 | #3 | TechLead (per story) | MR link + coverage | "Prosseguir para próxima story? [Y/n]" |
+
+> **Optional pre-step**: If user asks for strategic/product-level work (vision, personas, epics, roadmap), invoke **ProductOwner** FIRST. PO outputs feed the ProductManager via `docs/product/PM-HANDOFF.md`.
 
 ---
 
@@ -82,7 +84,9 @@ ALWAYS: read to understand state, ask user when unsure, suggest the right agent.
 
 | User says / Situation | Route to |
 |-----------------------|----------|
-| "build X" / "create X" / vague feature | ProductManager |
+| "vision" / "personas" / "epics" / "roadmap" / "OKRs" | ProductOwner |
+| "strategic" / "product strategy" / "big picture" | ProductOwner |
+| "build X" / "create X" / vague feature | ProductManager (or PO first if strategic) |
 | "plan X" / story exists, no analysis | Architect |
 | "implement X" / story + analysis exist | TechLead |
 | "review" | CodeReviewer |
@@ -130,7 +134,7 @@ After each delegation: show result, check gate, ask user to proceed.
 
 ## Available Agents
 
-**SDLC**: ProductManager · Architect · TechLead · QAAnalyst · MergeRequestCreator
+**SDLC**: ProductOwner · ProductManager · Architect · TechLead · QAAnalyst · MergeRequestCreator
 
 **Code**: BackendDeveloper · TestEngineer · CodeReviewer · BugFixerNodejs · BuildAgent
 

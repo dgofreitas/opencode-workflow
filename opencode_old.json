@@ -1,0 +1,122 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "Master",
+  "provider": {
+    "openrouter": {
+      "options": {
+        "timeout": 36000000,
+        "setCacheKey": true
+      }
+    },
+    "opencode": {
+      "options": {
+        "timeout": 36000000,
+        "setCacheKey": true
+      }
+    },
+    "zai-coding-plan": {
+      "options": {
+        "timeout": 36000000,
+        "setCacheKey": true
+      }
+    }
+  },
+  "agent": {
+    "general": {
+      "model": "openrouter/minimax/minimax-m2.5:free"
+    },
+    "Master": {
+      "model": "zai-coding-plan/glm-4.5-air"
+    },
+    "Architect": {
+      "model": "zai-coding-plan/glm-5.1"
+    },
+    "BackendDeveloper": {
+      "model": "zai-coding-plan/glm-5.1"
+    },
+    "BuildAgent": {
+      "model": "openrouter/minimax/minimax-m2.5:free"
+    },
+    "BugFixerNodejs": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "CodeAnalyzer": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "CodeReviewer": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "ContextOrganizer": {
+      "model": "openrouter/minimax/minimax-m2.5:free"
+    },
+    "ContextScout": {
+      "model": "openrouter/minimax/minimax-m2.5:free"
+    },
+    "DevopsSpecialist": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "DocWriter": {
+      "model": "openrouter/minimax/minimax-m2.5:free"
+    },
+    "ExternalScout": {
+      "model": "openrouter/minimax/minimax-m2.5:free"
+    },
+    "FrontendDeveloper": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "FrontendDeveloperAngular": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "FrontendDeveloperReact": {
+      "model": "zai-coding-plan/glm-5.1"
+    },
+    "FrontendDeveloperVue": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "ImplReviewerNodejs": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "MergeRequestCreator": {
+      "model": "openrouter/minimax/minimax-m2.5:free"
+    },
+    "ProductManager": {
+      "model": "zai-coding-plan/glm-5.1"
+    },
+    "QAAnalyst": {
+      "model": "openrouter/minimax/minimax-m2.5:free"
+    },
+    "ShellDeveloper": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "TaskManager": {
+      "model": "openrouter/minimax/minimax-m2.5:free"
+    },
+    "TechLead": {
+      "model": "zai-coding-plan/glm-5.1"
+    },
+    "TestEngineer": {
+      "model": "zai-coding-plan/glm-4.7"
+    },
+    "UXDesigner": {
+      "model": "zai-coding-plan/glm-5.1"
+    }
+  },
+  "permission": {
+    "bash": {
+      "*": "allow",
+      "rm *": "ask",
+      "rm -rf *": "deny",
+      "rmdir *": "ask",
+      "dd *": "deny",
+      "mkfs *": "deny",
+      "kill *": "deny",
+      "pkill *": "deny",
+      "killall *": "deny",
+      "sudo *": "deny",
+      "su *": "deny"
+    },
+    "edit": "allow",
+    "write": "allow",
+    "skill": "allow"
+  }
+}
