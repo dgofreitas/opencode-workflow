@@ -31,6 +31,7 @@
 - `standards/security.md` | tags: security, patterns, auth | summary: Security best practices and review checklist.
 - `standards/documentation.md` | tags: docs, writing | summary: Documentation standards.
 - `standards/code-analysis.md` | tags: analysis, code, debugging | summary: Code analysis approaches for debugging and review.
+- `standards/dockerfile-patterns.md` | tags: docker, dockerfile, multi-stage, non-root, healthcheck, dumb-init | summary: Production-grade Dockerfile patterns — multi-stage builds, non-root user, signal handling, build-args.
 
 ## workflows/ — Processes to follow
 
@@ -45,10 +46,13 @@
 ## stacks/ — Technology-specific
 
 - `stacks/nodejs.md` | tags: nodejs, backend, structure, mandatory | summary: Mandatory project structure for new Node.js services.
+- `stacks/nodejs-domain-structure.md` | tags: nodejs, backend, domain, dispatchers, mongoose, shared, advanced | summary: Advanced domain-driven backend — dispatchers, Mongoose plugins, cross-domain coordination.
 - `stacks/react.md` | tags: react, patterns, nextjs, frontend | summary: React/Next.js patterns and best practices.
+- `stacks/react-domain-structure.md` | tags: react, frontend, context, hooks, pwa, offline, vite | summary: Context-per-domain + useXxx hooks + PWA offline-first patterns.
 - `stacks/frontend.md` | tags: frontend, delegation, when-to-use | summary: When to delegate UI tasks to FrontendDeveloper.
 - `stacks/ui-styling.md` | tags: styling, ui, tailwind, flowbite, css, standards | summary: UI styling standards — Tailwind + Flowbite + responsive.
 - `stacks/design-systems.md` | tags: design-systems, themes, oklch, css, templates | summary: Reference theme templates (Neo-Brutalism, Modern Dark Mode) and design tokens.
+- `stacks/fullstack-containerized.md` | tags: docker, compose, nginx, mongo, redis, blueprint, architecture | summary: Fullstack blueprint — nginx + Node + React + Mongo + Redis with network isolation.
 - `stacks/mastra-ai.md` | tags: mastra, ai, agents, workflows, tools, storage | summary: Mastra AI complete reference — core, agents, workflows, storage, testing.
 
 ## meta/ — About the context system
