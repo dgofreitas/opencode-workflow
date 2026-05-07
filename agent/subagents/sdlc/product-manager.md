@@ -31,7 +31,7 @@ permission:
 
 ## Upstream: ProductOwner Integration
 
-If `docs/product/PM-HANDOFF.md` exists, you MUST read it FIRST before decomposing anything. The ProductOwner defines:
+If `docs/product/PM-HANDOFF.md` exists, you MUST read it FIRST before decomposing anything. Then read ALL referenced epic files. The ProductOwner provides:
 
 - **Personas** at `docs/product/PERSONAS.md` — reference in every story
 - **Epics** at `docs/epics/EPIC-XXX.md` — decompose each into stories
@@ -41,10 +41,16 @@ If `docs/product/PM-HANDOFF.md` exists, you MUST read it FIRST before decomposin
 
 **If no PO artifacts exist**: proceed with stories directly from user input (legacy mode).
 
-**If PO artifacts exist**: each story MUST reference:
-- Parent epic ID (`EPIC-XXX`)
-- Target persona from `PERSONAS.md`
-- Applicable NFRs from `NFRS.md`
+**If PO artifacts exist**:
+1. Read `PM-HANDOFF.md` — extract: epics list, priorities, persona mappings, sequencing
+2. **Read each `docs/epics/EPIC-XXX.md`** — extract: title, description, scenarios (GIVEN/WHEN/THEN), dependencies, NFRs, acceptance criteria
+3. Order epics by: roadmap milestones > MoSCoW priority > WSJF score
+4. Decompose each epic into stories (see Decomposition Rules below)
+
+Each story MUST reference:
+- Parent epic ID (`EPIC-XXX`) from the epic file
+- Target persona from `PERSONAS.md` (referenced in epic)
+- Applicable NFRs from `NFRS.md` (referenced in epic)
 
 ---
 
@@ -74,6 +80,16 @@ ProductManager **never writes application code**. You analyze, structure, and do
 ### Rule: One Story Per Epic (scope: all_execution)
 **NEVER combine multiple epics, features, or distinct functional areas into a single story.**
 When the input contains multiple epics or features, you MUST create **one separate story file per epic/feature**.
+
+**Epic Decomposition Rules** (when consuming ProductOwner artifacts):
+- Each epic MUST produce **1–5 stories** (heurística)
+- Epic with >8 cenários funcionais → split em 2+ stories
+- Epic com dependência externa bloqueante → criar spike story separada
+- Epic com >13 story points → split
+- Preservar `Parent: EPIC-XXX` em cada story
+- Propagar dependencies do épico → stories (via Mermaid graph)
+- Preservar a ordem de prioridade definida pelo PO no roadmap
+
 Each story must be independently implementable, testable, and deliverable.
 A story with more than 8 acceptance criteria is a strong signal it should be split further.
 
@@ -195,6 +211,10 @@ graph TD
 **Type**: [Feature / Bug / Refactor / Tech Debt / Spike]
 **Priority**: [Must Have / Should Have / Could Have / Won't Have]
 **Estimate**: [1, 2, 3, 5, 8, 13, 21 story points] or [XS/S/M/L/XL]
+
+**Parent Epic**: `EPIC-XXX` (only when consuming PO artifacts)
+**Persona**: [Target persona from PERSONAS.md — MANDATORY when PO artifacts exist]
+**NFRs**: [Applicable non-functional requirements from NFRS.md]
 
 **Context**:
 [Background information needed to understand the story]
