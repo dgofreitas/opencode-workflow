@@ -86,7 +86,7 @@ logStep() {
 printBanner() {
     echo -e "${BLUE}"
     echo "╔════════════════════════════════════════════════════════════════╗"
-    echo "║        🔧 OpenCode Workflow - Builder v${SCRIPT_VERSION}              ║"
+    echo "║        🔧 OpenCode Workflow - Builder v${SCRIPT_VERSION}                   ║"
     echo "║        Gerador de Instalador Auto-Contido                      ║"
     echo "╚════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"

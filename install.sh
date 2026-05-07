@@ -80,12 +80,12 @@ calculateMetrics() {
 
 printBanner() {
     echo -e "${BLUE}"
-    echo "╔═══════════════════════════════════════════════════════════════════════════╗"
-    echo "║        🚀 OpenCode Workflow - Instalador v${SCRIPT_VERSION}                   ║"
-    echo "║                                                                           ║"
-    echo "║  🤖 Agentes: ${COUNT_AGENTS} | ⌨️  Comandos: ${COUNT_COMMANDS} | 🛠️  Skills: ${COUNT_SKILLS}                ║"   
-    echo "║  🔌 Plugins: ${COUNT_PLUGINS} | 📂 Contexto: ${COUNT_CONTEXT} | 🧰 Bin: ${COUNT_BIN}                  ║"
-    echo "╚═══════════════════════════════════════════════════════════════════════════╝"
+    echo "╔════════════════════════════════════════════════════════════════╗"
+    echo "║        🚀 OpenCode Workflow - Instalador v${SCRIPT_VERSION}                ║"
+    echo "║                                                                ║"
+    echo "║  🤖 Agentes: ${COUNT_AGENTS} | ⌨️  Comandos: ${COUNT_COMMANDS} | 🛠️  Skills: ${COUNT_SKILLS}               ║"   
+    echo "║  🔌 Plugins: ${COUNT_PLUGINS} | 📂 Contexto: ${COUNT_CONTEXT} | 🧰 Bin: ${COUNT_BIN}                   ║"
+    echo "╚════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 }
 

@@ -1,84 +1,109 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "Master",
+  "instructions": ["./instructions.md"],
+  "instructions": ["./instructions.md"],
+  "provider": {
+    "openrouter": {
+      "options": {
+        "timeout": 36000000,
+        "setCacheKey": true
+      }
+    },
+    "opencode": {
+      "options": {
+        "timeout": 36000000,
+        "setCacheKey": true
+      }
+    },
+    "zai-coding-plan": {
+      "options": {
+        "timeout": 36000000,
+        "setCacheKey": true
+      }
+    }
+  },
   "agent": {
     "general": {
-      "model": "openrouter/minimax/minimax-m2.5:free"
+      "model": "ollama-cloud/minimax-m2.5"
     },
     "Master": {
-      "model": "zai-coding-plan/glm-4.5-air"
+      "model": "ollama-cloud/deepseek-v4-pro"
     },
     "Architect": {
-      "model": "zai-coding-plan/glm-5.1"
+      "model": "ollama-cloud/kimi-k2.6:cloud"
     },
     "BackendDeveloper": {
-      "model": "zai-coding-plan/glm-5.1"
+      "model": "ollama-cloud/glm-5.1"
     },
     "BuildAgent": {
-      "model": "openrouter/minimax/minimax-m2.5:free"
+      "model": "ollama-cloud/minimax-m2.7"
     },
     "BugFixerNodejs": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "ollama-cloud/glm-5.1"
     },
     "CodeAnalyzer": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "ollama-cloud/deepseek-v3.2"
     },
     "CodeReviewer": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "ollama-cloud/minimax-m2.7"
     },
     "ContextOrganizer": {
-      "model": "openrouter/minimax/minimax-m2.5:free"
+      "model": "ollama-cloud/minimax-m2.7"
     },
     "ContextScout": {
-      "model": "openrouter/minimax/minimax-m2.5:free"
+      "model": "ollama-cloud/qwen3-coder-next"
     },
     "DevopsSpecialist": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "ollama-cloud/devstral-small-2:24b"
     },
     "DocWriter": {
-      "model": "openrouter/minimax/minimax-m2.5:free"
+      "model": "ollama-cloud/minimax-m2.7"
     },
     "ExternalScout": {
-      "model": "openrouter/minimax/minimax-m2.5:free"
+      "model": "ollama-cloud/minimax-m2.7"
     },
     "FrontendDeveloper": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "ollama-cloud/kimi-k2.6:cloud"
     },
     "FrontendDeveloperAngular": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "ollama-cloud/kimi-k2.6:cloud"
     },
     "FrontendDeveloperReact": {
-      "model": "zai-coding-plan/glm-5.1"
+      "model": "ollama-cloud/kimi-k2.6:cloud"
     },
     "FrontendDeveloperVue": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "ollama-cloud/kimi-k2.6:cloud"
     },
     "ImplReviewerNodejs": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "ollama-cloud/glm-5.1"
     },
     "MergeRequestCreator": {
-      "model": "openrouter/minimax/minimax-m2.5:free"
+      "model": "ollama-cloud/deepseek-v4-flash"
+    },
+    "ProductOwner": {
+      "model": "ollama-cloud/kimi-k2.6:cloud"
     },
     "ProductManager": {
-      "model": "zai-coding-plan/glm-5.1"
+      "model": "ollama-cloud/kimi-k2.6:cloud"
     },
     "QAAnalyst": {
-      "model": "openrouter/minimax/minimax-m2.5:free"
+      "model": "ollama-cloud/deepseek-v4-flash"
     },
     "ShellDeveloper": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "ollama-cloud/devstral-2:123b"
     },
     "TaskManager": {
-      "model": "openrouter/minimax/minimax-m2.5:free"
+      "model": "ollama-cloud/deepseek-v4-flash"
     },
     "TechLead": {
-      "model": "zai-coding-plan/glm-5.1"
+      "model": "ollama-cloud/kimi-k2.6:cloud"
     },
     "TestEngineer": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "ollama-cloud/qwen3-coder-next"
     },
     "UXDesigner": {
-      "model": "zai-coding-plan/glm-5.1"
+      "model": "ollama-cloud/kimi-k2.6:cloud"
     }
   },
   "permission": {
