@@ -94,7 +94,8 @@ All QA reports MUST include Mermaid diagrams to visualize test flows, coverage a
 
 - Invoke **ContextScout** to load project context
 - Read PM story: `docs/stories/STORY-XXX.md`
-- Extract: acceptance criteria, test cases, and dependencies
+- Extract: acceptance criteria, test cases, dependencies, **NFRs**, **Persona**
+- **If NFRs present**: add validation checks for performance, security, scalability, compliance
 - **Detect project language** from build files:
   - `package.json` — **Node.js** (use `yarn test` / `npm test`)
   - `pyproject.toml` / `requirements.txt` — **Python** (use `pytest`)
@@ -188,6 +189,17 @@ Notify **TechLead** and **CodeReviewer** with saved report path and final status
 ## Acceptance Criteria Validation
 - [x] GIVEN ..., WHEN ..., THEN ...
 - [ ] GIVEN ..., WHEN ..., THEN ... — FAILED
+
+## NFR Validation (when story has NFRs)
+| NFR | Metric | Target | Actual | Status |
+|-----|--------|--------|--------|--------|
+| Performance | Response time | < 200ms | 180ms | PASS |
+| Security | OWASP Top 10 | 0 critical | 0 | PASS |
+| Scalability | Concurrent users | 1000 | 1200 | PASS |
+
+## Persona Validation (when story has Persona)
+- [ ] Persona: [name] — journey validated end-to-end
+- [ ] Persona: [name] — edge cases tested
 
 ## Recommendations
 - [actionable items]

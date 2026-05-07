@@ -135,8 +135,29 @@ task(subagent_type="ContextScout", description="Find testing standards", prompt=
 
 After ContextScout returns:
 1. **Read** every recommended file
-2. **Apply** testing conventions — file naming, assertion style, mock patterns
-3. Structure test plan to match project conventions
+2. **Read the PM story** (`docs/stories/STORY-XXX.md`) — extract acceptance criteria AND NFRs
+3. **Apply** testing conventions — file naming, assertion style, mock patterns
+4. **Structure test plan** to match project conventions
+
+**NFR Test Generation:**
+When the PM story contains NFRs (performance, security, scalability, compliance):
+- Create **dedicated NFR test suites** alongside functional tests
+- Performance: load tests, latency benchmarks, throughput validation
+- Security: OWASP checks, auth/authorization tests, input validation
+- Scalability: concurrent user tests, resource usage limits
+- Compliance: GDPR/regulatory validation, audit logging
+
+**Before writing functional tests, build the Test Coverage Inventory:**
+```
+TEST COVERAGE INVENTORY — STORY-XXX
+─────────────────────────────────────
+[... existing inventory ...]
+
+NFR TESTS:
+[ ] Performance: [description] → k6/artillery/locust test
+[ ] Security: [description] → OWASP ZAP / custom security test
+[ ] Scalability: [description] → load test
+[ ] Compliance: [description] → audit/regulatory validation
 
 ---
 

@@ -110,12 +110,19 @@ Reference **exact agent names** (PascalCase) when delegating.
 
 Create and **save** (Write tool) to `/docs/stories/STORY-XXX-technical-analysis.md`:
 - Technical task breakdown
+- NFR Analysis (from story's `NFRs` field): performance, security, scalability, compliance
+- **Persona Impact**: which personas are affected and how
 - **Mermaid flowchart** showing execution order and dependencies
 - **Mermaid architecture diagram** showing impacted components (if applicable)
 - Impacted components and files
 - Execution order and dependencies
 - Risk assessment and mitigations
 - Implementation recommendations
+
+**When reading the PM story, extract and propagate:**
+- `Parent Epic` → include in analysis header for traceability
+- `Persona` → document persona impact in technical decisions
+- `NFRs` → dedicate analysis section; prioritize security and performance
 
 **Mermaid Diagram Examples:**
 

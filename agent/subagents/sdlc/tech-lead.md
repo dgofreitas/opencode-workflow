@@ -233,6 +233,8 @@ TodoWrite:
 ```
 @[AgentName]
 Story: [STORY-ID] - [Title]
+Parent Epic: [EPIC-ID from PM story]
+Persona: [Target persona from PM story]
 
 Reference Documents:
 - PM Story: docs/stories/STORY-XXX.md
@@ -243,9 +245,13 @@ Task: [Specific task from technical analysis]
 Acceptance Criteria:
 - GIVEN [context] WHEN [action] THEN [result]
 
+NFRs (if applicable):
+- [Non-functional requirement from PM story]
+
 Technical Details:
 - Impacted files: [from analysis]
 - Implementation approach: [from analysis]
+- Persona impact: [from analysis]
 
 Please implement following project best practices.
 ```
