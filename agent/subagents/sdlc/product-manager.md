@@ -2,7 +2,7 @@
 name: ProductManager
 description: "Translates feature requests into structured user stories with acceptance criteria."
 mode: subagent
-temperature: 0.4
+temperature: 0.2
 permission:
   bash:
     "*": "allow"
