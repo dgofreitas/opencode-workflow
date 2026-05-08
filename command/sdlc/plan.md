@@ -38,3 +38,8 @@ A technical analysis file containing:
 - Execution batches with parallel/sequential ordering
 - Agent assignments per batch (language-specific routing)
 - Risk assessment
+
+## Prerequisites
+
+- A story file should exist (run `/story` or `/epic` first)
+- For greenfield projects: `docs/architecture/TECH-STACK.md` must exist (run `/scaffold` first)

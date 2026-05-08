@@ -9,11 +9,11 @@
 
 **Agentes IA que aprendem os padrões do seu projeto e entregam features completas — do briefing ao merge request — com você no comando das decisões.**
 
-🎯 **SDLC end-to-end** — Visão/Épicos → Story → Plano → Código → Testes → QA → Review → MR
-🛑 **4 Approval Gates** — Você aprova nos momentos certos, IA executa o resto
+🎯 **SDLC end-to-end** — Visão/Épicos → Story → Stack → Plano → Código → Testes → QA → Review → MR
+🛑 **5 Approval Gates** — Você aprova nos momentos certos, IA executa o resto
 🧠 **Contexto on-demand** — ContextScout + Context7 (~80% menos tokens)
 ✅ **Coverage ≥90% obrigatório** — Não é meta, é portão
-🏗️ **Stack-aware** — Detecta React/Vue/Angular/Node e roteia para o especialista
+🏗️ **Stack-aware** — Define a stack (SystemArchitect) em greenfield e roteia para o especialista em projetos existentes
 📦 **Instalação em 1 comando** — Single-file installer auto-contido (252 KB)
 
 **Stacks:** TypeScript • JavaScript • React • Vue • Angular • Node.js
@@ -30,7 +30,7 @@
 
 ---
 
-> **Construído sobre [OpenCode](https://opencode.ai)** — framework open-source de agentes IA. Este workflow estende o OpenCode com 26 agentes especializados em SDLC (com ProductOwner estratégico), sistema de contexto on-demand e 4 gates de aprovação humana.
+> **Construído sobre [OpenCode](https://opencode.ai)** — framework open-source de agentes IA. Este workflow estende o OpenCode com 27 agentes especializados em SDLC (com ProductOwner estratégico), sistema de contexto on-demand e 5 gates de aprovação humana.
 
 ---
 
@@ -114,10 +114,12 @@ O que acontece:
 2. ⏸️ **GATE #0** — Você aprova os épicos (se aplicável)
 3. **PM** cria a user story com critérios de aceitação
 4. ⏸️ **GATE #1** — Você aprova a story
-5. **Architect** monta o plano técnico
-6. ⏸️ **GATE #2** — Você aprova o plano
-7. **TechLead** orquestra: impl → testes (≥90%) → QA → review → MR
-8. ⏸️ **GATE #3** — Você aprova antes da próxima story
+5. **SystemArchitect** propõe stack (se projeto greenfield)
+6. ⏸️ **GATE #SA** — Você aprova a stack
+7. **Architect** monta o plano técnico
+8. ⏸️ **GATE #2** — Você aprova o plano
+9. **TechLead** orquestra: impl → testes (≥90%) → QA → review → MR
+10. ⏸️ **GATE #3** — Você aprova antes da próxima story
 
 **Pronto.** Funciona com seu modelo padrão. Zero configuração inicial.
 
@@ -139,7 +141,10 @@ graph LR
     PO --> G0{{⏸️ GATE 0}}
     G0 --> PM[📝 PM]
     PM --> G1{{⏸️ GATE 1}}
-    G1 --> Arch[🏛️ Architect]
+    G1 --> SA[🏗️ SystemArchitect]
+    SA --> GSA{{⏸️ GATE SA}}
+    GSA --> Arch[🏛️ Architect]
+    G1 -.->|existente| Arch
     Arch --> G2{{⏸️ GATE 2}}
     G2 --> TL["👷 TechLead"]
     TL --> Impl[💻 Impl]
@@ -175,11 +180,11 @@ Coordena impl → test → QA → review → MR delegando para specialists. Sepa
 
 ## 🛠️ O que vem incluído
 
-### 🤖 26 Agentes especializados
+### 🤖 27 Agentes especializados
 
 **Core (1):** `Master` — entry point universal, classifica e roteia
 
-**SDLC (6):** `ProductOwner` `ProductManager` `Architect` `TechLead` `QAAnalyst` `MergeRequestCreator`
+**SDLC (7):** `ProductOwner` `ProductManager` `SystemArchitect` `Architect` `TechLead` `QAAnalyst` `MergeRequestCreator`
 
 **Code (5):** `BackendDeveloper` `TestEngineer` `CodeReviewer` `BugFixerNodejs` `BuildAgent`
 

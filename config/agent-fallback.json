@@ -228,6 +228,22 @@
         }
       ]
     },
+    "system-architect": {
+      "fallbackModels": [
+        {
+          "providerID": "opencode",
+          "modelID": "minimax-m2.5-free"
+        },
+        {
+          "providerID": "openrouter",
+          "modelID": "nvidia/nemotron-3-super-120b-a12b:free"
+        },
+        {
+          "providerID": "zai-coding-plan",
+          "modelID": "glm-4.5-air"
+        }
+      ]
+    },
     "task-manager": {
       "fallbackModels": [
         {

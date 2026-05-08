@@ -168,11 +168,15 @@ Approval gates between SDLC stages are handled by Master. Focus on orchestrating
 
 ### 3. LANGUAGE DETECTION AND AGENT SELECTION
 
+**Priority order for language detection:**
+1. `docs/architecture/TECH-STACK.md` (greenfield, approved stack) — if exists
+2. Build files (existing project)
+
 | Indicator | Language |
 |-----------|----------|
-| `package.json`, `tsconfig.json` | **Node.js** |
-| `pyproject.toml`, `requirements.txt`, `manage.py` | **Python** |
-| `CMakeLists.txt`, `Makefile`, `meson.build` | **C** |
+| `docs/architecture/TECH-STACK.md` (Node), `package.json` | **Node.js** |
+| `docs/architecture/TECH-STACK.md` (Python), `pyproject.toml` | **Python** |
+| `docs/architecture/TECH-STACK.md` (C), `CMakeLists.txt` | **C** |
 
 **Agent Routing by Language:**
 

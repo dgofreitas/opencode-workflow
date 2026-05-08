@@ -295,10 +295,10 @@ verifyInstallation() {
 
     local agentCount
     agentCount=$(find "${targetDir}/agent" -name "*.md" 2>/dev/null | wc -l)
-    if [[ ${agentCount} -ge 25 ]]; then
+    if [[ ${agentCount} -ge 27 ]]; then
         logInfo "  Contagem de Agentes: ${agentCount} (OK)"
     else
-        logError "  Contagem de Agentes: ${agentCount} (esperado: ≥25)"
+        logError "  Contagem de Agentes: ${agentCount} (esperado: ≥27)"
         ((errors++))
     fi
 

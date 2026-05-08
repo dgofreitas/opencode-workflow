@@ -87,6 +87,9 @@
     "ProductManager": {
       "model": "ollama-cloud/kimi-k2.6:cloud"
     },
+    "SystemArchitect": {
+      "model": "ollama-cloud/kimi-k2.6:cloud"
+    },
     "QAAnalyst": {
       "model": "ollama-cloud/deepseek-v4-flash"
     },

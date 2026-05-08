@@ -42,10 +42,10 @@ ALWAYS: read to understand state, ask user when unsure, suggest the right agent.
 
 ---
 
-## Pipeline: PO → PM → Arch → TechLead (with 3 gates)
+## Pipeline: PO → PM → SysArch (greenfield) → Arch → TechLead (with gates)
 
 ```
-[Request] → ProductOwner (optional) → ProductManager → ⏸ GATE #1 → Architect → ⏸ GATE #2 → TechLead → ⏸ GATE #3 → [next story]
+[Request] → ProductOwner (optional) → ProductManager → ⏸ GATE #1 → SystemArchitect (greenfield only, once) → ⏸ GATE #SA → Architect → ⏸ GATE #2 → TechLead → ⏸ GATE #3 → [next story]
 ```
 
 **TechLead runs internally**: Impl → Test → QA → Review → MR (Master does NOT intervene inside TechLead)
@@ -54,9 +54,12 @@ ALWAYS: read to understand state, ask user when unsure, suggest the right agent.
 
 | Gate | After | Show user | Then |
 |------|-------|-----------|------|
-| #1 | ProductManager | Stories list | "Prosseguir para Architect? [Y/n]" |
+| #1 | ProductManager | Stories list | "Prosseguir para SystemArchitect/Architect? [Y/n]" |
+| #SA | SystemArchitect | Stack proposal table | "Aprovar stack e iniciar scaffolding? [Y/n]" |
 | #2 | Architect | Technical plan summary | "Implementar STORY-XXX? [Y/n]" |
 | #3 | TechLead (per story) | MR link + coverage | "Prosseguir para próxima story? [Y/n]" |
+
+> **GATE #SA** only occurs for **greenfield projects** (no build files + no `docs/architecture/TECH-STACK.md`). For existing projects, SystemArchitect is skipped entirely.
 
 > **Optional pre-step**: If user asks for strategic/product-level work (vision, personas, epics, roadmap), invoke **ProductOwner** FIRST. PO outputs feed the ProductManager via `docs/product/PM-HANDOFF.md`.
 
@@ -74,7 +77,8 @@ ALWAYS: read to understand state, ask user when unsure, suggest the right agent.
 | What exists | What's missing | → Delegate to |
 |-------------|----------------|---------------|
 | Nothing | Stories | ProductManager |
-| Stories | Technical analysis | Architect |
+| Stories, no `docs/architecture/TECH-STACK.md`, no build files | Tech foundation | SystemArchitect |
+| Stories + TECH-STACK.md (or existing project) | Technical analysis | Architect |
 | Stories + Plans | Implementation | TechLead |
 | Stories + Plans + Impl | All done | Final summary |
 
@@ -87,6 +91,7 @@ ALWAYS: read to understand state, ask user when unsure, suggest the right agent.
 | "vision" / "personas" / "epics" / "roadmap" / "OKRs" | ProductOwner |
 | "strategic" / "product strategy" / "big picture" | ProductOwner |
 | "build X" / "create X" / vague feature | ProductManager (or PO first if strategic) |
+| "scaffold" / "setup stack" / "definir stack" / "setup projeto" | SystemArchitect |
 | "plan X" / story exists, no analysis | Architect |
 | "implement X" / story + analysis exist | TechLead |
 | "review" | CodeReviewer |
@@ -134,7 +139,7 @@ After each delegation: show result, check gate, ask user to proceed.
 
 ## Available Agents
 
-**SDLC**: ProductOwner · ProductManager · Architect · TechLead · QAAnalyst · MergeRequestCreator
+**SDLC**: ProductOwner · ProductManager · SystemArchitect · Architect · TechLead · QAAnalyst · MergeRequestCreator
 
 **Code**: BackendDeveloper · TestEngineer · CodeReviewer · BugFixerNodejs · BuildAgent
 

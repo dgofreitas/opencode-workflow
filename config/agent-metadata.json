@@ -21,6 +21,7 @@
         "subagent:contextscout",
         "subagent:externalscout",
         "subagent:product-manager",
+        "subagent:system-architect",
         "subagent:architect",
         "subagent:tech-lead"
       ]
@@ -390,6 +391,26 @@
         "subagent:product-owner"
       ]
     },
+    "system-architect": {
+      "id": "system-architect",
+      "name": "SystemArchitect",
+      "category": "subagents/sdlc",
+      "type": "subagent",
+      "version": "1.0.0",
+      "author": "opencode",
+      "tags": [
+        "sdlc",
+        "architecture",
+        "greenfield",
+        "scaffold",
+        "stack-decision",
+        "foundation"
+      ],
+      "dependencies": [
+        "subagent:contextscout",
+        "subagent:devops-specialist"
+      ]
+    },
     "architect": {
       "id": "architect",
       "name": "Architect",
@@ -405,6 +426,7 @@
       ],
       "dependencies": [
         "subagent:contextscout",
+        "subagent:system-architect",
         "subagent:code-analyzer",
         "subagent:code-analyzer-python",
         "subagent:code-analyzer-c"

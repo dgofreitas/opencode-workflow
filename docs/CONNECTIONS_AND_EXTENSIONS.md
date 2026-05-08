@@ -10,10 +10,13 @@ Este documento explica tecnicamente como os componentes se conectam, onde cada c
 graph TD
     User["USUÁRIO"] --> OA
 
-    OA["Master - Core<br/>agent/core/master.md<br/>Orquestra SDLC com 3 approval gates"]
+    OA["Master - Core<br/>agent/core/master.md<br/>Orquestra SDLC com 4 approval gates"]
 
-    OA -->|"task(PM) → GATE #1 → task(Arch)"| PM_Arch["ProductManager / Architect"]
-    OA -->|"GATE #2 → task(TechLead)"| TL["TechLead<br/>ciclo completo per-story"]
+    OA -->|"task(PM) → GATE #1"| PM["ProductManager"]
+    PM -->|"GATE #SA (se greenfield) → task(SysArch)"| SA["SystemArchitect"]
+    SA -->|"task(Arch)"| Arch["Architect"]
+    PM -->|"se existente → task(Arch)"| Arch
+    Arch -->|"GATE #2 → task(TechLead)"| TL["TechLead<br/>ciclo completo per-story"]
     OA -->|"GATE #3"| Next["Próxima story ou resumo final"]
     OA --> CS["ContextScout<br/>agent/subagents/core/contextscout.md"]
     OA --> ES["ExternalScout<br/>agent/subagents/core/externalscout.md"]
@@ -252,6 +255,7 @@ const config = loadEnv()
 | Subagent | Arquivo | Linha da Invocação |
 |----------|---------|-------------------|
 | ProductManager | `agent/core/master.md` | 318-322 |
+| SystemArchitect | `agent/core/master.md` | (varia) |
 | Architect | `agent/core/master.md` | 373-377 |
 | TechLead | `agent/core/master.md` | 435-439 |
 | ContextScout | `agent/core/master.md` | 317-326 |
@@ -310,7 +314,7 @@ O TechLead **NUNCA escreve código diretamente**. Ele orquestra o ciclo completo
 1. **Criar arquivo do agente:**
 
 ```bash
-# Criar em:
+# Criar em (exemplo: SystemArchitect):
 new-opencode-workflow/agent/subagents/{categoria}/{nome-do-agente}.md
 ```
 

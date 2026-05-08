@@ -45,6 +45,7 @@
 
 ## stacks/ — Technology-specific
 
+- `stacks/system-architecture.md` | tags: greenfield, scaffold, stack-decision, architecture | summary: Stack selection framework and decision criteria for SystemArchitect.
 - `stacks/nodejs.md` | tags: nodejs, backend, structure, mandatory | summary: Mandatory project structure for new Node.js services.
 - `stacks/nodejs-domain-structure.md` | tags: nodejs, backend, domain, dispatchers, mongoose, shared, advanced | summary: Advanced domain-driven backend — dispatchers, Mongoose plugins, cross-domain coordination.
 - `stacks/react.md` | tags: react, patterns, nextjs, frontend | summary: React/Next.js patterns and best practices.

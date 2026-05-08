@@ -56,7 +56,10 @@ graph TD
     PO --> G0{{"GATE #0\nVocê revê épicos e aprova"}}
     G0 --> PM["1. ProductManager\nDecompõe épicos em STORY-001.md"]
     PM --> G1{{"GATE #1\nVocê revê stories e aprova"}}
-    G1 --> Arch["2. Architect\nCria technical-analysis.md com batches"]
+    G1 --> SA["1.5. SystemArchitect (se greenfield)\nDefine stack e scaffold"]
+    SA --> GSA{{"GATE #SA\nVocê aprova a stack"}}
+    GSA --> Arch["2. Architect\nCria technical-analysis.md com batches"]
+    G1 -->|"se projeto existente"| Arch
     Arch --> G2{{"GATE #2\nVocê revê plano técnico e aprova"}}
     G2 --> TL["3. TechLead - ciclo completo\nbranch feat/STORY-001\nImpl → Test → QA → Review → MR"]
     TL --> G3{{"GATE #3\nStory completa → próxima story?"}}
@@ -123,6 +126,7 @@ graph TD
 | Comando | Quando Usar |
 |---------|-------------|
 | `/epic` | Quer criar/analisar épicos, visão, roadmap (ProductOwner) |
+| `/scaffold` | Quer definir stack e criar estrutura para projeto novo (SystemArchitect) |
 | `/story` | Quer APENAS criar a story, sem implementar ainda |
 | `/plan` | Quer APENAS o plano técnico, revisar antes |
 | `/implement` | Já tem story/plano, quer executar |
@@ -151,6 +155,12 @@ opencode --agent Master
 # ProductManager cria STORY-001.md
 # ⏸️ GATE #1: Você revisa a story, aprova para prosseguir
 
+# Passo 1.5: Setup da Stack (Apenas projetos greenfield)
+> /scaffold
+
+# SystemArchitect propõe a stack e faz o scaffolding
+# ⏸️ GATE #SA: Você revisa a stack, aprova para criar os arquivos
+
 # Passo 2: Criar plano técnico
 > /plan STORY-001
 
@@ -174,11 +184,13 @@ opencode --agent Master
 # Uma frase, pipeline completo
 > "Crie um sistema de notificações por email com templates, fila, e retry"
 
-# Master orquestra o SDLC com 3-4 approval gates:
+# Master orquestra o SDLC com 3-5 approval gates:
 # 0. ProductOwner cria épicos (se necessário)
 #    ⏸️ GATE #0: Você aprova
 # 1. ProductManager cria stories
 #    ⏸️ GATE #1: Você aprova
+# 1.5. SystemArchitect (se greenfield) define stack
+#    ⏸️ GATE #SA: Você aprova
 # 2. Architect cria plano
 #    ⏸️ GATE #2: Você aprova
 # 3. TechLead executa ciclo completo (impl→test→QA→review→MR)
@@ -189,7 +201,7 @@ opencode --agent Master
 
 ## Exemplos Práticos
 
-### Exemplo 1: App de Finanças
+### Exemplo 1: App de Finanças (Projeto Greenfield)
 
 ```bash
 opencode --agent Master
@@ -201,8 +213,8 @@ opencode --agent Master
    - Exportação para Excel
    - Login com email/senha"
 
-# Master detecta: Feature completa
-# Pipeline: ProductOwner(épicos) → PM(stories) → ⏸️#1 → Architect → ⏸️#2 → TechLead(impl→test→QA→review→MR) → ⏸️#3
+# Master detecta: Feature completa em greenfield
+# Pipeline: ProductOwner(épicos) → PM(stories) → ⏸️#1 → SystemArchitect(stack) → ⏸️#SA → Architect → ⏸️#2 → TechLead(impl→test→QA→review→MR) → ⏸️#3
 ```
 
 ### Exemplo 2: Bug em Backend Node.js
@@ -273,7 +285,10 @@ graph TD
     PO --> G0{{"GATE #0\nVocê revê épicos e aprova"}}
     G0 --> PM["1. ProductManager\nDecompõe épicos em STORY-XXX.md"]
     PM --> G1{{"GATE #1\nVocê revê stories e aprova"}}
-    G1 --> Arch["2. Architect\nCria technical-analysis.md com batches"]
+    G1 --> SA["1.5. SystemArchitect (se greenfield)\nDefine stack e scaffold"]
+    SA --> GSA{{"GATE #SA\nVocê aprova a stack"}}
+    GSA --> Arch["2. Architect\nCria technical-analysis.md com batches"]
+    G1 -->|"se projeto existente"| Arch
     Arch --> G2{{"GATE #2\nVocê revê plano técnico e aprova"}}
     G2 --> TL["3. TechLead - ciclo completo\nbranch feat/STORY-XXX\nImpl → Test → QA → Review → MR"]
     TL --> G3{{"GATE #3\nStory completa → próxima story?"}}
@@ -347,9 +362,9 @@ Se quer revisar antes de prosseguir:
 Para features completas, use linguagem natural e deixe o Master gerenciar:
 ```
 "Crie um e-commerce completo com carrinho, checkout, e pagamentos"
-# Master orquestra tudo com 3-4 gates:
+# Master orquestra tudo com 3-5 gates:
 # ⏸️#0 após épicos (ProductOwner, se aplicável)
-# ⏸️#1 após stories | ⏸️#2 após plano | ⏸️#3 após cada story completa
+# ⏸️#1 após stories | ⏸️#SA após stack (greenfield) | ⏸️#2 após plano | ⏸️#3 após cada story completa
 ```
 
 ### 5. Para Bugs, Seja Preciso
@@ -367,11 +382,12 @@ Para features completas, use linguagem natural e deixe o Master gerenciar:
 | Situação | Agente | Como Pedir |
 |----------|--------|------------|
 | Épicos/Visão/Strategy | Master | "Defina a visão e épicos..." (ProductOwner) |
-| Feature completa | Master | Linguagem natural: "Crie um..." (3-4 gates) |
+| Feature completa | Master | Linguagem natural: "Crie um..." (3-5 gates) |
+| Scaffold de projeto novo | Master | `/scaffold` |
 | Pergunta | Master | Linguagem natural: "Como funciona...?" |
 | Bug | Master | "O bug X acontece quando..." |
 | Modificação simples | Master | "Mude X para Y" |
 | Implementação direta | Master | "Implemente a função X" |
 | Code review | Master | `/review` |
 | Análise | Master | `/analyze` |
-| Controle passo a passo | Master | `/epic` → `/story` → `/plan` → `/implement` |
+| Controle passo a passo | Master | `/epic` → `/scaffold` → `/story` → `/plan` → `/implement` |

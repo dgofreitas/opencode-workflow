@@ -84,6 +84,9 @@ Reference **exact agent names** (PascalCase) when delegating.
 ### 1. Intake and Context Gathering
 
 - Invoke **ContextScout** to load project context
+- **Stack detection (MANDATORY before story analysis)**:
+  - If `docs/architecture/TECH-STACK.md` exists → read it (greenfield with SystemArchitect output)
+  - If it does not exist → detect stack from build files (`package.json`, `pyproject.toml`, `CMakeLists.txt`)
 - Read User Story from **ProductManager**: `/docs/stories/STORY-XXX.md`
 - **Request code analysis from CodeAnalyzer** when needed:
   - **MANDATORY**: New features modifying existing code, refactoring, architectural changes
@@ -109,6 +112,7 @@ Reference **exact agent names** (PascalCase) when delegating.
 ### 4. Technical Documentation
 
 Create and **save** (Write tool) to `/docs/stories/STORY-XXX-technical-analysis.md`:
+- **Stack Reference**: link to `docs/architecture/TECH-STACK.md` (if greenfield) or detected stack summary
 - Technical task breakdown
 - NFR Analysis (from story's `NFRs` field): performance, security, scalability, compliance
 - **Persona Impact**: which personas are affected and how
@@ -167,7 +171,7 @@ Prepare clear instructions for **TechLead** with references to:
 
 ### Task Analysis
 - [Project summary in 2-3 bullets]
-- [Detected tech stack]
+- [Detected tech stack — source: `docs/architecture/TECH-STACK.md` (greenfield) OR build file detection (existing project)]
 - [Code analysis summary if used]
 
 ### Language Detection (MANDATORY)
@@ -237,7 +241,8 @@ Prepare clear instructions for **TechLead** with references to:
 **C:** CodeAnalyzerC · BackendDeveloperC · TestEngineerC · CodeReviewerC · BugFixerC
 
 ### Instructions to Main Agent
-1. Detect project language from build files, configs, and file extensions
+0. Read `docs/architecture/TECH-STACK.md` if it exists (greenfield) OR detect language from build files (existing project)
+1. Detect project language and frontend framework from the source above
 2. Detect frontend framework (React/Vue/Angular) if the story involves UI work
 3. If codebase context needed, delegate Task 0 to language-specific CodeAnalyzer
 4. If UI work needed, delegate Task 0b to UXDesigner
@@ -263,6 +268,7 @@ Prepare clear instructions for **TechLead** with references to:
 
 ## Definition of Done
 
+- **Stack known** — read from `docs/architecture/TECH-STACK.md` (greenfield) or detected from build files (existing project)
 - PM story read and understood
 - Code analysis completed (if needed)
 - Story fully decomposed into technical tasks
