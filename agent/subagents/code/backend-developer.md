@@ -151,8 +151,8 @@ After ContextScout returns:
 - Document complex logic inline (JSDoc/TSDoc)
 
 ### Step 5: Validation
-- **MANDATORY**: Request TestEngineer run tests, verify >=90% coverage
-- **FAIL if TestEngineer reports coverage <90%**
+- **MANDATORY**: Request TestEngineer run tests, verify >=90% coverage for modified files
+- **FAIL if TestEngineer reports coverage <90% for story files** (Ignore global coverage)
 - Run lint for code quality
 - Ensure zero build/type errors
 

@@ -283,7 +283,8 @@ BACKEND: [list files]
 FRONTEND: [list files]
 
 You MUST write tests for ALL domains listed above.
-Coverage < 90% in ANY domain = incomplete delivery.
+Coverage < 90% in ANY domain implemented in this story = incomplete delivery.
+(Note: Ignore global project coverage if story-specific files meet the 90% target).
 ```
 
 ### 6. QUALITY VALIDATION
@@ -373,8 +374,8 @@ Coverage < 90% in ANY domain = incomplete delivery.
 ## Definition of Done
 
 - All acceptance criteria validated (GIVEN-WHEN-THEN)
-- Test coverage >= 90%, all tests passing
-- **QAAnalyst** approved (Status: PASSED)
+- Test coverage >= 90% for new/modified files, all tests passing
+- QAAnalyst approved (Status: PASSED)
 - **CodeReviewer** approved (VERDICT: APPROVED)
 - Documentation updated
 - PR created via **MergeRequestCreator** with full traceability

@@ -89,7 +89,7 @@ FRONTEND:
 [ ] frontend/src/context/FooContext.jsx → hook/context tests
 [ ] frontend/src/pages/FooPage.jsx → integration tests
 
-GATE: All domains [DONE] with >=90% coverage before delivering report
+GATE: All domains [DONE] with >=90% coverage for the NEW/MODIFIED files before delivering report
 ─────────────────────────────────────
 ```
 
@@ -146,6 +146,8 @@ When the PM story contains NFRs (performance, security, scalability, compliance)
 - Security: OWASP checks, auth/authorization tests, input validation
 - Scalability: concurrent user tests, resource usage limits
 - Compliance: GDPR/regulatory validation, audit logging
+
+**Coverage Extraction Tip**: If parsing JSON fails, run tests with `--coverageReporters="text-summary"` and parse the table output in STDOUT. Ensure you are looking at the coverage of the specific files you modified, not just the global project average.
 
 **Before writing functional tests, build the Test Coverage Inventory:**
 ```
