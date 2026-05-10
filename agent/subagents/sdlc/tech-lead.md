@@ -237,8 +237,6 @@ TodoWrite:
 ```
 @[AgentName]
 Story: [STORY-ID] - [Title]
-Parent Epic: [EPIC-ID from PM story]
-Persona: [Target persona from PM story]
 
 Reference Documents:
 - PM Story: docs/stories/STORY-XXX.md
@@ -249,16 +247,15 @@ Task: [Specific task from technical analysis]
 Acceptance Criteria:
 - GIVEN [context] WHEN [action] THEN [result]
 
-NFRs (if applicable):
-- [Non-functional requirement from PM story]
-
 Technical Details:
 - Impacted files: [from analysis]
 - Implementation approach: [from analysis]
-- Persona impact: [from analysis]
 
 Please implement following project best practices.
 ```
+
+> Persona, Parent Epic, and NFRs are in the PM Story — agents read the story directly. Do NOT duplicate them in the delegation message.
+> Keep delegations short: Story ID + task + files + criteria. Everything else is noise that fills context.
 
 **Parallel:** Backend + Frontend can run concurrently IF independent. Start both in same step.
 
@@ -286,6 +283,12 @@ You MUST write tests for ALL domains listed above.
 Coverage < 90% in ANY domain implemented in this story = incomplete delivery.
 (Note: Ignore global project coverage if story-specific files meet the 90% target).
 ```
+
+> **⚠ STRICT LIMIT on TestEngineer delegation:**
+> List files and coverage target ONLY.
+> NEVER include: test case descriptions, mock strategies, specific assertions, bash commands, or implementation hints.
+> TestEngineer reads the source files and decides how to test them — that is its job.
+> Detailed instructions in the delegation = TestEngineer loads all files at once = pipeline freeze.
 
 ### 6. QUALITY VALIDATION
 
@@ -367,7 +370,8 @@ Coverage < 90% in ANY domain implemented in this story = incomplete delivery.
 18. Do not assume requirements -- always clarify
 19. Do not mark complete if there are failures
 20. Do not make huge commits -- keep them atomic
-21. **NEVER loop on failures** — if a tool call fails twice, report it and move on. No infinite retries.
+21. **NEVER loop on failures** — 2-strike rule: same error twice = STOP, mark `[BLOCKED]`, report to Master, move to next task. No infinite retries. A blocked task does NOT stop the entire story — continue with remaining tasks.
+22. **NEVER retry without changing strategy** — if you retry, you MUST change something (different command, different flag, different approach). Identical retry = automatic stop.
 
 ---
 

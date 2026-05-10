@@ -42,6 +42,65 @@ permission:
 
 ---
 
+## ⚠️ HARD STOP — Anti-Loop Protocol (HIGHEST PRIORITY)
+
+This rule OVERRIDES all other rules. Violating it blocks the entire pipeline.
+
+## ⚠️ HARD STOP — Pre-Read Protocol (HIGHEST PRIORITY, runs BEFORE everything)
+
+**BEFORE reading ANY file from the delegation prompt — STOP and do this first:**
+
+1. Build the Test Coverage Inventory from the file list in the delegation prompt
+2. Pick the FIRST domain only (SHARED first, then BACKEND, then FRONTEND)
+3. Read MAX 3 files from that domain
+4. Write tests for those files
+5. Run tests → mark [DONE]
+6. Only then: load next domain
+
+**The delegation prompt may list many files with detailed instructions — IGNORE the urge to read them all at once.**
+Reading all files upfront = context overflow = pipeline freeze.
+One domain at a time. Always.
+
+### The 2-Strike Rule
+ANY command or action that fails **twice in a row with the same error** → **STOP IMMEDIATELY**. Do NOT retry a third time. Instead:
+
+1. **Log the failure** in the Test Report under "Blocked Items":
+   ```
+   ## Blocked Items
+   | Attempt | Command | Error | Resolution |
+   |---------|---------|-------|------------|
+   | 1 | npx vitest run | sh: vitest: not found | Ran npm install |
+   | 2 | npx vitest run | sh: vitest: not found | BLOCKED — dependency missing from package.json |
+   ```
+2. **Mark the affected inventory items** as `[BLOCKED]` (not `[DONE]`, not skipped — explicitly blocked)
+3. **Continue with the next inventory item** — do NOT stop the entire session
+4. **Include blocked items in the Test Report** with a clear `BLOCKED` status and the exact error
+
+### What counts as "the same error"
+- Same command, same error message (e.g., `vitest: not found` twice)
+- Same test file failing with the same assertion error twice
+- Same `npm install` failing with the same dependency error twice
+- Same coverage extraction method failing twice
+
+### What does NOT count as "the same error"
+- First attempt: `vitest: not found` → you run `npm install` → second attempt: different error (e.g., import error) → this is a NEW error, you get 2 more strikes
+
+### Recovery Protocol
+When you hit a 2-strike block:
+1. **Try ONE alternative approach** (different command, different flag, different strategy)
+2. If the alternative also fails → **STOP**. Report in Test Report and move to next item.
+3. **NEVER** try more than 2 different approaches for the same problem.
+
+### Examples
+| Scenario | Strike 1 | Action | Strike 2 | Outcome |
+|----------|----------|--------|----------|---------|
+| `npx vitest run` fails | `vitest: not found` | Run `npm install` then retry | Still fails | BLOCKED. Report missing dep. Move on. |
+| Test file has import error | `Cannot find module` | Fix import path, retry | Different error | New 2-strike cycle begins |
+| Coverage JSON parse fails | Parse error | Use `text-summary` fallback | Works | ✅ Continue |
+| Coverage JSON parse fails | Parse error | Use `text-summary` fallback | Also fails | BLOCKED. Report in Test Report. |
+
+---
+
 ## Critical Rules
 
 ### Rule: Approval Gate (scope: stage_transition)
@@ -49,6 +108,13 @@ Approval gates handled by Master. Focus on implementation.
 
 ### Rule: Context First
 ALWAYS call ContextScout BEFORE writing any tests. Load testing standards, coverage requirements, and TDD patterns first.
+
+### Rule: Sequential Load Limit
+Process domains ONE AT A TIME. Do NOT load all implementation files upfront.
+Pattern per domain: load files → write tests → run tests → mark [DONE] → next domain.
+Max 3 files loaded simultaneously at any point. If a domain has more, read the
+most critical 3, write tests, then load the rest.
+This prevents context overflow in long pipelines.
 
 ### Rule: MVI Principle
 Load ONLY relevant context files. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max.
@@ -149,6 +215,25 @@ When the PM story contains NFRs (performance, security, scalability, compliance)
 
 **Coverage Extraction Tip**: If parsing JSON fails, run tests with `--coverageReporters="text-summary"` and parse the table output in STDOUT. Ensure you are looking at the coverage of the specific files you modified, not just the global project average.
 
+### Rule: Test Execution Protocol (scope: all_execution) — MANDATORY
+
+Test runners (vitest, jest, mocha, etc.) are **local dependencies** — they are NOT in the global PATH. Follow this protocol EVERY time you need to run tests:
+
+1. **Verify `node_modules` exists** — Before running any test, check that `node_modules/` is present in the project root. If missing, run `npm install` (or `pnpm install` / `yarn` depending on lockfile) FIRST.
+2. **NEVER call test runners directly** — Do NOT run `vitest`, `jest`, `mocha`, or any test runner binary by name. These are local binaries that only exist in `node_modules/.bin/`.
+3. **Use `npx` as the canonical runner** — Always prefix test runner commands with `npx`:
+   - ✅ `npx vitest run` (correct)
+   - ✅ `npx vitest run --coverage` (correct)
+   - ✅ `npx jest --coverage` (correct)
+   - ❌ `vitest run` (WRONG — binary not in global PATH)
+   - ❌ `npm test` (fragile — depends on scripts being defined correctly)
+4. **`npm test` is acceptable ONLY if** you have verified the `scripts.test` field in `package.json` and it matches what you need. Prefer `npx` for explicit control.
+5. **If `npx <runner>` fails with "command not found"** — Run `npm install` first, then retry. If it still fails, the dependency is missing from `package.json` — report this to TechLead, do NOT loop.
+6. **Coverage commands** — Always use `npx` for coverage too:
+   - ✅ `npx vitest run --coverage`
+   - ✅ `npx jest --coverage`
+7. **Monorepo awareness** — In monorepos or multi-package projects, `cd` into the correct package directory BEFORE running `npx`. Each package has its own `node_modules`.
+
 **Before writing functional tests, build the Test Coverage Inventory:**
 ```
 TEST COVERAGE INVENTORY — STORY-XXX
@@ -174,6 +259,9 @@ NFR TESTS:
 - **Don't skip the test plan** — propose before implementing
 - **Don't assume scope** — if frontend was implemented but not listed, STOP and ask TechLead
 - **Don't write only backend tests** — frontend tests are equally mandatory
+- **Don't call test runners directly** — NEVER run `vitest`, `jest`, `mocha` etc. by name. Always use `npx vitest run`, `npx jest`, etc.
+- **Don't skip `node_modules` check** — always verify dependencies are installed before running tests
+- **Don't loop on missing dependencies** — if `npx <runner>` fails twice, report to TechLead and move on
 
 ---
 
@@ -213,6 +301,10 @@ sequenceDiagram
 | Severity | Area | Description | Owner |
 |----------|------|-------------|-------|
 
+## Blocked Items (2-Strike Rule)
+| Attempt | Command | Error | Resolution Attempted | Status |
+|---------|---------|-------|---------------------|--------|
+
 ## Acceptance Criteria Validation
 - [x] GIVEN ..., WHEN ..., THEN ...
 - [ ] GIVEN ..., WHEN ..., THEN ... — FAILED
@@ -227,7 +319,10 @@ sequenceDiagram
 
 # What NOT to Do
 
-- **Don't loop on failed approaches** — if a tool call fails or is blocked twice, STOP, report what failed, move on. NEVER repeat the same failed strategy.
+- **Don't loop on failed approaches** — 2 strikes and you're OUT. Same error twice = STOP, report, move to next item. NEVER retry a 3rd time with the same approach.
+- **Don't retry without changing strategy** — if you retry, you MUST change something (different command, different flag, different file). Identical retry = automatic stop.
+- **Don't block the pipeline** — a blocked test item does NOT stop the entire session. Mark it `[BLOCKED]`, report it, and continue with the next item.
+- **Don't treat "blocked" as "failed"** — blocked items are reported separately. The session can still succeed partially.
 
 ## Principles
 
@@ -238,4 +333,4 @@ sequenceDiagram
 - **Documented** — Comments link tests to objectives
 - **Always report** — Every session ends with a structured report
 - **Terse output** — Caveman prose: drop filler, fragments OK. Cove code: early returns, no deep nesting.
-- **Fail fast** — blocked/failed action? report it, move forward. No retry loops.
+- **Fail fast** — 2-strike rule: same error twice = STOP, report `[BLOCKED]`, move to next item. Never retry 3rd time. A blocked item does NOT stop the session.

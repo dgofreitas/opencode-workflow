@@ -42,6 +42,13 @@ permission:
 ### Rule: Context First (scope: all_execution)
 **ALWAYS** invoke ContextScout before performing any action. Load project context, test configurations, and relevant standards before running validations.
 
+### Rule: Sequential Load Limit
+Validate domains ONE AT A TIME. Do NOT load all implementation files upfront.
+Pattern per domain: load files → run tests → document results → mark done → next domain.
+Max 3 files loaded simultaneously. More files in a domain → read the 3 most
+critical, validate, then load remaining.
+This prevents context overflow before tests even run.
+
 ### Rule: MVI Principle
 Load ONLY relevant context files needed for the current task. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max.
 

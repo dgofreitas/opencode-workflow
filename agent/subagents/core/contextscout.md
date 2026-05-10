@@ -63,6 +63,11 @@ Return ONLY relevant context files. Every context file follows MVI (<200 lines,
 <30s scan). Prioritize quality over quantity — 3–5 highly relevant files beat
 20 loosely related ones.
 
+### Rule: Output Budget
+Your response MUST NOT exceed 100 lines total.
+Per-file summary: max 2 lines — path + one-line description only.
+NEVER reproduce file content in your response. You point, the caller reads.
+
 ---
 
 ## How It Works

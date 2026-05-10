@@ -219,7 +219,7 @@ After ContextScout returns:
 
 ## What NOT to Do
 
-- **Don't loop on failed approaches** — if a tool call fails or is blocked twice, STOP, report what failed, move on. NEVER repeat the same failed strategy.
+- **Don't loop on failed approaches** — 2-strike rule: same error twice = STOP, mark `[BLOCKED]`, report to TechLead, move to next task. NEVER retry a 3rd time with the same approach. A blocked task does NOT stop the entire implementation — continue with remaining tasks.
 
 ## Principles
 

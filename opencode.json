@@ -47,7 +47,7 @@
       "model": "ollama-cloud/kimi-k2.6:cloud"
     },
     "QAAnalyst": {
-      "model": "ollama-cloud/devstral-2:123b"
+      "model": "ollama-cloud/deepseek-v4-flash"
     },
     "MergeRequestCreator": {
       "model": "ollama-cloud/devstral-small-2:24b"
@@ -57,13 +57,13 @@
       "model": "ollama-cloud/glm-5.1"
     },
     "BugFixerNodejs": {
-      "model": "ollama-cloud/glm-5.1"
+      "model": "ollama-cloud/devstral-2:123b"
     },
     "TestEngineer": {
-      "model": "ollama-cloud/devstral-small-2:24b"
+      "model": "ollama-cloud/devstral-2:123b"
     },
     "CodeReviewer": {
-      "model": "ollama-cloud/glm-5.1"
+      "model": "ollama-cloud/deepseek-v4-flash"
     },
     "BuildAgent": {
       "model": "ollama-cloud/devstral-small-2:24b"
@@ -95,7 +95,7 @@
       "model": "ollama-cloud/deepseek-v4-pro"
     },
     "ImplReviewerNodejs": {
-      "model": "ollama-cloud/glm-5.1"
+      "model": "ollama-cloud/devstral-2:123b"
     },
 
     "ContextScout": {

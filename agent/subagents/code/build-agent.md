@@ -113,7 +113,7 @@ After ContextScout returns:
 - **Don't skip type-check** — run both type check AND build
 - **Don't run unapproved commands** — stick to approved build tools
 - **Don't give vague reports** — include file paths, line numbers, and what's expected
-- **Don't loop on failures** — if a check fails twice, report it and stop. No infinite retries.
+- **Don't loop on failures** — 2-strike rule: same error twice = STOP, mark `[BLOCKED]`, report to TechLead, move to next build step. NEVER retry a 3rd time with the same approach. A blocked build step does NOT stop the entire pipeline — continue with remaining steps.
 
 ---
 
