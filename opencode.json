@@ -189,5 +189,12 @@
     "edit": "allow",
     "write": "allow",
     "skill": "allow"
+  },
+  "mcp": {
+    "tavily": {
+      "type": "remote",
+      "url": "https://mcp.tavily.com/mcp/?tavilyApiKey={{TAVILY_API_KEY}}",
+      "enabled": false
+    }
   }
 }

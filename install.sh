@@ -53,6 +53,7 @@ COUNT_CONTEXT=0
 
 INSTALL_DEST=""
 VERBOSE=false
+NO_TAVILY=false
 
 # ==============================================================================
 # LOG
@@ -100,8 +101,12 @@ printHelp() {
     echo "  -v, --verbose         Modo verboso"
     echo "  -h, --help            Mostrar esta ajuda"
     echo "  --version             Mostrar versão"
+    echo "  --no-tavily           Não configurar Tavily MCP (padrão: pergunta)"
     echo ""
     echo "Sem --dest: instala em <cwd>/.opencode/ (interativo confirma o caminho)."
+    echo ""
+    echo "Variáveis de ambiente:"
+    echo "  API_KEY_TAVILY        Chave da API Tavily (evita prompt interativo)"
 }
 
 # ==============================================================================
@@ -243,6 +248,66 @@ updateGitignore() {
     logSuccess ".gitignore atualizado"
 }
 
+configureTavilyMCP() {
+    local targetDir="$1"
+    local opencodeJson="${targetDir}/opencode.json"
+
+    logStep "Configuração do Tavily MCP"
+
+    # Se --no-tavily foi passado, manter disabled
+    if [[ "${NO_TAVILY}" == "true" ]]; then
+        logInfo "Tavily MCP: desabilitado via --no-tavily"
+        return 0
+    fi
+
+    # Verificar se já existe TAVILY_API_KEY no ambiente
+    local tavilyKey="${API_KEY_TAVILY:-}"
+
+    # Se não encontrou na variável de ambiente, perguntar ao usuário
+    if [[ -z "${tavilyKey}" ]]; then
+        logInfo "Tavily é um serviço de busca web que permite aos agentes:"
+        logInfo "  - Buscar documentação atualizada"
+        logInfo "  - Pesquisar bibliotecas e frameworks"
+        logInfo "  - Obter dados em tempo real"
+        logInfo ""
+        logInfo "É gratuito para uso básico. Saiba mais em: https://tavily.com/"
+        logInfo ""
+        logInfo "Você pode configurar de 3 formas:"
+        logInfo "  1. Pressione ENTER para pular (MCP permanece DESABILITADO)"
+        logInfo "  2. Digite sua API key agora"
+        logInfo "  3. Configure depois editando ${opencodeJson} diretamente"
+        echo ""
+        read -s -p "API Key do Tavily (ou ENTER para pular): " tavilyKey
+        echo ""  # newline após input secreto
+
+        # Se usuário pressionou ENTER, sair mantendo desabilitado
+        if [[ -z "${tavilyKey}" ]]; then
+            logInfo "Tavily MCP: mantido desabilitado"
+            return 0
+        fi
+    fi
+
+    # Validar prefixo da API key
+    if [[ ! "${tavilyKey}" =~ ^tvly- ]]; then
+        logWarn "Chave informada não começa com 'tvly-'. Verifique se é válida."
+        read -p "Continuar mesmo assim? [y/N]: " -r confirm
+        [[ "${confirm}" =~ ^[Yy]$ ]] || { logInfo "Configuração skipada"; return 0; }
+    fi
+
+    # Substituir o placeholder e habilitar o MCP
+    # Remove o {{TAVILY_API_KEY}} e substitui pela key real
+    if sed -i \
+        -e "s/\"enabled\": false/\"enabled\": true/" \
+        -e "s/{{TAVILY_API_KEY}}/${tavilyKey}/g" \
+        "${opencodeJson}"; then
+        logSuccess "Tavily MCP configurado e habilitado"
+        logInfo "  URL: https://mcp.tavily.com/mcp/"
+        logWarn "  Nota: Não faça commit do arquivo opencode.json com a chave"
+    else
+        logError "Falha ao configurar Tavily MCP. Edite manualmente: ${opencodeJson}"
+    fi
+}
+
 installLocal() {
     if [[ -z "${INSTALL_DEST}" ]]; then
         askLocalDestination
@@ -269,6 +334,7 @@ installLocal() {
     copyWorkflowFiles "${targetDir}"
     installDependencies "${targetDir}"
     updateGitignore "${projectRoot}"
+    configureTavilyMCP "${targetDir}"
 
     logSuccess "Instalação local concluída!"
     logInfo "Para compartilhar: git add .opencode/ && git commit -m 'Add OpenCode workflow'"
@@ -340,6 +406,10 @@ parseArguments() {
             --version)
                 echo "${SCRIPT_NAME} v${SCRIPT_VERSION}"
                 exit 0
+                ;;
+            --no-tavily)
+                NO_TAVILY=true
+                shift
                 ;;
             # Compatibilidade: avisa e ignora flags removidas
             -g|--global|-H|--hybrid|-l|--local)
