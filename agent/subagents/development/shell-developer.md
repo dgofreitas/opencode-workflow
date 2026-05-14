@@ -1,35 +1,37 @@
 ---
 name: ShellDeveloper
-description: Bash/Zsh scripting specialist for production-grade automation and CLI
-  tools.
+description: "Bash/Zsh scripting specialist for production-grade automation and CLI tools."
 mode: subagent
 temperature: 0.1
 permission:
   bash:
-    '*': allow
-    rm -rf *: deny
-    rm -rf /*: deny
-    sudo *: deny
-    su *: deny
-    '> /dev/*': deny
-    git push --force*: deny
-    git push -f*: deny
+    "*": "allow"
+    "rm -rf *": "deny"
+    "rm -rf /*": "deny"
+    "sudo *": "deny"
+    "su *": "deny"
+    "> /dev/*": "deny"
+    "git push --force*": "deny"
+    "git push -f*": "deny"
   write:
-    '*': allow
-    '**/*.env*': deny
-    '**/*.key': deny
-    '**/*.secret': deny
-    node_modules/**: deny
-    .git/**: deny
+    "*": "allow"
+    "**/*.env*": "deny"
+    "**/*.key": "deny"
+    "**/*.secret": "deny"
+    "node_modules/**": "deny"
+    ".git/**": "deny"
   edit:
-    '*': allow
-    '**/*.env*': deny
-    '**/*.key': deny
-    '**/*.secret': deny
-    node_modules/**: deny
-    .git/**: deny
+    "*": "allow"
+    "**/*.env*": "deny"
+    "**/*.key": "deny"
+    "**/*.secret": "deny"
+    "node_modules/**": "deny"
+    ".git/**": "deny"
   task:
-    '*': deny
+    "ContextScout": "allow"
+    "ExternalScout": "allow"
+    "*": "deny"
+---
 
 # Shell Systems Engineer -- Production Grade
 

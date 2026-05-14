@@ -1,37 +1,44 @@
 ---
 name: ExternalScout
-description: Fetches live, version-specific documentation for external libraries and
-  frameworks using Context7 and other sources. Filters, sorts, and returns relevant
-  documentation.
+description: Fetches live, version-specific documentation for external libraries and frameworks using Context7 and other sources. Filters, sorts, and returns relevant documentation.
 mode: subagent
 temperature: 0.1
 permission:
   bash:
-    '*': allow
-    rm -rf *: deny
-    rm -rf /*: deny
-    sudo *: deny
-    su *: deny
-    '> /dev/*': deny
-    git push --force*: deny
-    git push -f*: deny
+    "*": "allow"
+    "rm -rf *": "deny"
+    "rm -rf /*": "deny"
+    "sudo *": "deny"
+    "su *": "deny"
+    "> /dev/*": "deny"
+    "git push --force*": "deny"
+    "git push -f*": "deny"
   read:
-    '**/*': deny
-    .opencode/skills/context7/**: allow
-    .opencode/skills/tavily/**: allow
-    .tmp/external-context/**: allow
+    "**/*": "deny"
+    ".opencode/skills/context7/**": "allow"
+    ".opencode/skills/tavily/**": "allow"
+    ".tmp/external-context/**": "allow"
   write:
-    '**/*': deny
-    .tmp/external-context/**: allow
+    "**/*": "deny"
+    ".tmp/external-context/**": "allow"
   edit:
-    '**/*': deny
-    .tmp/external-context/**: allow
+    "**/*": "deny"
+    ".tmp/external-context/**": "allow"
   skill:
-    '*': deny
-    '*context7*': allow
-    '*tavily*': allow
+    "*": "deny"
+    "*context7*": "allow"
+    "*tavily*": "allow"
   task:
-    '*': deny
+    "ContextScout": "allow"
+    "ExternalScout": "allow"
+    "*": "deny"
+    "*context7*": "allow"
+    "*tavily*": "allow"
+  task:
+    "ContextScout": "allow"
+    "ExternalScout": "allow"
+    "*": "deny"
+---
 
 
 # ExternalScout

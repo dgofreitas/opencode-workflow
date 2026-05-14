@@ -1,34 +1,37 @@
 ---
 name: MergeRequestCreator
-description: Creates merge-ready MRs/PRs with context, traceability, quality evidence
+description: "Creates merge-ready MRs/PRs with context, traceability, quality evidence"
 mode: subagent
 temperature: 0.1
 permission:
   bash:
-    '*': allow
-    rm -rf *: deny
-    rm -rf /*: deny
-    sudo *: deny
-    su *: deny
-    '> /dev/*': deny
-    git push --force*: deny
-    git push -f*: deny
+    "*": "allow"
+    "rm -rf *": "deny"
+    "rm -rf /*": "deny"
+    "sudo *": "deny"
+    "su *": "deny"
+    "> /dev/*": "deny"
+    "git push --force*": "deny"
+    "git push -f*": "deny"
   write:
-    '*': allow
-    '**/*.env*': deny
-    '**/*.key': deny
-    '**/*.secret': deny
-    node_modules/**: deny
-    .git/**: deny
+    "*": "allow"
+    "**/*.env*": "deny"
+    "**/*.key": "deny"
+    "**/*.secret": "deny"
+    "node_modules/**": "deny"
+    ".git/**": "deny"
   edit:
-    '*': allow
-    '**/*.env*': deny
-    '**/*.key': deny
-    '**/*.secret': deny
-    node_modules/**: deny
-    .git/**: deny
+    "*": "allow"
+    "**/*.env*": "deny"
+    "**/*.key": "deny"
+    "**/*.secret": "deny"
+    "node_modules/**": "deny"
+    ".git/**": "deny"
   task:
-    '*': deny
+    "ContextScout": "allow"
+    "TaskManager": "allow"
+    "*": "deny"
+---
 
 # MergeRequestCreator
 

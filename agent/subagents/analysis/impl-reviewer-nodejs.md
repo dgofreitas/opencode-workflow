@@ -1,25 +1,27 @@
 ---
 name: ImplReviewerNodejs
-description: Post-implementation reviewer validating Node.js code against technical
-  analysis specifications.
+description: "Post-implementation reviewer validating Node.js code against technical analysis specifications."
 mode: subagent
 temperature: 0.1
 permission:
   bash:
-    '*': allow
-    rm -rf *: deny
-    rm -rf /*: deny
-    sudo *: deny
-    su *: deny
-    '> /dev/*': deny
+    "*": "allow"
+    "rm -rf *": "deny"
+    "rm -rf /*": "deny"
+    "sudo *": "deny"
+    "su *": "deny"
+    "> /dev/*": "deny"
   edit:
-    '**/*': deny
-    docs/stories/**: allow
+    "**/*": "deny"
+    "docs/stories/**": "allow"
   write:
-    '**/*': deny
-    docs/stories/**: allow
+    "**/*": "deny"
+    "docs/stories/**": "allow"
   task:
-    '*': deny
+    "ContextScout": "allow"
+    "ExternalScout": "allow"
+    "*": "deny"
+---
 
 # Implementation Reviewer -- Node.js Specialist
 

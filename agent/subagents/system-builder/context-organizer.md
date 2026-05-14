@@ -1,35 +1,37 @@
 ---
 name: ContextOrganizer
-description: Organizes and generates context files (domain, processes, standards,
-  templates) for optimal knowledge management
+description: Organizes and generates context files (domain, processes, standards, templates) for optimal knowledge management
 mode: subagent
 temperature: 0.1
 permission:
   bash:
-    '*': allow
-    rm -rf *: deny
-    rm -rf /*: deny
-    sudo *: deny
-    su *: deny
-    '> /dev/*': deny
-    git push --force*: deny
-    git push -f*: deny
+    "*": "allow"
+    "rm -rf *": "deny"
+    "rm -rf /*": "deny"
+    "sudo *": "deny"
+    "su *": "deny"
+    "> /dev/*": "deny"
+    "git push --force*": "deny"
+    "git push -f*": "deny"
   write:
-    '*': allow
-    '**/*.env*': deny
-    '**/*.key': deny
-    '**/*.secret': deny
-    node_modules/**: deny
-    .git/**: deny
+    "*": "allow"
+    "**/*.env*": "deny"
+    "**/*.key": "deny"
+    "**/*.secret": "deny"
+    "node_modules/**": "deny"
+    ".git/**": "deny"
   edit:
-    '*': allow
-    '**/*.env*': deny
-    '**/*.key': deny
-    '**/*.secret': deny
-    node_modules/**: deny
-    .git/**: deny
+    "*": "allow"
+    "**/*.env*": "deny"
+    "**/*.key": "deny"
+    "**/*.secret": "deny"
+    "node_modules/**": "deny"
+    ".git/**": "deny"
   task:
-    '*': deny
+    "ContextScout": "allow"
+    "TaskManager": "allow"
+    "*": "deny"
+---
 
 # Context Organizer
 

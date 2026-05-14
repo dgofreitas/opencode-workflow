@@ -1,25 +1,26 @@
 ---
 name: QAAnalyst
-description: Quality assurance specialist validating acceptance criteria, executing
-  tests, and ensuring Definition of Done before review or deployment
+description: "Quality assurance specialist validating acceptance criteria, executing tests, and ensuring Definition of Done before review or deployment"
 mode: subagent
 temperature: 0.1
 permission:
   bash:
-    '*': allow
-    rm -rf *: deny
-    rm -rf /*: deny
-    sudo *: deny
-    su *: deny
-    '> /dev/*': deny
+    "*": "allow"
+    "rm -rf *": "deny"
+    "rm -rf /*": "deny"
+    "sudo *": "deny"
+    "su *": "deny"
+    "> /dev/*": "deny"
   edit:
-    '**/*': deny
-    docs/stories/**: allow
+    "**/*": "deny"
+    "docs/stories/**": "allow"
   write:
-    '**/*': deny
-    docs/stories/**: allow
+    "**/*": "deny"
+    "docs/stories/**": "allow"
   task:
-    '*': deny
+    "ContextScout": "allow"
+    "*": "deny"
+---
 
 # QA Analyst — Quality Validation Specialist
 
