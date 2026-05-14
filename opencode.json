@@ -38,10 +38,16 @@
     },
 
     "Architect": {
-      "model": "ollama-cloud/glm-5.1"
+      "model": "ollama-cloud/glm-5.1",
+      "options": {
+        "timeout": 600000
+      }
     },
     "SystemArchitect": {
-      "model": "ollama-cloud/glm-5.1"
+      "model": "ollama-cloud/glm-5.1",
+      "options": {
+        "timeout": 600000
+      }
     },
     "ProductManager": {
       "model": "ollama-cloud/kimi-k2.6"
@@ -53,39 +59,69 @@
       "model": "ollama-cloud/kimi-k2.6"
     },
     "QAAnalyst": {
-      "model": "ollama-cloud/deepseek-v4-flash"
+      "model": "ollama-cloud/deepseek-v4-flash",
+      "options": {
+        "timeout": 600000
+      }
     },
     "MergeRequestCreator": {
       "model": "ollama-cloud/deepseek-v4-flash"
     },
 
     "BackendDeveloper": {
-      "model": "ollama-cloud/glm-5.1"
+      "model": "ollama-cloud/glm-5.1",
+      "options": {
+        "timeout": 420000
+      }
     },
     "BugFixerNodejs": {
-      "model": "ollama-cloud/minimax-m2.7"
+      "model": "ollama-cloud/minimax-m2.7",
+      "options": {
+        "timeout": 420000
+      }
     },
     "TestEngineer": {
-      "model": "ollama-cloud/deepseek-v4-flash"
+      "model": "ollama-cloud/deepseek-v4-flash",
+      "options": {
+        "timeout": 420000
+      }
     },
     "CodeReviewer": {
-      "model": "ollama-cloud/deepseek-v4-flash"
+      "model": "ollama-cloud/deepseek-v4-flash",
+      "options": {
+        "timeout": 600000
+      }
     },
     "BuildAgent": {
-      "model": "ollama-cloud/deepseek-v4-flash"
+      "model": "ollama-cloud/deepseek-v4-flash",
+      "options": {
+        "timeout": 420000
+      }
     },
 
     "FrontendDeveloper": {
-      "model": "ollama-cloud/glm-5.1"
+      "model": "ollama-cloud/glm-5.1",
+      "options": {
+        "timeout": 420000
+      }
     },
     "FrontendDeveloperAngular": {
-      "model": "ollama-cloud/glm-5.1"
+      "model": "ollama-cloud/glm-5.1",
+      "options": {
+        "timeout": 420000
+      }
     },
     "FrontendDeveloperReact": {
-      "model": "ollama-cloud/glm-5.1"
+      "model": "ollama-cloud/glm-5.1",
+      "options": {
+        "timeout": 420000
+      }
     },
     "FrontendDeveloperVue": {
-      "model": "ollama-cloud/glm-5.1"
+      "model": "ollama-cloud/glm-5.1",
+      "options": {
+        "timeout": 420000
+      }
     },
     "DevopsSpecialist": {
       "model": "ollama-cloud/deepseek-v4-pro"
@@ -98,7 +134,10 @@
     },
 
     "CodeAnalyzer": {
-      "model": "ollama-cloud/deepseek-v4-pro"
+      "model": "ollama-cloud/deepseek-v4-pro",
+      "options": {
+        "timeout": 600000
+      }
     },
     "ImplReviewerNodejs": {
       "model": "ollama-cloud/deepseek-v4-flash"
