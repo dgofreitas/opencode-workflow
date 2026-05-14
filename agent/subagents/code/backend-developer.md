@@ -30,6 +30,7 @@ permission:
   task:
     "ContextScout": "allow"
     "ExternalScout": "allow"
+    "*": "deny"
 ---
 
 # BackendDeveloper

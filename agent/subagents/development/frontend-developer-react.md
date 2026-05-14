@@ -30,7 +30,7 @@ permission:
   task:
     "ContextScout": "allow"
     "ExternalScout": "allow"
----
+    "*": "deny"
 
 # Frontend Developer — React/Next.js Specialist
 
