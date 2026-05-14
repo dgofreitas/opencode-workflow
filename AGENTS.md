@@ -45,7 +45,7 @@ This repo **is not a runnable app**. It is the *source of truth* for a multi-age
 
 ## Timeout & fallback
 
-- **Provider timeout** in `opencode.json` was changed from `36000000`ms (10h) → `300000`ms (5 min) on all providers. A 10h timeout silently stalls the entire pipeline when a model stops responding; the fallback plugin never triggers because OpenCode waits indefinitely. With 5 min, stalled sessions abort quickly and the fallback plugin swaps to an alternative model.
+- **Provider timeout** in `opencode.json` was changed from `36000000`ms (10h) → `600000`ms (10 min) on all providers. A 10h timeout silently stalls the entire pipeline when a model stops responding; the fallback plugin never triggers because OpenCode waits indefinitely. With 10 min, stalled sessions abort but still give enough time for agents to generate complete outputs like technical analysis docs or full test suites.
 - **Every agent MUST have fallbackModels** in `config/agent-fallback.json`. Empty `fallbackModels: []` means that agent has no recovery path when its primary model hangs. The fallback plugin (`plugins/opencode-agent-fallback.ts`) only works when fallbacks are configured per-agent.
 
 ## max_tokens warning

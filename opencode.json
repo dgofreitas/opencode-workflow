@@ -5,25 +5,25 @@
   "provider": {
     "ollama-cloud": {
       "options": {
-        "timeout": 300000,
+        "timeout": 600000,
         "setCacheKey": true
       }
     },
     "openrouter": {
       "options": {
-        "timeout": 300000,
+        "timeout": 600000,
         "setCacheKey": true
       }
     },
     "opencode": {
       "options": {
-        "timeout": 300000,
+        "timeout": 600000,
         "setCacheKey": true
       }
     },
     "zai-coding-plan": {
       "options": {
-        "timeout": 300000,
+        "timeout": 600000,
         "setCacheKey": true
       }
     }
@@ -71,19 +71,19 @@
     "BackendDeveloper": {
       "model": "ollama-cloud/glm-5.1",
       "options": {
-        "timeout": 420000
+        "timeout": 600000
       }
     },
     "BugFixerNodejs": {
       "model": "ollama-cloud/minimax-m2.7",
       "options": {
-        "timeout": 420000
+        "timeout": 600000
       }
     },
     "TestEngineer": {
       "model": "ollama-cloud/deepseek-v4-flash",
       "options": {
-        "timeout": 420000
+        "timeout": 600000
       }
     },
     "CodeReviewer": {
@@ -95,32 +95,32 @@
     "BuildAgent": {
       "model": "ollama-cloud/deepseek-v4-flash",
       "options": {
-        "timeout": 420000
+        "timeout": 600000
       }
     },
 
     "FrontendDeveloper": {
       "model": "ollama-cloud/glm-5.1",
       "options": {
-        "timeout": 420000
+        "timeout": 600000
       }
     },
     "FrontendDeveloperAngular": {
       "model": "ollama-cloud/glm-5.1",
       "options": {
-        "timeout": 420000
+        "timeout": 600000
       }
     },
     "FrontendDeveloperReact": {
       "model": "ollama-cloud/glm-5.1",
       "options": {
-        "timeout": 420000
+        "timeout": 600000
       }
     },
     "FrontendDeveloperVue": {
       "model": "ollama-cloud/glm-5.1",
       "options": {
-        "timeout": 420000
+        "timeout": 600000
       }
     },
     "DevopsSpecialist": {
