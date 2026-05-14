@@ -1,36 +1,34 @@
 ---
 name: BuildAgent
-description: "Type check and build validation agent."
+description: Type check and build validation agent.
 mode: subagent
 temperature: 0.1
 permission:
   bash:
-    "*": "allow"
-    "rm -rf *": "deny"
-    "rm -rf /*": "deny"
-    "sudo *": "deny"
-    "su *": "deny"
-    "> /dev/*": "deny"
-    "git push --force*": "deny"
-    "git push -f*": "deny"
+    '*': allow
+    rm -rf *: deny
+    rm -rf /*: deny
+    sudo *: deny
+    su *: deny
+    '> /dev/*': deny
+    git push --force*: deny
+    git push -f*: deny
   write:
-    "*": "allow"
-    "**/*.env*": "deny"
-    "**/*.key": "deny"
-    "**/*.secret": "deny"
-    "node_modules/**": "deny"
-    ".git/**": "deny"
+    '*': allow
+    '**/*.env*': deny
+    '**/*.key': deny
+    '**/*.secret': deny
+    node_modules/**: deny
+    .git/**: deny
   edit:
-    "*": "allow"
-    "**/*.env*": "deny"
-    "**/*.key": "deny"
-    "**/*.secret": "deny"
-    "node_modules/**": "deny"
-    ".git/**": "deny"
+    '*': allow
+    '**/*.env*': deny
+    '**/*.key': deny
+    '**/*.secret': deny
+    node_modules/**: deny
+    .git/**: deny
   task:
-    "ContextScout": "allow"
-    "*": "deny"
----
+    '*': deny
 
 # BuildAgent
 

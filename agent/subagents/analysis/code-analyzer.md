@@ -1,27 +1,25 @@
 ---
 name: CodeAnalyzer
-description: "Node.js codebase analysis specialist for architecture, patterns, and technical debt detection."
+description: Node.js codebase analysis specialist for architecture, patterns, and
+  technical debt detection.
 mode: subagent
 temperature: 0.1
 permission:
   bash:
-    "*": "allow"
-    "rm -rf *": "deny"
-    "rm -rf /*": "deny"
-    "sudo *": "deny"
-    "su *": "deny"
-    "> /dev/*": "deny"
+    '*': allow
+    rm -rf *: deny
+    rm -rf /*: deny
+    sudo *: deny
+    su *: deny
+    '> /dev/*': deny
   edit:
-    "**/*": "deny"
-    "docs/stories/**": "allow"
+    '**/*': deny
+    docs/stories/**: allow
   write:
-    "**/*": "deny"
-    "docs/stories/**": "allow"
+    '**/*': deny
+    docs/stories/**: allow
   task:
-    "ContextScout": "allow"
-    "ExternalScout": "allow"
-    "*": "deny"
----
+    '*': deny
 
 # Code Analyzer -- Codebase Intelligence Specialist
 

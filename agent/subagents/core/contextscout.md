@@ -1,25 +1,25 @@
 ---
 name: ContextScout
-description: Discovers and recommends context files from .opencode/context/ ranked by priority using a flat semantic index (INDEX.md). Suggests ExternalScout when a framework/library is mentioned but not found internally.
+description: Discovers and recommends context files from .opencode/context/ ranked
+  by priority using a flat semantic index (INDEX.md). Suggests ExternalScout when
+  a framework/library is mentioned but not found internally.
 mode: subagent
 temperature: 0.1
 permission:
   read:
-    "**/*": "allow"
+    '**/*': allow
   grep:
-    "*": "allow"
+    '*': allow
   glob:
-    "*": "allow"
+    '*': allow
   write:
-    "**/*": "deny"
-    "docs/stories/**": "allow"
+    '**/*': deny
+    docs/stories/**: allow
   edit:
-    "**/*": "deny"
-    "docs/stories/**": "allow"
+    '**/*': deny
+    docs/stories/**: allow
   task:
-    "ExternalScout": "allow"
-    "*": "deny"
----
+    '*': deny
 
 # ContextScout
 

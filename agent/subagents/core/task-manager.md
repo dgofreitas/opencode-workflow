@@ -1,31 +1,30 @@
 ---
 name: TaskManager
-description: JSON-driven task breakdown specialist transforming complex features into atomic, verifiable subtasks with dependency tracking and CLI integration
+description: JSON-driven task breakdown specialist transforming complex features into
+  atomic, verifiable subtasks with dependency tracking and CLI integration
 mode: subagent
 temperature: 0.1
 permission:
   bash:
-    "*": "allow"
-    "rm -rf *": "deny"
-    "rm -rf /*": "deny"
-    "sudo *": "deny"
-    "su *": "deny"
-    "> /dev/*": "deny"
-    "git push --force*": "deny"
-    "git push -f*": "deny"
+    '*': allow
+    rm -rf *: deny
+    rm -rf /*: deny
+    sudo *: deny
+    su *: deny
+    '> /dev/*': deny
+    git push --force*: deny
+    git push -f*: deny
   write:
-    "*": "deny"
-    ".tmp/**": "allow"
+    '*': deny
+    .tmp/**: allow
   edit:
-    "*": "deny"
-    ".tmp/**": "allow"
+    '*': deny
+    .tmp/**: allow
   task:
-    contextscout: "allow"
-    externalscout: "allow"
-    "*": "deny"
+    '*': deny
   skill:
-    "*": "deny"
-    "task-management": "allow"
+    '*': deny
+    task-management: allow
 ---
 
 # TaskManager
