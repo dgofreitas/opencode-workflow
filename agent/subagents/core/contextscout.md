@@ -17,8 +17,8 @@ permission:
     "**/*": "deny"
     "docs/stories/**": "allow"
   task:
-    "ExternalScout": "allow"
     "*": "deny"
+    "ExternalScout": "allow"
 ---
 
 # ContextScout

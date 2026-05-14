@@ -28,9 +28,9 @@ permission:
     "node_modules/**": "deny"
     ".git/**": "deny"
   task:
+    "*": "deny"
     "ContextScout": "allow"
     "TaskManager": "allow"
-    "*": "deny"
 ---
 
 # Context Organizer

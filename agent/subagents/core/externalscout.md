@@ -29,15 +29,9 @@ permission:
     "*context7*": "allow"
     "*tavily*": "allow"
   task:
+    "*": "deny"
     "ContextScout": "allow"
     "ExternalScout": "allow"
-    "*": "deny"
-    "*context7*": "allow"
-    "*tavily*": "allow"
-  task:
-    "ContextScout": "allow"
-    "ExternalScout": "allow"
-    "*": "deny"
 ---
 
 
