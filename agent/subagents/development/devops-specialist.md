@@ -31,7 +31,9 @@ permission:
     "node_modules/**": "deny"
     ".git/**": "deny"
   task:
-    "*": "allow"
+    "ContextScout": "allow"
+    "ExternalScout": "allow"
+    "*": "deny"
 ---
 
 # DevopsSpecialist

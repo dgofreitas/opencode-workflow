@@ -28,7 +28,8 @@ permission:
     "node_modules/**": "deny"
     ".git/**": "deny"
   task:
-    "*": "allow"
+    "ContextScout": "allow"
+    "*": "deny"
 ---
 
 # TestEngineer

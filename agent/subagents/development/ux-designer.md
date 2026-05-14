@@ -28,7 +28,9 @@ permission:
     "node_modules/**": "deny"
     ".git/**": "deny"
   task:
-    "*": "allow"
+    "ContextScout": "allow"
+    "ExternalScout": "allow"
+    "*": "deny"
 ---
 
 # UX Designer -- User Experience & Interface Specialist

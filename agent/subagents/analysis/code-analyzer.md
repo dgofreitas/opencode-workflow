@@ -18,7 +18,9 @@ permission:
     "**/*": "deny"
     "docs/stories/**": "allow"
   task:
-    "*": "allow"
+    "ContextScout": "allow"
+    "ExternalScout": "allow"
+    "*": "deny"
 ---
 
 # Code Analyzer -- Codebase Intelligence Specialist

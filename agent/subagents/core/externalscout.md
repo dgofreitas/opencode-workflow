@@ -27,7 +27,9 @@ permission:
     "*": "deny"
     "*context7*": "allow"
   task:
-    "*": "allow"
+    "ContextScout": "allow"
+    "ExternalScout": "allow"
+    "*": "deny"
 ---
 
 

@@ -34,7 +34,10 @@
     },
 
     "Master": {
-      "model": "ollama-cloud/kimi-k2.6"
+      "model": "ollama-cloud/kimi-k2.6",
+      "options": {
+        "timeout": 3600000
+      }
     },
 
     "Architect": {
@@ -50,13 +53,22 @@
       }
     },
     "ProductManager": {
-      "model": "ollama-cloud/kimi-k2.6"
+      "model": "ollama-cloud/kimi-k2.6",
+      "options": {
+        "timeout": 1800000
+      }
     },
     "ProductOwner": {
-      "model": "ollama-cloud/kimi-k2.6"
+      "model": "ollama-cloud/kimi-k2.6",
+      "options": {
+        "timeout": 1800000
+      }
     },
     "TechLead": {
-      "model": "ollama-cloud/kimi-k2.6"
+      "model": "ollama-cloud/kimi-k2.6",
+      "options": {
+        "timeout": 2400000
+      }
     },
     "QAAnalyst": {
       "model": "ollama-cloud/deepseek-v4-flash",
