@@ -77,7 +77,10 @@
       }
     },
     "MergeRequestCreator": {
-      "model": "ollama-cloud/deepseek-v4-flash"
+      "model": "ollama-cloud/deepseek-v4-flash",
+      "options": {
+        "timeout": 600000
+      }
     },
 
     "BackendDeveloper": {
@@ -136,13 +139,22 @@
       }
     },
     "DevopsSpecialist": {
-      "model": "ollama-cloud/deepseek-v4-pro"
+      "model": "ollama-cloud/deepseek-v4-pro",
+      "options": {
+        "timeout": 600000
+      }
     },
     "ShellDeveloper": {
-      "model": "ollama-cloud/deepseek-v4-flash"
+      "model": "ollama-cloud/deepseek-v4-flash",
+      "options": {
+        "timeout": 600000
+      }
     },
     "UXDesigner": {
-      "model": "ollama-cloud/qwen3.5:397b"
+      "model": "ollama-cloud/qwen3.5:397b",
+      "options": {
+        "timeout": 600000
+      }
     },
 
     "CodeAnalyzer": {
@@ -152,24 +164,42 @@
       }
     },
     "ImplReviewerNodejs": {
-      "model": "ollama-cloud/deepseek-v4-flash"
+      "model": "ollama-cloud/deepseek-v4-flash",
+      "options": {
+        "timeout": 600000
+      }
     },
 
     "ContextScout": {
-      "model": "ollama-cloud/qwen3-coder-next"
+      "model": "ollama-cloud/qwen3-coder-next",
+      "options": {
+        "timeout": 600000
+      }
     },
     "TaskManager": {
-      "model": "ollama-cloud/deepseek-v4-flash"
+      "model": "ollama-cloud/deepseek-v4-flash",
+      "options": {
+        "timeout": 600000
+      }
     },
     "DocWriter": {
-      "model": "ollama-cloud/qwen3.5:397b"
+      "model": "ollama-cloud/qwen3.5:397b",
+      "options": {
+        "timeout": 600000
+      }
     },
     "ExternalScout": {
-      "model": "ollama-cloud/qwen3-coder-next"
+      "model": "ollama-cloud/qwen3-coder-next",
+      "options": {
+        "timeout": 600000
+      }
     },
 
     "ContextOrganizer": {
-      "model": "ollama-cloud/deepseek-v4-pro"
+      "model": "ollama-cloud/deepseek-v4-pro",
+      "options": {
+        "timeout": 600000
+      }
     }
   },
   "permission": {
