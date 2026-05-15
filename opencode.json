@@ -173,6 +173,9 @@
     }
   },
   "permission": {
+    "external_directory": {
+      "/tmp/**": "allow"
+    },
     "bash": {
       "*": "allow",
       "rm *": "ask",
