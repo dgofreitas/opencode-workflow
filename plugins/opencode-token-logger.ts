@@ -57,7 +57,20 @@ export const TokenLoggerPlugin: Plugin = async ({ client, directory, worktree }:
     } catch (err) { }
   }
 
-  fileLog("PLUGIN_INIT", "Token Logger Plugin Inicializado com Interceptador HTTP");
+  fileLog("PLUGIN_INIT", "Token Logger + Fetch Timeout Plugin Inicializado");
+
+  // --- Configuração de timeout ---
+  const FETCH_TIMEOUT_MS = (() => {
+    const env = process.env.OPENCODE_FETCH_TIMEOUT_MS;
+    if (env) {
+      const parsed = parseInt(env, 10);
+      if (!isNaN(parsed) && parsed > 0) return parsed;
+    }
+    return 600000; // 10 minutos padrão
+  })();
+  const TIMEOUT_ENABLED = process.env.OPENCODE_FETCH_TIMEOUT_ENABLED !== "false";
+  
+  fileLog("PLUGIN_CONFIG", { fetchTimeoutMs: FETCH_TIMEOUT_MS, timeoutEnabled: TIMEOUT_ENABLED });
 
   // --- Interceptação de globalThis.fetch ---
   // A maioria dos SDKs modernos (incluindo o do OpenRouter/OpenAI/Anthropic) usa fetch por debaixo dos panos
@@ -79,7 +92,9 @@ export const TokenLoggerPlugin: Plugin = async ({ client, directory, worktree }:
       }
 
       // Intercepta requisições de provedores de IA (filtro simples para evitar ruído)
-      if (url && (url.includes("api") || url.includes("openai") || url.includes("openrouter") || url.includes("anthropic"))) {
+      const isProvider = url && (url.includes("api") || url.includes("openai") || url.includes("openrouter") || url.includes("anthropic") || url.includes("ollama"));
+      
+      if (isProvider) {
         let bodyToLog = requestInit?.body;
 
         // Se for string, tentamos parsear para logar bonito, senão loga como string
@@ -94,6 +109,33 @@ export const TokenLoggerPlugin: Plugin = async ({ client, directory, worktree }:
           method: requestInit?.method || "GET",
           body: bodyToLog
         });
+      }
+
+      // --- Timeout via AbortController (apenas para provedores) ---
+      if (isProvider && TIMEOUT_ENABLED) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          controller.abort();
+          fileLog("HTTP_FETCH_TIMEOUT", { url, timeoutMs: FETCH_TIMEOUT_MS, message: `Abortado após ${FETCH_TIMEOUT_MS}ms sem resposta` });
+        }, FETCH_TIMEOUT_MS);
+
+        try {
+          const response = await originalFetch.call(this, requestInput, {
+            ...(requestInit || {}),
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+          return response;
+        } catch (err: any) {
+          clearTimeout(timeoutId);
+          if (err.name === "AbortError" || err.code === "ABORT_ERR") {
+            const error = new Error(`[FetchTimeout] Provedor não respondeu em ${FETCH_TIMEOUT_MS}ms. URL: ${url}`);
+            // @ts-ignore
+            error.code = "ETIMEDOUT";
+            throw error;
+          }
+          throw err;
+        }
       }
 
       return originalFetch.apply(this, args);
