@@ -11,6 +11,8 @@ import { homedir } from "os";
 
 interface TokenLoggerConfig {
   enabled?: boolean;
+  fetchTimeoutMs?: number;
+  fetchTimeoutEnabled?: boolean;
 }
 
 function loadConfig(directory: string, worktree: string): TokenLoggerConfig {
@@ -59,16 +61,9 @@ export const TokenLoggerPlugin: Plugin = async ({ client, directory, worktree }:
 
   fileLog("PLUGIN_INIT", "Token Logger + Fetch Timeout Plugin Inicializado");
 
-  // --- Configuração de timeout ---
-  const FETCH_TIMEOUT_MS = (() => {
-    const env = process.env.OPENCODE_FETCH_TIMEOUT_MS;
-    if (env) {
-      const parsed = parseInt(env, 10);
-      if (!isNaN(parsed) && parsed > 0) return parsed;
-    }
-    return 600000; // 10 minutos padrão
-  })();
-  const TIMEOUT_ENABLED = process.env.OPENCODE_FETCH_TIMEOUT_ENABLED !== "false";
+  // --- Configuração de timeout via arquivo de config ---
+  const FETCH_TIMEOUT_MS = config.fetchTimeoutMs ?? 600000; // 10 minutos padrão
+  const TIMEOUT_ENABLED = config.fetchTimeoutEnabled !== false; // true por padrão
   
   fileLog("PLUGIN_CONFIG", { fetchTimeoutMs: FETCH_TIMEOUT_MS, timeoutEnabled: TIMEOUT_ENABLED });
 
