@@ -179,11 +179,6 @@
       }
     }
   },
-  "plugins": [
-    "opencode-token-logger",
-    "opencode-fetch-timeout",
-    "opencode-agent-fallback"
-  ],
   "permission": {
     "external_directory": {
       "/tmp/**": "allow"
