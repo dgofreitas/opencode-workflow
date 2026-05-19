@@ -16,6 +16,17 @@ interface TokenLoggerConfig {
 
 const LEVELS = { debug: 0, info: 1, warn: 2, error: 3 };
 
+function getTimestamp(): string {
+  const d = new Date();
+  const offset = -d.getTimezoneOffset();
+  const sign = offset >= 0 ? '+' : '-';
+  const hours = Math.abs(Math.floor(offset / 60)).toString().padStart(2, '0');
+  const minutes = Math.abs(offset % 60).toString().padStart(2, '0');
+  const tz = `${sign}${hours}:${minutes}`;
+  const iso = d.toLocaleString('sv-SE', { timeZone: 'UTC' }).replace(' ', 'T');
+  return `${iso}.${d.getMilliseconds().toString().padStart(3, '0')}${tz}`;
+}
+
 function loadConfig(directory: string, worktree: string): TokenLoggerConfig {
   const candidates = [
     join(worktree, ".opencode", "config", "token-logger.json"),
@@ -57,7 +68,7 @@ export const TokenLoggerPlugin: Plugin = async ({ client, directory, worktree }:
   function log(level: "debug" | "info" | "warn" | "error", tag: string, data: any) {
     if (LEVELS[level] < LOG_LEVEL) return;
     try {
-      const ts = new Date().toISOString();
+      const ts = getTimestamp();
       const payload = typeof data === "string" ? data : JSON.stringify(data, null, 2);
       const line = `[${ts}] [${level.toUpperCase()}] [AGENT: ${activeAgent}] [${tag}] ${payload}\n\n`;
       const fileName = `/tmp/opencode-token-logger-${activeSessionID.replace(/[^a-zA-Z0-9_-]/g, "")}.log`;
@@ -69,8 +80,9 @@ export const TokenLoggerPlugin: Plugin = async ({ client, directory, worktree }:
   log("info", "PLUGIN_CONFIG", config);
 
   const FETCH_TIMEOUT_MS = config.fetchTimeoutMs ?? 600000;
+  const STREAM_CHUNK_TIMEOUT_MS = (config as any).streamChunkTimeoutMs ?? 30000; // 30s sem chunk = stall
   const TIMEOUT_ENABLED = config.fetchTimeoutEnabled !== false;
-  log("info", "TIMEOUT_CONFIG", { fetchTimeoutMs: FETCH_TIMEOUT_MS, enabled: TIMEOUT_ENABLED });
+  log("info", "TIMEOUT_CONFIG", { fetchTimeoutMs: FETCH_TIMEOUT_MS, streamChunkTimeoutMs: STREAM_CHUNK_TIMEOUT_MS, enabled: TIMEOUT_ENABLED });
 
   // --- Interceptação de globalThis.fetch ---
   // @ts-ignore
@@ -100,35 +112,37 @@ export const TokenLoggerPlugin: Plugin = async ({ client, directory, worktree }:
         }
         log("info", "HTTP_FETCH_REQUEST", { url, method: requestInit?.method || "GET" });
         log("debug", "HTTP_FETCH_REQUEST_BODY", bodyToLog);
-      }
 
-      if (isProvider && TIMEOUT_ENABLED) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-          controller.abort();
-          log("warn", "HTTP_FETCH_TIMEOUT", { url, timeoutMs: FETCH_TIMEOUT_MS, message: `Abortado após ${FETCH_TIMEOUT_MS}ms` });
-        }, FETCH_TIMEOUT_MS);
+        if (TIMEOUT_ENABLED) {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => {
+            log("warn", "HTTP_FETCH_TIMEOUT", { url, timeoutMs: FETCH_TIMEOUT_MS, message: `Abortado após ${FETCH_TIMEOUT_MS}ms` });
+            controller.abort();
+          }, FETCH_TIMEOUT_MS);
 
-        try {
-          const response = await originalFetch.call(this, requestInput, {
-            ...(requestInit || {}),
-            signal: controller.signal,
-          });
-          clearTimeout(timeoutId);
-          log("info", "HTTP_FETCH_RESPONSE", { url, status: response.status, ok: response.ok });
-          log("debug", "HTTP_FETCH_RESPONSE_HEADERS", Object.fromEntries(response.headers.entries()));
-          return response;
-        } catch (err: any) {
-          clearTimeout(timeoutId);
-          if (err.name === "AbortError" || err.code === "ABORT_ERR") {
-            log("error", "HTTP_FETCH_ABORTED", { url, timeoutMs: FETCH_TIMEOUT_MS });
-            const error = new Error(`[FetchTimeout] Provedor não respondeu em ${FETCH_TIMEOUT_MS}ms. URL: ${url}`);
-            // @ts-ignore
-            error.code = "ETIMEDOUT";
-            throw error;
+          try {
+            const response = await originalFetch.call(this, requestInput, {
+              ...(requestInit || {}),
+              signal: controller.signal,
+            });
+            clearTimeout(timeoutId);
+            log("info", "HTTP_FETCH_RESPONSE", { url, status: response.status, ok: response.ok });
+            log("debug", "HTTP_FETCH_RESPONSE_HEADERS", Object.fromEntries(response.headers.entries()));
+            return response;
+          } catch (err: any) {
+            clearTimeout(timeoutId);
+            if (err.name === "AbortError" || err.code === "ABORT_ERR") {
+              log("error", "HTTP_FETCH_ABORTED", { url, timeoutMs: FETCH_TIMEOUT_MS });
+              const error = new Error(`[FetchTimeout] Provedor não respondeu em ${FETCH_TIMEOUT_MS}ms. URL: ${url}`);
+              // @ts-ignore
+              error.code = "ETIMEDOUT";
+              throw error;
+            }
+            log("error", "HTTP_FETCH_ERROR", { url, error: err.message, stack: err.stack });
+            throw err;
           }
-          log("error", "HTTP_FETCH_ERROR", { url, error: err.message, stack: err.stack });
-          throw err;
+        } else {
+          return originalFetch.apply(this, args);
         }
       }
 
@@ -158,20 +172,39 @@ export const TokenLoggerPlugin: Plugin = async ({ client, directory, worktree }:
         e.type.includes("provider") ||
         e.type.includes("model")
       ) {
-        log("info", `EVENT:${e.type}`, { sessionID: activeSessionID, agent: activeAgent });
-        log("debug", `EVENT:${e.type}:DETAIL`, e.properties);
+        log("debug", `EVENT:${e.type}`, { sessionID: activeSessionID, agent: activeAgent, ...e.properties });
       }
     },
 
     "tool.execute.before": async (ctx: any, toolName: string, params: any) => {
-      log("info", `TOOL_BEFORE:${toolName}`, { agent: activeAgent });
-      log("debug", `TOOL_BEFORE:${toolName}:PARAMS`, params);
+      let actualToolName: string;
+      if (typeof toolName === 'string') {
+        actualToolName = toolName;
+      } else if (toolName && typeof toolName === 'object') {
+        actualToolName = toolName.tool || toolName.name || toolName.command || JSON.stringify(toolName).slice(0, 40);
+      } else {
+        actualToolName = String(toolName);
+      }
+      // Info: agente + tool + arquivo (se houver filePath no params)
+      const fileHint = params?.filePath || params?.path || params?.file || '';
+      log("info", `TOOL_BEFORE:${actualToolName}`, { agent: activeAgent, file: fileHint });
+      log("debug", `TOOL_BEFORE:${actualToolName}:PARAMS`, params);
       return params;
     },
 
     "tool.execute.after": async (ctx: any, toolName: string, result: any) => {
-      log("info", `TOOL_AFTER:${toolName}`, { agent: activeAgent });
-      log("debug", `TOOL_AFTER:${toolName}:RESULT`, result);
+      let actualToolName: string;
+      if (typeof toolName === 'string') {
+        actualToolName = toolName;
+      } else if (toolName && typeof toolName === 'object') {
+        actualToolName = toolName.tool || toolName.name || toolName.command || JSON.stringify(toolName).slice(0, 40);
+      } else {
+        actualToolName = String(toolName);
+      }
+      // Info: apenas agente + tool + tipo de resultado (não o conteúdo)
+      const resultType = Array.isArray(result) ? `array[${result.length}]` : (result && typeof result === 'object' ? 'object' : typeof result);
+      log("info", `TOOL_AFTER:${actualToolName}`, { agent: activeAgent, resultType });
+      log("debug", `TOOL_AFTER:${actualToolName}:RESULT`, result);
     },
   };
 };

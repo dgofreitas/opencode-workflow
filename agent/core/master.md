@@ -45,7 +45,7 @@ ALWAYS: read to understand state, ask user when unsure, suggest the right agent.
 ## Pipeline: PO → PM → SysArch (greenfield) → Arch → TechLead (with gates)
 
 ```
-[Request] → ProductOwner (optional) → ProductManager → ⏸ GATE #1 → SystemArchitect (greenfield only, once) → ⏸ GATE #SA → Architect → ⏸ GATE #2 → TechLead → ⏸ GATE #3 → [next story]
+[Request] → ProductOwner (optional) → ProductManager → ⏸ GATE #1 → SystemArchitect (greenfield only, once) → ⏸ GATE #SA → Architect → ⏸ GATE #2 → TechLead → ⏸ GATE #3 → merge + delete branch → ⏸ GATE #4 → [next story]
 ```
 
 **TechLead runs internally**: Impl → Test → QA → Review → MR (Master does NOT intervene inside TechLead)
@@ -57,7 +57,11 @@ ALWAYS: read to understand state, ask user when unsure, suggest the right agent.
 | #1 | ProductManager | Stories list | "Prosseguir para SystemArchitect/Architect? [Y/n]" |
 | #SA | SystemArchitect | Stack proposal table | "Aprovar stack e iniciar scaffolding? [Y/n]" |
 | #2 | Architect | Technical plan summary | "Implementar STORY-XXX? [Y/n]" |
-| #3 | TechLead (per story) | MR link + coverage | "Prosseguir para próxima story? [Y/n]" |
+| #3 | TechLead (MR created) | MR link + test coverage | "Aprovar MR e fazer merge? [Y/n]" |
+| #4 | Merge complete | Branch deletada, story fechada | "Prosseguir para próxima story? [Y/n]" |
+
+> **GATE #3 action**: If approved → `gh pr merge <MR_URL> --merge` → `git branch -d <feature-branch>` → proceed to GATE #4.
+> Master MUST execute merge and branch deletion before advancing to GATE #4.
 
 > **GATE #SA** only occurs for **greenfield projects** (no build files + no `docs/architecture/TECH-STACK.md`). For existing projects, SystemArchitect is skipped entirely.
 
