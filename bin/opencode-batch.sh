@@ -3,6 +3,7 @@
 # Usage:
 #   opencode-batch.sh "stories 8,9,10"
 #   opencode-batch.sh "stories 8-10"
+#   opencode-batch.sh "STORY-theme 3-8"
 
 set -euo pipefail
 
@@ -15,16 +16,27 @@ log() {
 
 parse_stories() {
     local raw="$1"
-    raw="${raw#stories }"
-    raw="${raw#stories}"
-    raw="$(echo "$raw" | tr ',' ' ')"
-    if [[ "$raw" == *-* ]]; then
-        local start="${raw%-*}"
-        local end="${raw#*-}"
-        seq -s ' ' "$start" "$end"
-    else
-        echo "$raw"
-    fi
+    local out=""
+
+    # Strip known english prefix words (case-insensitive)
+    raw="$(echo "$raw" | sed -E 's/^(stories|story|STORY[^ ]*) *//i')"
+
+    # Replace commas with spaces
+    raw="${raw//,/ }"
+
+    for token in $raw; do
+        # Detect range: N-M where N and M are integers
+        if [[ "$token" =~ ^([0-9]+)-([0-9]+)$ ]]; then
+            out="$out$(seq -s ' ' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}") "
+            break
+        fi
+        # Single number
+        if [[ "$token" =~ ^[0-9]+$ ]]; then
+            out="$out$token "
+        fi
+    done
+
+    echo "${out% }"
 }
 
 if [[ $# -eq 0 ]]; then
@@ -52,12 +64,10 @@ else
 fi
 
 # Loop through all stories
-total=0
 for story in $stories; do
     remaining="$(echo "$stories" | cut -d' ' -f2-)"
     log "=== STORY-$story STARTING ==="
 
-    # Run opencode for this story (non-interactive, auto-exits when done)
     (cd "$PROJECT_ROOT" && opencode run "--agent" "Master" "stories $story")
 
     if [[ -z "$remaining" ]]; then
