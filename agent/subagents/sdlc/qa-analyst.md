@@ -123,15 +123,26 @@ TestEngineer already ran all tests with coverage right before QAAnalyst was invo
 Re-running wastes time and provides the same results.
 
 1. Read `docs/stories/STORY-XXX-test-report.md` — extract coverage, passed/failed counts, blocked items
-2. Read coverage summary from the report (already validated by TestEngineer)
-3. **Only re-run tests if:** the report is missing, corrupted, or you detect modified files since the report timestamp:
+2. Validate the report has these fields (MANDATORY for consumption):
+   - `## Summary` → Coverage %, Total Tests, Passed, Failed
+   - `## Tests Created/Updated` → file list with status
+   - `## Blocked Items` → any items marked BLOCKED
+   - `## Issues Found` → severity + area + owner
+3. **Report validation gate:**
+   - Missing coverage number → re-run tests
+   - Missing file list → re-run tests
+   - Report not found → re-run tests
+   - Report valid → use data as-is
+4. Read coverage summary from the report (already validated by TestEngineer)
+5. **Only re-run tests if:** the report is missing, corrupted, or you detect modified files since the report timestamp:
+
    ```bash
    # Check for modified test/source files since report timestamp
    git diff --name-only HEAD -- '*.test.*' '*.spec.*' 'src/**'
    ```
    If files changed → re-run: `npx vitest run --coverage` (or equivalent for the project)
-4. If report is valid and no files changed → use TestEngineer's coverage data directly
-5. Include coverage numbers in QA report attributed to: **"Source: TestEngineer vX%"**
+6. If report is valid and no files changed → use TestEngineer's coverage data directly
+7. Include coverage numbers in QA report attributed to: **"Source: TestEngineer vX%"**
 
 ### 4. Manual Verification
 
