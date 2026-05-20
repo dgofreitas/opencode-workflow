@@ -5,11 +5,17 @@ mode: subagent
 temperature: 0.1
 permission:
   read:
-    "**/*": "allow"
+    ".opencode/context/**": "allow"
+    "docs/stories/**": "allow"
+    "**/*": "deny"
   grep:
-    "*": "allow"
+    ".opencode/context/**": "allow"
+    "docs/stories/**": "allow"
+    "**/*": "deny"
   glob:
-    "*": "allow"
+    ".opencode/context/**": "allow"
+    "docs/stories/**": "allow"
+    "**/*": "deny"
   write:
     "**/*": "deny"
     "docs/stories/**": "allow"
