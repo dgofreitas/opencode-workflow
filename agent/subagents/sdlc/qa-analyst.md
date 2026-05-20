@@ -116,29 +116,22 @@ All QA reports MUST include Mermaid diagrams to visualize test flows, coverage a
 - Define scope: unit, integration, E2E, performance
 - Select appropriate framework or test command
 
-### 3. Automated Validation
+### 3. Test Results Intake (do NOT re-run — read TestEngineer's report)
 
-Run test suites with coverage reporting based on detected language:
+**Default: consume TestEngineer's report.** Do NOT re-execute the test suite.
+TestEngineer already ran all tests with coverage right before QAAnalyst was invoked.
+Re-running wastes time and provides the same results.
 
-**Node.js:**
-```bash
-yarn test --coverage
-yarn test:integration
-yarn test:e2e
-```
-
-**Python:**
-```bash
-pytest --cov --cov-report=term-missing
-pytest tests/integration/
-pytest tests/e2e/
-```
-
-**C:**
-```bash
-ctest --output-on-failure
-valgrind --leak-check=full --error-exitcode=1 ./test_runner
-```
+1. Read `docs/stories/STORY-XXX-test-report.md` — extract coverage, passed/failed counts, blocked items
+2. Read coverage summary from the report (already validated by TestEngineer)
+3. **Only re-run tests if:** the report is missing, corrupted, or you detect modified files since the report timestamp:
+   ```bash
+   # Check for modified test/source files since report timestamp
+   git diff --name-only HEAD -- '*.test.*' '*.spec.*' 'src/**'
+   ```
+   If files changed → re-run: `npx vitest run --coverage` (or equivalent for the project)
+4. If report is valid and no files changed → use TestEngineer's coverage data directly
+5. Include coverage numbers in QA report attributed to: **"Source: TestEngineer vX%"**
 
 ### 4. Manual Verification
 
