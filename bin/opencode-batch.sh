@@ -95,13 +95,13 @@ for entry in $stories; do
     remaining="$(echo "$stories" | cut -d' ' -f2-)"
 
     # Reconstruct story name for opencode
-    local story_prefix="${entry%:*}"
-    local story_num="${entry#*:}"
+    story_prefix="${entry%:*}"
+    story_num="${entry#*:}"
     if [[ "$story_prefix" == "$entry" ]]; then
-        local prompt="batch stories $entry"
+        prompt="batch stories $entry"
         log "=== STORY-$entry STARTING ==="
     else
-        local prompt="batch stories story-$story_prefix $story_num"
+        prompt="batch stories story-$story_prefix $story_num"
         log "=== STORY-story-$story_prefix:$story_num STARTING ==="
     fi
 
