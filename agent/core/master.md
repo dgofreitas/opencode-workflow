@@ -60,7 +60,7 @@ Master MUST scan the user's **first prompt of the session** for these triggers:
 
 | Trigger phrases | Behavior |
 |-----------------|----------|
-| "stories N,M,O", "stories N-O", "batch", "noturno", "sequência" | **Batch mode**: G1/G2/G3 proceed without asking. G3 creates MR but does NOT merge. G4 asks "Próxima story?" then instructs to run `opencode-batch.sh next` |
+| "batch story", "story N", "stories N,M,O", "stories N-O", "batch", "noturno", "sequência" | **Batch mode**: all gates auto, G3 creates MR without merging, G4 ends session |
 | "auto gates", "pular gates", "pular confirmação", "aprovar automático", "auto-approve", "modo automático", "sem parar", "direto" | G1/G2/G3 proceed silently, auto-merge + delete. ONLY G4 asks |
 | (no trigger) | ALL gates ask (G1, G2, G3, G4) — **default** |
 
