@@ -60,38 +60,30 @@ Master MUST scan the user's **first prompt of the session** for these triggers:
 
 | Trigger phrases | Behavior |
 |-----------------|----------|
-| "batch story", "story N", "stories N,M,O", "stories N-O", "batch", "noturno", "sequência" | **Batch mode**: all gates auto, G3 creates MR without merging, G4 ends session |
-| "auto gates", "pular gates", "pular confirmação", "aprovar automático", "auto-approve", "modo automático", "sem parar", "direto" | G1/G2/G3 proceed silently, auto-merge + delete. ONLY G4 asks |
+| "auto gates", "pular gates", "pular confirmação", "aprovar automático", "auto-approve", "modo automático", "sem parar", "direto" | G1/G2/G3 proceed silently, ONLY G4 asks |
 | (no trigger) | ALL gates ask (G1, G2, G3, G4) — **default** |
 
-**Auto-mode:**
-- G1 proceeds WITHOUT asking (auto-approve stories)
-- G2 auto-approves plan
-- G3 auto-approves MR + auto-merges + auto-deletes branch
-- **GATE #4 ALWAYS asks** "Prosseguir para próxima story? [Y/n]"
-- Master MUST confirm at session start: "Modo automático ativado — prosseguindo direto. Apenas troca de story pede confirmação."
-
-**Batch mode (novo):**
-- Same as auto-mode EXCEPT:
-  - G3: creates MR but does NOT merge or delete branch
-  - G4: does NOT ask — Master reports "STORY-XXX concluída. MR #XX pendente." and ends the session immediately
-- MR fica aberto para aprovação manual do usuário
-- Master MUST confirm at session start: "Modo batch ativado — stories em sequência, MRs pendentes para aprovação manual."
-- **Branch stacking:** TechLead deve criar branch `feat/STORY-NNN` a partir do branch da story anterior (N-1), não de main. Master MUST pass this instruction to TechLead: "Branch from feat/STORY-(N-1), NOT from main."
+**Auto-mode rules:**
+- If auto-mode detected → G1 proceeds WITHOUT asking (auto-approve stories) → G2 auto-approves plan → G3 auto-approves MR + auto-merges + auto-deletes branch
+- **GATE #4 ALWAYS asks** "Prosseguir para próxima story? [Y/n]" — even in auto-mode
+- **GATE #SA** follows G1 behavior (auto in auto-mode, asks in default)
+- Master MUST confirm at session start: "Modo automático ativado — prosseguindo direto. Apenas troca de story pede confirmação." (or "Modo interativo — todos os gates pedem confirmação.")
 
 ### Gates
 
-| Gate | After | Show user | Default | Auto-mode | Batch mode |
-|------|-------|-----------|---------|-----------|------------|
-| #1 | ProductManager | Stories list | "Prosseguir? [Y/n]" | Skip | Skip |
-| #SA | SystemArchitect | Stack proposal table | "Aprovar stack? [Y/n]" | Skip | Skip |
-| #2 | Architect | Technical plan summary | "Implementar STORY-XXX? [Y/n]" | Skip | Skip |
-| #3 | TechLead (MR created) | MR link + test coverage | "Aprovar MR e fazer merge? [Y/n]" | Auto-merge + delete | **Criar MR, NÃO merge** |
-| #4 | Merge complete / batch done | Branch deletada / MR pendente | **"Próxima story? [Y/n]"** | **STILL ASKS** | **Encerra sessão** |
+| Gate | After | Show user | Default question | Auto-mode |
+|------|-------|-----------|------------------|-----------|
+| #1 | ProductManager | Stories list | "Prosseguir? [Y/n]" | Skip, auto-proceed |
+| #SA | SystemArchitect | Stack proposal table | "Aprovar stack? [Y/n]" | Skip, auto-proceed |
+| #2 | Architect | Technical plan summary | "Implementar STORY-XXX? [Y/n]" | Skip, auto-proceed |
+| #3 | TechLead (MR created) | MR link + test coverage | "Aprovar MR e fazer merge? [Y/n]" | Auto-merge + delete |
+| #4 | Merge complete | Branch deletada, story fechada | **"Próxima story? [Y/n]"** | **STILL ASKS** |
 
-> **GATE #4 batch mode**: Master MUST end session immediately. Do NOT ask. Say "STORY-XXX concluída. MR #XX pendente. Sessão encerrada." O script externo fará o loop.
+> **GATE #3**: If approved → `gh pr merge <MR_URL> --merge` → `git branch -d <feature-branch>` → proceed to GATE #4.
 
-> **Comportamento batch completo**: `opencode-batch.sh "stories 8-10"` → salva fila, executa story 8 (nova sessão), quando termina encerra, executa story 9 (nova sessão), quando termina encerra, executa story 10 (nova sessão), quando termina encerra e deleta `.batch-state`.
+> **GATE #SA**: only for **greenfield projects** (no build files + no `docs/architecture/TECH-STACK.md`). Existing projects skip SystemArchitect entirely.
+
+> **Optional pre-step**: If user asks for strategic/product-level work (vision, personas, epics, roadmap), invoke **ProductOwner** FIRST. PO outputs feed the ProductManager via `docs/product/PM-HANDOFF.md`.
 
 ---
 
