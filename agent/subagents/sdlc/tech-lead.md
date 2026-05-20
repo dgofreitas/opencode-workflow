@@ -288,6 +288,11 @@ Coverage < 90% in ANY domain implemented in this story = incomplete delivery.
 ### 7. GIT WORKFLOW
 
 **Branch:** `git checkout -b feat/STORY-XXX-short-description`
+**Branch stacking (multi-story):** When working on a sequence of stories, create branch from the PREVIOUS story's branch, NOT from main:
+```
+git checkout -b feat/STORY-009 feat/STORY-008
+```
+This prevents merge conflicts — each story branches from the one before it.
 **Commit:** `git commit -m "feat(module): description\n\n- Change 1\n\nImplements: STORY-XXX"`
 **Types:** `feat`, `fix`, `refactor`, `test`, `docs`, `perf`, `style`, `chore`
 

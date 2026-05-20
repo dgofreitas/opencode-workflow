@@ -1,24 +1,20 @@
 #!/usr/bin/env bash
 # opencode-batch.sh — Run multiple stories sequentially with fresh sessions
 # Usage:
-#   opencode-batch.sh start "stories 8,9,10"   (or "stories 8-10")
-#   opencode-batch.sh next                      (called by Master after each story)
+#   opencode-batch.sh "stories 8,9,10"
+#   opencode-batch.sh "stories 8-10"
 
 set -euo pipefail
 
 BATCH_STATE_FILE=".opencode/.batch-state"
-PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-
-CMD_NEXT="next"
-CMD_START="start"
+LOG_FILE="/tmp/opencode-batch.log"
 
 log() {
-    echo "[batch] $(date '+%Y-%m-%dT%H:%M:%S%z') $*"
+    echo "[batch] $(date '+%Y-%m-%dT%H:%M:%S%z') $*" | tee -a "$LOG_FILE"
 }
 
 parse_stories() {
     local raw="$1"
-    # Accept: "stories 8,9,10", "stories 8-10", "8,9,10", "8-10"
     raw="${raw#stories }"
     raw="${raw#stories}"
     raw="$(echo "$raw" | tr ',' ' ')"
@@ -31,66 +27,49 @@ parse_stories() {
     fi
 }
 
-cmd_start() {
-    local input="$1"
-    local stories
-    stories="$(parse_stories "$input")"
+if [[ $# -eq 0 ]]; then
+    echo "Usage: opencode-batch.sh \"stories 8,9,10\" (or \"stories 8-10\")"
+    exit 1
+fi
 
-    if [[ -z "$stories" ]]; then
-        echo "Usage: opencode-batch.sh start \"stories 8,9,10\" (or \"stories 8-10\")"
-        exit 1
-    fi
+input="$*"
+stories="$(parse_stories "$input")"
 
+if [[ -z "$stories" ]]; then
+    echo "Usage: opencode-batch.sh \"stories 8,9,10\" (or \"stories 8-10\")"
+    exit 1
+fi
+
+# Check if resuming
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+if [[ -f "$PROJECT_ROOT/$BATCH_STATE_FILE" ]]; then
+    stories="$(cat "$PROJECT_ROOT/$BATCH_STATE_FILE")"
+    log "Resuming batch from saved state: $stories"
+else
     log "Batch mode — stories: $stories"
     log "Project: $PROJECT_ROOT"
-
-    # Save state
     echo "$stories" > "$PROJECT_ROOT/$BATCH_STATE_FILE"
+fi
 
-    log "Starting story $(echo "$stories" | awk '{print $1}')"
-    log "Running: opencode --agent Master \"stories $input\""
-    opencode --agent Master "stories $input"
-}
+# Loop through all stories
+total=0
+for story in $stories; do
+    remaining="$(echo "$stories" | cut -d' ' -f2-)"
+    log "=== STORY-$story STARTING ==="
 
-cmd_next() {
-    if [[ ! -f "$PROJECT_ROOT/$BATCH_STATE_FILE" ]]; then
-        echo "No batch in progress. Start with: opencode-batch.sh start \"stories N,M,O\""
-        exit 1
-    fi
-
-    local remaining
-    remaining="$(cat "$PROJECT_ROOT/$BATCH_STATE_FILE")"
-
-    # Remove first word (completed story)
-    local next="$(echo "$remaining" | awk '{print $1}')"
-    remaining="$(echo "$remaining" | cut -d' ' -f2-)"
+    # Run opencode for this story
+    opencode --agent Master "stories $story"
 
     if [[ -z "$remaining" ]]; then
-        log "All stories complete!"
+        log "=== ALL STORIES COMPLETE ==="
         rm -f "$PROJECT_ROOT/$BATCH_STATE_FILE"
         exit 0
     fi
 
     echo "$remaining" > "$PROJECT_ROOT/$BATCH_STATE_FILE"
+    stories="$remaining"
+    log "=== STORY-$story DONE — remaining: $remaining ==="
+done
 
-    local prev=$((next - 1))
-    log "Continuing from STORY-$prev → STORY-$next"
-    log "Running: opencode --agent Master \"stories $next\""
-    opencode --agent Master "stories $next"
-}
-
-case "${1:-}" in
-    "$CMD_START")
-        shift
-        cmd_start "$*"
-        ;;
-    "$CMD_NEXT")
-        cmd_next
-        ;;
-    *)
-        echo "Usage:"
-        echo "  opencode-batch.sh start \"stories 8,9,10\""
-        echo "  opencode-batch.sh next"
-        exit 1
-        ;;
-esac
+log "=== BATCH FINISHED ==="
+rm -f "$PROJECT_ROOT/$BATCH_STATE_FILE"

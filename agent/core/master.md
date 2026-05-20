@@ -72,11 +72,12 @@ Master MUST scan the user's **first prompt of the session** for these triggers:
 - Master MUST confirm at session start: "Modo automático ativado — prosseguindo direto. Apenas troca de story pede confirmação."
 
 **Batch mode (novo):**
-- Same as auto-mode EXCEPT G3: creates MR but does NOT merge or delete branch
+- Same as auto-mode EXCEPT:
+  - G3: creates MR but does NOT merge or delete branch
+  - G4: does NOT ask — Master reports "STORY-XXX concluída. MR #XX pendente." and ends the session immediately
 - MR fica aberto para aprovação manual do usuário
-- G4 pergunta "Próxima story? [Y/n]" → se sim: "Sessão concluída. Execute: opencode-batch.sh next"
 - Master MUST confirm at session start: "Modo batch ativado — stories em sequência, MRs pendentes para aprovação manual."
-- **Branch stacking:** TechLead deve criar branch `feat/STORY-NNN` a partir do branch da story anterior (N-1), não de main. Master deve instruir o TechLead: `git checkout -b feat/STORY-NNN feat/STORY-(N-1)`
+- **Branch stacking:** TechLead deve criar branch `feat/STORY-NNN` a partir do branch da story anterior (N-1), não de main. Master MUST pass this instruction to TechLead: "Branch from feat/STORY-(N-1), NOT from main."
 
 ### Gates
 
@@ -86,13 +87,11 @@ Master MUST scan the user's **first prompt of the session** for these triggers:
 | #SA | SystemArchitect | Stack proposal table | "Aprovar stack? [Y/n]" | Skip | Skip |
 | #2 | Architect | Technical plan summary | "Implementar STORY-XXX? [Y/n]" | Skip | Skip |
 | #3 | TechLead (MR created) | MR link + test coverage | "Aprovar MR e fazer merge? [Y/n]" | Auto-merge + delete | **Criar MR, NÃO merge** |
-| #4 | Merge complete / batch pause | Branch deletada / MR pendente | **"Próxima story? [Y/n]"** | **STILL ASKS** | **"Próxima story? [Y/n] → opencode-batch.sh next"** |
+| #4 | Merge complete / batch done | Branch deletada / MR pendente | **"Próxima story? [Y/n]"** | **STILL ASKS** | **Encerra sessão** |
 
-> **GATE #3 batch mode**: MR is created but NOT merged. User reviews and merges branches manually later.
-> Master MUST say: "MR #XX criado para STORY-XXX (branch: feat/STORY-XXX). Aprovação manual pendente."
+> **GATE #4 batch mode**: Master MUST end session immediately. Do NOT ask. Say "STORY-XXX concluída. MR #XX pendente. Sessão encerrada." O script externo fará o loop.
 
-> **GATE #4 batch mode**: Ao responder "Y" → Master diz "Sessão concluída. Execute: `opencode-batch.sh next`" e encerra.
-> O script externo `opencode-batch.sh` gerencia o loop, checkout da story anterior, e abre nova sessão `opencode`.
+> **Comportamento batch completo**: `opencode-batch.sh "stories 8-10"` → salva fila, executa story 8 (nova sessão), quando termina encerra, executa story 9 (nova sessão), quando termina encerra, executa story 10 (nova sessão), quando termina encerra e deleta `.batch-state`.
 
 ---
 
