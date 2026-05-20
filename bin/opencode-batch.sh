@@ -57,8 +57,8 @@ for story in $stories; do
     remaining="$(echo "$stories" | cut -d' ' -f2-)"
     log "=== STORY-$story STARTING ==="
 
-    # Run opencode for this story
-    opencode --agent Master "stories $story"
+    # Run opencode for this story (non-interactive, auto-exits when done)
+    (cd "$PROJECT_ROOT" && opencode run "--agent" "Master" "stories $story")
 
     if [[ -z "$remaining" ]]; then
         log "=== ALL STORIES COMPLETE ==="
