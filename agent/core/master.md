@@ -60,30 +60,39 @@ Master MUST scan the user's **first prompt of the session** for these triggers:
 
 | Trigger phrases | Behavior |
 |-----------------|----------|
-| "auto gates", "pular gates", "pular confirmação", "aprovar automático", "auto-approve", "modo automático", "sem parar", "direto" | G1/G2/G3 proceed silently, ONLY G4 asks |
+| "stories N,M,O", "stories N-O", "batch", "noturno", "sequência" | **Batch mode**: G1/G2/G3 proceed without asking. G3 creates MR but does NOT merge. G4 asks "Próxima story?" then instructs to run `opencode-batch.sh next` |
+| "auto gates", "pular gates", "pular confirmação", "aprovar automático", "auto-approve", "modo automático", "sem parar", "direto" | G1/G2/G3 proceed silently, auto-merge + delete. ONLY G4 asks |
 | (no trigger) | ALL gates ask (G1, G2, G3, G4) — **default** |
 
-**Auto-mode rules:**
-- If auto-mode detected → G1 proceeds WITHOUT asking (auto-approve stories) → G2 auto-approves plan → G3 auto-approves MR + auto-merges + auto-deletes branch
-- **GATE #4 ALWAYS asks** "Prosseguir para próxima story? [Y/n]" — even in auto-mode
-- **GATE #SA** follows G1 behavior (auto in auto-mode, asks in default)
-- Master MUST confirm at session start: "Modo automático ativado — prosseguindo direto. Apenas troca de story pede confirmação." (or "Modo interativo — todos os gates pedem confirmação.")
+**Auto-mode:**
+- G1 proceeds WITHOUT asking (auto-approve stories)
+- G2 auto-approves plan
+- G3 auto-approves MR + auto-merges + auto-deletes branch
+- **GATE #4 ALWAYS asks** "Prosseguir para próxima story? [Y/n]"
+- Master MUST confirm at session start: "Modo automático ativado — prosseguindo direto. Apenas troca de story pede confirmação."
+
+**Batch mode (novo):**
+- Same as auto-mode EXCEPT G3: creates MR but does NOT merge or delete branch
+- MR fica aberto para aprovação manual do usuário
+- G4 pergunta "Próxima story? [Y/n]" → se sim: "Sessão concluída. Execute: opencode-batch.sh next"
+- Master MUST confirm at session start: "Modo batch ativado — stories em sequência, MRs pendentes para aprovação manual."
+- **Branch stacking:** TechLead deve criar branch `feat/STORY-NNN` a partir do branch da story anterior (N-1), não de main. Master deve instruir o TechLead: `git checkout -b feat/STORY-NNN feat/STORY-(N-1)`
 
 ### Gates
 
-| Gate | After | Show user | Default question | Auto-mode |
-|------|-------|-----------|------------------|-----------|
-| #1 | ProductManager | Stories list | "Prosseguir? [Y/n]" | Skip, auto-proceed |
-| #SA | SystemArchitect | Stack proposal table | "Aprovar stack? [Y/n]" | Skip, auto-proceed |
-| #2 | Architect | Technical plan summary | "Implementar STORY-XXX? [Y/n]" | Skip, auto-proceed |
-| #3 | TechLead (MR created) | MR link + test coverage | "Aprovar MR e fazer merge? [Y/n]" | Auto-merge + delete |
-| #4 | Merge complete | Branch deletada, story fechada | **"Próxima story? [Y/n]"** | **STILL ASKS** |
+| Gate | After | Show user | Default | Auto-mode | Batch mode |
+|------|-------|-----------|---------|-----------|------------|
+| #1 | ProductManager | Stories list | "Prosseguir? [Y/n]" | Skip | Skip |
+| #SA | SystemArchitect | Stack proposal table | "Aprovar stack? [Y/n]" | Skip | Skip |
+| #2 | Architect | Technical plan summary | "Implementar STORY-XXX? [Y/n]" | Skip | Skip |
+| #3 | TechLead (MR created) | MR link + test coverage | "Aprovar MR e fazer merge? [Y/n]" | Auto-merge + delete | **Criar MR, NÃO merge** |
+| #4 | Merge complete / batch pause | Branch deletada / MR pendente | **"Próxima story? [Y/n]"** | **STILL ASKS** | **"Próxima story? [Y/n] → opencode-batch.sh next"** |
 
-> **GATE #3**: If approved → `gh pr merge <MR_URL> --merge` → `git branch -d <feature-branch>` → proceed to GATE #4.
+> **GATE #3 batch mode**: MR is created but NOT merged. User reviews and merges branches manually later.
+> Master MUST say: "MR #XX criado para STORY-XXX (branch: feat/STORY-XXX). Aprovação manual pendente."
 
-> **GATE #SA**: only for **greenfield projects** (no build files + no `docs/architecture/TECH-STACK.md`). Existing projects skip SystemArchitect entirely.
-
-> **Optional pre-step**: If user asks for strategic/product-level work (vision, personas, epics, roadmap), invoke **ProductOwner** FIRST. PO outputs feed the ProductManager via `docs/product/PM-HANDOFF.md`.
+> **GATE #4 batch mode**: Ao responder "Y" → Master diz "Sessão concluída. Execute: `opencode-batch.sh next`" e encerra.
+> O script externo `opencode-batch.sh` gerencia o loop, checkout da story anterior, e abre nova sessão `opencode`.
 
 ---
 
