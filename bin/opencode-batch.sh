@@ -105,7 +105,7 @@ for entry in $stories; do
         log "=== STORY-story-$story_prefix:$story_num STARTING ==="
     fi
 
-    (cd "$PROJECT_ROOT" && opencode run "--agent" "Master" "$prompt")
+    (cd "$PROJECT_ROOT" && opencode run "--agent" "Master" "$prompt") || log "Story $entry exited with code $? — continuing"
 
     if [[ -z "$remaining" ]]; then
         log "=== ALL STORIES COMPLETE ==="
