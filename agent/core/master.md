@@ -93,22 +93,24 @@ Master MUST scan the user's **first prompt of the session** for these triggers:
 
 ## State Detection (run on every request, including "continue")
 
-**If the user mentioned a SPECIFIC story id** (e.g., "STORY-021", "STORY-theme-003"), skip the broad glob. Go directly to that story:
+**If the user mentioned a SPECIFIC story id** (e.g., "STORY-021", "STORY-theme-003"), skip detection entirely. Go directly to that story:
 
 ```
-1. read("docs/stories/STORY-XXX.md")                      → story exists?
-2. glob("docs/stories/STORY-XXX-technical-analysis.md")   → has plan?
-3. glob("docs/stories/STORY-XXX-code-analysis.md")        → has code report?
-4. git branch -a | grep STORY-XXX                          → impl started?
-5. Route based on what's MISSING (see table below)
+1. bash: ls docs/stories/STORY-XXX.md 2>/dev/null        → story file exists? (fast, no context)
+2. bash: ls docs/stories/STORY-XXX-technical-analysis.md 2>/dev/null → has plan?
+3. Route based on what's MISSING (see table below)
 ```
+
+> **Use `ls` (bash), NOT `glob` or `read`** for detection. `ls` is one line of output, no context cost.
 
 **Only when NO specific story is mentioned** (vague "continue" or "build X"):
 
 ```
-1. glob("docs/stories/STORY-*.md")                     → any stories?
+1. bash: ls docs/stories/STORY-*.md                       → list story filenames only
 2. Route based on what's MISSING (see table below)
 ```
+
+> **NEVER read story content during detection.** Content reading is the job of the delegated agent, not Master.
 
 | What exists | What's missing | → Delegate to |
 |-------------|----------------|---------------|
