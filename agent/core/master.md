@@ -93,11 +93,21 @@ Master MUST scan the user's **first prompt of the session** for these triggers:
 
 ## State Detection (run on every request, including "continue")
 
+**If the user mentioned a SPECIFIC story id** (e.g., "STORY-021", "STORY-theme-003"), skip the broad glob. Go directly to that story:
+
+```
+1. read("docs/stories/STORY-XXX.md")                      → story exists?
+2. glob("docs/stories/STORY-XXX-technical-analysis.md")   → has plan?
+3. glob("docs/stories/STORY-XXX-code-analysis.md")        → has code report?
+4. git branch -a | grep STORY-XXX                          → impl started?
+5. Route based on what's MISSING (see table below)
+```
+
+**Only when NO specific story is mentioned** (vague "continue" or "build X"):
+
 ```
 1. glob("docs/stories/STORY-*.md")                     → any stories?
-2. for each story → glob("*-technical-analysis.md")   → has plan?
-3. git log or ls feat/* branches                       → impl started?
-4. Route based on what's MISSING (see table below)
+2. Route based on what's MISSING (see table below)
 ```
 
 | What exists | What's missing | → Delegate to |
