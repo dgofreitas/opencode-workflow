@@ -38,7 +38,25 @@ This repo **is not a runnable app**. It is the *source of truth* for a multi-age
 - Commands are under `command/` as Markdown files.
 - Context system lives under `context/` — `INDEX.md` is the flat semantic index consumed by ContextScout.
 
-## Testing
+## Agent permission rules (CRITICAL — OpenCode evaluates last match wins)
+
+- **`"*": "deny"` MUST be the FIRST entry** in every permission block that has allow overrides. The engine evaluates rules in order and the **last matching rule wins**. If `allow` comes before `deny`, the deny never fires.
+- **Correct pattern:**
+  ```yaml
+  read:
+    "*": "deny"          # ← FIRST: block everything
+    ".opencode/context/**": "allow"  # then allow specific
+    "docs/stories/**": "allow"
+  ```
+- **Wrong pattern:**
+  ```yaml
+  read:
+    ".opencode/context/**": "allow"  # allows...
+    "docs/stories/**": "allow"
+    "*": "deny"          # ← TOO LATE: only blocks non-matching paths
+  ```
+- This applies to ALL permission keys: `read`, `edit`, `write`, `grep`, `glob`, `bash`, `task`.
+- Existing agents already follow this rule — do not break it when editing permissions.
 
 - There is **no executable test suite** in this repo. "Testing" means installing into a real project and exercising the OpenCode pipeline (`opencode --agent Master`).
 - `context/standards/test-coverage.md` and `.github/agents/test-engineer.agent.md` are **specifications**, not runnable tests.
