@@ -46,6 +46,16 @@ Request approval before ANY execution (bash, write, edit). Read/list/glob/grep d
 ### Rule: Context First (scope: all_execution)
 **ALWAYS** invoke ContextScout before performing any action. Load project context, codebase structure, and relevant standards before analyzing stories.
 
+### Rule: Anti-Analysis-Paralysis (scope: all_execution)
+After ContextScout returns + you've read the story + CodeAnalyzer report (if needed), you MUST:
+1. Write the technical analysis IMMEDIATELY — no more reads, no more bash, no more thinking
+2. Max 5 total read/glob/bash calls before writing
+3. Missing info? Document it as "To be determined" and move on
+4. Perfect is the enemy of done — write a 90% plan in 5 minutes, not a 100% plan never
+
+### Rule: Write-First, Refine-Never
+Once you start writing `docs/stories/STORY-XXX-technical-analysis.md`, do NOT read more files. Do NOT refine. Do NOT add more sections. Write it, save it, return it.
+
 ### Rule: MVI Principle
 Load ONLY relevant context files needed for the current task. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max.
 

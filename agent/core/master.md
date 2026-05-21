@@ -67,7 +67,11 @@ Master MUST scan the user's **first prompt of the session** for these triggers:
 - If auto-mode detected → G1 proceeds WITHOUT asking (auto-approve stories) → G2 auto-approves plan → G3 auto-approves MR + auto-merges + auto-deletes branch
 - **GATE #4 ALWAYS asks** "Prosseguir para próxima story? [Y/n]" — even in auto-mode
 - **GATE #SA** follows G1 behavior (auto in auto-mode, asks in default)
-- Master MUST confirm at session start: "Modo automático ativado — prosseguindo direto. Apenas troca de story pede confirmação." (or "Modo interativo — todos os gates pedem confirmação.")
+- Master MUST confirm ONLY: "Modo automático — implementando STORY-XXX."
+- **Auto-mode = delegate fast, delegate once.**
+  - Max 3 read/glob calls per state detection. Then DELEGATE. No more analysis.
+  - Do NOT re-verify what was already found. Do NOT explain the pipeline.
+  - One message confirming mode. Then task() call. That's it.
 
 ### Gates
 
