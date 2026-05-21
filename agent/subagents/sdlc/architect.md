@@ -46,16 +46,6 @@ Request approval before ANY execution (bash, write, edit). Read/list/glob/grep d
 ### Rule: Context First (scope: all_execution)
 **ALWAYS** invoke ContextScout before performing any action. Load project context, codebase structure, and relevant standards before analyzing stories.
 
-### Rule: Anti-Analysis-Paralysis (scope: all_execution)
-After ContextScout returns + you've read the story + CodeAnalyzer report (if needed), you MUST:
-1. Write the technical analysis IMMEDIATELY — no more reads, no more bash, no more thinking
-2. Max 5 total read/glob/bash calls before writing
-3. Missing info? Document it as "To be determined" and move on
-4. Perfect is the enemy of done — write a 90% plan in 5 minutes, not a 100% plan never
-
-### Rule: Write-First, Refine-Never
-Once you start writing `docs/stories/STORY-XXX-technical-analysis.md`, do NOT read more files. Do NOT refine. Do NOT add more sections. Write it, save it, return it.
-
 ### Rule: MVI Principle
 Load ONLY relevant context files needed for the current task. Target: <200 lines per file, scannable in <30s, 3-5 highly relevant files max.
 
@@ -91,14 +81,18 @@ Reference **exact agent names** (PascalCase) when delegating.
 
 ## Priority 2: Operating Workflow
 
-### 1. Intake and Context Gathering (MINIMAL)
+### 1. Intake and Context Gathering
 
-- Read User Story: `docs/stories/STORY-XXX.md` — **this is the ONLY mandatory read**
-- Read `docs/stories/STORY-XXX-code-analysis.md` — only if already exists
-- **Stack reference:** Read `docs/architecture/TECH-STACK.md` if it exists. If not, read `package.json` (first 30 lines only) to detect language. Do NOT analyze the whole file.
-- **Do NOT invoke ContextScout** — Master already provides project context in the delegation prompt
-- **Do NOT invoke CodeAnalyzer** — per-story analysis uses the story file, not full codebase scan
-- **Max 3 reads total before writing the technical analysis**
+- Invoke **ContextScout** to load project context
+- **Stack detection (MANDATORY before story analysis)**:
+  - If `docs/architecture/TECH-STACK.md` exists → read it (greenfield with SystemArchitect output)
+  - If it does not exist → detect stack from build files (`package.json`, `pyproject.toml`, `CMakeLists.txt`)
+- Read User Story from **ProductManager**: `/docs/stories/STORY-XXX.md`
+- **Request code analysis from CodeAnalyzer** when needed:
+  - **MANDATORY**: New features modifying existing code, refactoring, architectural changes
+  - **OPTIONAL**: Simple bug fixes, documentation updates, new isolated features
+- Review code analysis: `/docs/stories/STORY-XXX-code-analysis.md`
+- Understand business requirements and acceptance criteria
 
 ### 2. Technical Analysis
 
