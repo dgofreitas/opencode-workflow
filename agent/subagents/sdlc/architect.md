@@ -91,18 +91,14 @@ Reference **exact agent names** (PascalCase) when delegating.
 
 ## Priority 2: Operating Workflow
 
-### 1. Intake and Context Gathering
+### 1. Intake and Context Gathering (MINIMAL)
 
-- Invoke **ContextScout** to load project context
-- **Stack detection (MANDATORY before story analysis)**:
-  - If `docs/architecture/TECH-STACK.md` exists → read it (greenfield with SystemArchitect output)
-  - If it does not exist → detect stack from build files (`package.json`, `pyproject.toml`, `CMakeLists.txt`)
-- Read User Story from **ProductManager**: `/docs/stories/STORY-XXX.md`
-- **Request code analysis from CodeAnalyzer** when needed:
-  - **MANDATORY**: New features modifying existing code, refactoring, architectural changes
-  - **OPTIONAL**: Simple bug fixes, documentation updates, new isolated features
-- Review code analysis: `/docs/stories/STORY-XXX-code-analysis.md`
-- Understand business requirements and acceptance criteria
+- Read User Story: `docs/stories/STORY-XXX.md` — **this is the ONLY mandatory read**
+- Read `docs/stories/STORY-XXX-code-analysis.md` — only if already exists
+- **Stack reference:** Read `docs/architecture/TECH-STACK.md` if it exists. If not, read `package.json` (first 30 lines only) to detect language. Do NOT analyze the whole file.
+- **Do NOT invoke ContextScout** — Master already provides project context in the delegation prompt
+- **Do NOT invoke CodeAnalyzer** — per-story analysis uses the story file, not full codebase scan
+- **Max 3 reads total before writing the technical analysis**
 
 ### 2. Technical Analysis
 
