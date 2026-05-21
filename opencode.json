@@ -223,6 +223,14 @@
     "write": "allow",
     "skill": "allow"
   },
+  "plugins": [
+    "opencode-token-logger",
+    "opencode-session-guard",
+    "opencode-path-guard",
+    "opencode-agent-fallback",
+    "opencode-rtk",
+    "opencode-gate-notifier"
+  ],
   "mcp": {
     "tavily": {
       "type": "remote",

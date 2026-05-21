@@ -292,13 +292,88 @@ sequenceDiagram
 
 > **Importante**: dentro do TechLead, **não há gates** — ele orquestra impl→test→QA→review→MR sem interrupção. Os gates são apenas entre PM/Arch/TL/próxima-story.
 
-### 4.3 Modos de execução
+### 4.3 Modos de Execução do Pipeline
+
+O Master opera em 3 modos. O modo é detectado no **primeiro prompt** e persistido em `.opencode/.exec-mode` para as turns seguintes.
+
+| Modo | Pausa onde? | Quando usar |
+|------|-------------|-------------|
+| **Manual** (default) | Em **todo gate** | Revisão completa de cada etapa |
+| **Parcial** (auto-gate) | Só **entre stories** | Confia no pipeline, quer aprovar só a próxima story |
+| **Batch** (batch-auto) | **Nunca** — só para em falha | Lista de stories pronta, quer execução autônoma |
+
+#### Como ativar cada modo
+
+**Manual** — não precisa fazer nada, é o padrão:
+```bash
+opencode --agent Master
+> "implemente a STORY-021"
+```
+
+**Parcial** — inclua uma trigger no primeiro prompt:
+```bash
+opencode --agent Master
+> "auto gates — implemente STORY-021"
+# Triggers: "auto gates", "pular gates", "pular confirmação",
+#           "aprovar automático", "auto-approve", "modo automático",
+#           "sem parar", "direto"
+```
+
+**Batch** — inclua uma trigger + lista de stories:
+```bash
+opencode --agent Master
+> "modo batch — STORY-021, STORY-022, STORY-023"
+# Triggers: "modo batch", "batch auto", "execute todas",
+#           "rodar todas as stories", "implementar backlog completo",
+#           "full auto"
+# OU: liste 2+ story IDs direto no prompt
+```
+
+Sem lista explícita, o Batch detecta stories automaticamente:
+```bash
+> "modo batch"
+# Master lista docs/stories/STORY-*.md, filtra as já mergeadas, e monta a fila
+```
+
+#### Voltar ao modo manual
+
+A qualquer momento:
+```
+> "voltar ao manual"
+> "stop auto"
+> "manual mode"
+```
+
+#### Comportamento dos Gates por modo
+
+| Gate | Após | Manual | Parcial | Batch |
+|------|------|--------|---------|-------|
+| GATE-PM | ProductManager | pergunta | auto | auto |
+| GATE-SA | SystemArchitect | pergunta | auto | auto |
+| GATE-AR | Architect | pergunta | auto | auto |
+| GATE-MR | TechLead (MR criado) | pergunta | auto + merge | auto + merge |
+| GATE-NEXT | Merge completo | pergunta | **pergunta** | **auto** |
+
+> **GATE-SA** só existe em projetos greenfield. Projetos existentes pulam SystemArchitect.
+
+#### Batch: o que acontece
+
+1. Master cria `.opencode/.batch-queue.json` com a lista de stories.
+2. Executa o pipeline completo para cada story sem parar.
+3. Output por gate: 1 linha (`[STORY-XXX] GATE-MR ✅ auto-merged #PR_NUMBER`).
+4. Se uma story falha → para, reporta, NÃO continua.
+5. Ao final: tabela `| STORY | Status | MR | Notes |`.
+
+#### Batch: stop conditions (não desativáveis)
+
+- Agente retorna `BLOCKED`, erro ou recusa tarefa.
+- `gh pr merge` falha (conflict, CI red).
+- 2-strike rule do TechLead (mesmo erro 2× = story BLOCKED).
+
+#### Execução direta de agentes (avançado)
 
 ```bash
-# 1. Master (recomendado — recebe tudo, classifica e roteia)
-opencode --agent Master
-
-# 2. Slash commands dentro do Master
+# Slash commands dentro do Master
 > /story criar app de finanças
 > /plan docs/stories/STORY-001.md
 > /implement docs/stories/STORY-001.md
@@ -306,7 +381,7 @@ opencode --agent Master
 > /qa docs/stories/STORY-001.md
 > /mr main
 
-# 3. Agente específico direto (avançado)
+# Agente específico direto (avançado)
 opencode --agent ProductManager
 > "Criar story para autenticação"
 
@@ -568,14 +643,19 @@ Toda implementação obrigatoriamente passa pelo TestEngineer. Coverage mínima:
 
 ### 6.4 Approval Gates (Human-Guided AI)
 
-```mermaid
-graph TD
-    A["1. Agente PROPÕE:<br/>'Vou criar X com conteúdo Y'"] --> B["2. PERGUNTA:<br/>'Posso prosseguir? [y/n]'"]
-    B --> C{Decisão}
-    C -->|sim| D["3. EXECUTA:<br/>write / edit / bash"]
-    C -->|não| E["NÃO executa"]
-    C -->|ajustes| F["Ajusta proposta"] --> B
-```
+O pipeline tem 5 gates. O comportamento de cada um depende do **modo de execução** (ver seção 4.3).
+
+| Gate | Após agente | O que o usuário vê | Manual | Parcial | Batch |
+|------|-------------|---------------------|--------|---------|-------|
+| GATE-PM | ProductManager | Lista de stories (IDs + títulos) | pergunta | auto | auto |
+| GATE-SA | SystemArchitect | Proposta de stack | pergunta | auto | auto |
+| GATE-AR | Architect | Plano técnico resumido | pergunta | auto | auto |
+| GATE-MR | TechLead (MR criado) | Link do MR + cobertura de testes | pergunta | auto + merge | auto + merge |
+| GATE-NEXT | Merge completo | Branch deletada, story fechada | pergunta | **pergunta** | **auto** |
+
+> **GATE-SA** só existe em projetos greenfield. Projetos existentes pulam SystemArchitect e GATE-SA.
+
+**Aprovação por operação** (independente do modo):
 
 | Operação | Aprovação? |
 |----------|-----------|

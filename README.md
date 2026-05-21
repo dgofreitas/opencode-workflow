@@ -10,7 +10,7 @@
 **Agentes IA que aprendem os padrões do seu projeto e entregam features completas — do briefing ao merge request — com você no comando das decisões.**
 
 🎯 **SDLC end-to-end** — Visão/Épicos → Story → Stack → Plano → Código → Testes → QA → Review → MR
-🛑 **5 Approval Gates** — Você aprova nos momentos certos, IA executa o resto
+🛑 **5 Approval Gates** — Você aprova nos momentos certos, IA executa o resto. 3 modos: Manual, Parcial (pára entre stories), Batch (autônomo)
 🧠 **Contexto on-demand** — ContextScout + Context7 (~80% menos tokens)
 ✅ **Coverage ≥90% obrigatório** — Não é meta, é portão
 🏗️ **Stack-aware** — Define a stack (SystemArchitect) em greenfield e roteia para o especialista em projetos existentes
@@ -111,15 +111,16 @@ opencode --agent Master
 O que acontece:
 
 1. **ProductOwner** cria visão e épicos (para requests estratégicos)
-2. ⏸️ **GATE #0** — Você aprova os épicos (se aplicável)
-3. **PM** cria a user story com critérios de aceitação
-4. ⏸️ **GATE #1** — Você aprova a story
-5. **SystemArchitect** propõe stack (se projeto greenfield)
-6. ⏸️ **GATE #SA** — Você aprova a stack
-7. **Architect** monta o plano técnico
-8. ⏸️ **GATE #2** — Você aprova o plano
-9. **TechLead** orquestra: impl → testes (≥90%) → QA → review → MR
-10. ⏸️ **GATE #3** — Você aprova antes da próxima story
+2. ⏸️ **GATE-PM** — Você aprova as stories
+3. **SystemArchitect** propõe stack (se projeto greenfield)
+4. ⏸️ **GATE-SA** — Você aprova a stack
+5. **Architect** monta o plano técnico
+6. ⏸️ **GATE-AR** — Você aprova o plano
+7. **TechLead** orquestra: impl → testes (≥90%) → QA → review → MR
+8. ⏸️ **GATE-MR** — Você aprova o MR e faz merge
+9. ⏸️ **GATE-NEXT** — Próxima story? (ou resumo final)
+
+**3 modos de execução**: Manual (todos os gates perguntam), Parcial (só pergunta entre stories), Batch (autônomo, sem interação). Veja [📘 GUIDE.md](GUIDE.md#4.3) para detalhes.
 
 **Pronto.** Funciona com seu modelo padrão. Zero configuração inicial.
 
