@@ -21,6 +21,9 @@ permission:
     "docs/stories/**": "allow"
   task:
     "*": "allow"
+  read:
+    "*": "allow"
+    "**/rtk/tee/**": "deny"
 ---
 
 # Tech Lead -- Story Orchestrator
@@ -140,6 +143,7 @@ Skip delegations for all tasks already marked `[x]` in checkpoint.
 ```
 
 **Rules:**
+
 - Items in BACKEND/FRONTEND must match the Domain Inventory — same granularity.
 - Specialist agents mark their own BACKEND/FRONTEND items `[x]` after each commit (enforced via delegation format).
 - TechLead marks QUALIDADE E ENTREGA items as agents report results.
@@ -191,6 +195,26 @@ After receiving QAAnalyst report, read the final **Status** line before doing AN
 6. **Do NOT ask the human.** The cycle restarts automatically.
 
 > NEVER skip this gate. NEVER jump fix → CodeReviewer — TestEngineer + QAAnalyst MUST run first.
+
+### Rule: Artifact Verification Gate — MANDATORY
+
+Before marking any `QUALIDADE E ENTREGA` item as `[x]` OR before calling the next agent in the chain, verify the **physical artifact file exists**.
+
+**Required artifacts per gate:**
+
+| Gate | Checkpoint required | Artifact file required | Checked before proceeding to |
+| ------ | ------------------- | ---------------------- | ------------------------------ |
+| TESTS | `[x] TESTS` in checkpoint | ❌ No — TestEngineer updates checkpoint only | QAAnalyst |
+| QA | `[x] QA` in checkpoint | ✅ `docs/stories/STORY-XXX-qa-report*.md` | CodeReviewer |
+| CODE REVIEW | `[x] CODE REVIEW` in checkpoint | ✅ `docs/stories/STORY-XXX-code-review*.md` | MergeRequestCreator |
+
+**Steps:**
+1. Confirm checkpoint item is `[x]`
+2. For QA and CODE REVIEW gates: Run `ls docs/stories/STORY-XXX-<artifact>*.md 2>/dev/null`
+3. If artifact file NOT found → STOP. The agent failed to deliver its report. Re-delegate the same agent.
+4. If artifact found → read the Status/Verdict line to confirm result, THEN proceed.
+
+> Conversation output alone is NOT sufficient for QA and Review. The file on disk is the proof of work. TestEngineer proof is the checkpoint itself.
 
 ### Rule: Review Gate — MANDATORY
 
@@ -339,12 +363,37 @@ Domains implemented this story:
 - BACKEND: [files]
 - FRONTEND: [files]
 Coverage target: ≥ 90% per file (story-specific only, ignore global).
+After testing: update checkpoint — mark [x] TESTS with results.
 ```
 
 > **⚠ STRICT LIMIT**: list files + coverage target ONLY.
 > NEVER include test case descriptions, mock strategies, assertions, or implementation hints.
 > TestEngineer reads the source files and decides how to test them.
 > Detailed instructions = TestEngineer loads all files at once = pipeline freeze.
+
+### QAAnalyst Delegation Format
+
+```
+@QAAnalyst STORY-XXX
+Validate acceptance criteria against implementation.
+Read: docs/stories/STORY-XXX-checkpoint.md, docs/stories/STORY-XXX-test-report.md
+After validation: save QA report to docs/stories/STORY-XXX-qa-report.md
+THEN update checkpoint: mark [x] QA with result (PASSED or REQUIRES FIXES)
+```
+
+> **CRITICAL**: QAAnalyst MUST update the checkpoint after saving the report. The checkpoint is the source of truth.
+
+### CodeReviewer Delegation Format
+
+```
+@CodeReviewer STORY-XXX
+Review code quality, architecture, and test coverage.
+Read: docs/stories/STORY-XXX-checkpoint.md, docs/stories/STORY-XXX-qa-report.md
+After review: save review report to docs/stories/STORY-XXX-code-review.md
+THEN update checkpoint: mark [x] CODE REVIEW with verdict (APPROVED or BLOCKED)
+```
+
+> **CRITICAL**: CodeReviewer MUST update the checkpoint after saving the report. The checkpoint is the source of truth.
 
 ### 6. QUALITY VALIDATION
 
@@ -398,7 +447,7 @@ Coverage target: ≥ 90% per file (story-specific only, ignore global).
 3. Validate each acceptance criterion individually.
 4. Request **QAAnalyst** before CodeReviewer — apply QA Gate.
 5. Request **CodeReviewer** after QA approves — apply Review Gate.
-6. Request **MergeRequestCreator** only after both approve.
+6. Request **MergeRequestCreator** only after both approve — MergeRequestCreator is the ONLY agent authorized to create PRs. The TechLead NEVER runs `git merge` or opens pull requests.
 7. On rework: FULL cycle (fix → TestEngineer → QAAnalyst → CodeReviewer → MR).
 8. Document technical decisions in the checkpoint file (`STORY-XXX-checkpoint.md`).
 9. Communicate blockers immediately to Master.
@@ -420,6 +469,9 @@ Coverage target: ≥ 90% per file (story-specific only, ignore global).
 13. NEVER change scope without PM/PO approval.
 14. NEVER loop on failures — see 2-Strike Rule.
 15. NEVER retry without changing strategy — identical retry = automatic stop.
+16. **NEVER create a pull request, run `git merge`, or merge code yourself** — this is the exclusive job of **MergeRequestCreator**. The TechLead coordinates; MergeRequestCreator delivers the merge artifact.
+17. **NEVER call MergeRequestCreator before ALL `QUALIDADE E ENTREGA` checkpoints are `[x]`** — Tests, QA, and Code Review must ALL be marked complete in the checkpoint file before the MR agent is invoked. If any remain `[ ]`, delegate the missing agent first.
+18. **NEVER mark any `QUALIDADE E ENTREGA` item as `[x]` before the responsible agent reports results** — You mark `[x] TESTS` only AFTER TestEngineer confirms tests passed. You mark `[x] QA` only AFTER QAAnalyst reports PASSED. You mark `[x] CODE REVIEW` only AFTER CodeReviewer reports APPROVED. Marking before = lying to the pipeline.
 
 ---
 
