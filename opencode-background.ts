@@ -370,8 +370,8 @@ function buildKilledPayload(task: BackgroundTask): string {
 export const BackgroundPlugin: Plugin = async (_ctx) => {
   fileLog("Plugin initialized");
 
-  // Detecta rtk na inicialização sem bloquear
-  setTimeout(() => getRtkPath(), 0);
+  // // Detecta rtk na inicialização sem bloquear
+  // setTimeout(() => getRtkPath(), 0);
 
   // ── Tool: getBackgroundProcess ─────────────────────────────────────────────
   const getBackgroundProcess = tool({
@@ -484,10 +484,10 @@ export const BackgroundPlugin: Plugin = async (_ctx) => {
       if (typeof originalCommand !== "string" || !originalCommand.trim()) return;
 
       // Reescrita rtk (fallback silencioso)
-      const command = rewriteWithRtk(originalCommand);
-      if (command !== originalCommand) {
-        args.command = command; // aplica reescrita rtk
-      }
+      // const command = rewriteWithRtk(originalCommand);
+      // if (command !== originalCommand) {
+      //   args.command = command; // aplica reescrita rtk
+      // }
 
       // Dispara em background imediatamente — NÃO aguarda aqui
       const task = spawnBackground(command, originalCommand, output);
