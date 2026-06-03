@@ -18,7 +18,11 @@ permission:
     "**/*": "deny"
     "docs/stories/**": "allow"
   task:
+    "*": "deny"
+    "ContextScout": "allow"
+  read:
     "*": "allow"
+    "**/rtk/tee/**": "deny"
 ---
 
 # CodeReviewer
@@ -86,6 +90,24 @@ The final line of EVERY report MUST be one of:
 
 **`VERDICT: BLOCKED — requires rework`** — one or more Critical or Major issues.
 When BLOCKED, include a **Rework Delegation** section with exact agent, issue, file:line for each fix.
+
+## ⚠️ HARD STOP — Never Read rtk/tee Logs (HIGHEST PRIORITY)
+
+When a command runs through `rtk` and parsing fails, rtk prints something like:
+
+```text
+[RTK:PASSTHROUGH] jest parser: All parsing tiers failed [full output: ~/.local/share/rtk/tee/NNNN_jest_run.log]
+```
+
+**NEVER read, cat, grep, or open that `rtk/tee/*.log` file.** The `read` tool hangs forever on these files and freezes the entire pipeline for hours.
+
+Instead, when you need the full test output:
+
+1. Re-run the SAME command WITHOUT rtk and tail it: `npx jest <files> 2>&1 | tail -50`
+2. Or add `--reporters=default` and pipe to `tail`.
+3. If output is still unreadable after 2 attempts → mark `[BLOCKED]` per the 2-Strike Rule and move on.
+
+Any path containing `rtk/tee/` is forbidden to read — no exceptions.
 
 ---
 
@@ -168,16 +190,15 @@ Generate reports in **caveman style** — terse, no fluff, only substance.
 ## Minor Suggestions
 
 ## Rework Delegation
-<!-- Fill ONLY when VERDICT: BLOCKED -->
+<!-- Fill ONLY when VERDICT: BLOCKED. Suggest the agent based on the issue type;
+     TechLead's `Rule: Fix Agent Selection` makes the final call. -->
 | Agent | File:Line | Issue |
 |-------|-----------|-------|
-
 
 ---
 `VERDICT: APPROVED`
 <!-- or -->
 `VERDICT: BLOCKED — requires rework`
-```
 ```
 
 **Caveman rules:**

@@ -118,7 +118,7 @@ All QA reports MUST include Mermaid diagrams to visualize test flows, coverage a
 - Extract: acceptance criteria, test cases, dependencies, **NFRs**, **Persona**
 - **If NFRs present**: add validation checks for performance, security, scalability, compliance
 - **Detect project language** from build files:
-  - `package.json` — **Node.js** (use `yarn test` / `npm test`)
+  - `package.json` — **Node.js** (use `npm run test` or `npx <runner>` — NEVER `npm test` / `yarn test`, per AGENTS.md RTK plugin)
   - `pyproject.toml` / `requirements.txt` — **Python** (use `pytest`)
   - `CMakeLists.txt` / `Makefile` / `meson.build` — **C** (use `ctest` / `make test`)
 - **Confirm implementation status**: check TechLead completion, feature branch, TestEngineer test suites
@@ -153,7 +153,7 @@ Re-running wastes time and provides the same results.
    # Check for modified test/source files since report timestamp
    git diff --name-only HEAD -- '*.test.*' '*.spec.*' 'src/**'
    ```
-   If files changed → re-run: `npx vitest run --coverage` (or equivalent for the project)
+   If files changed → re-run: `npx vitest run --coverage` or `npm run test -- --coverage` (or equivalent for the project)
 6. If report is valid and no files changed → use TestEngineer's coverage data directly
 7. Include coverage numbers in QA report attributed to: **"Source: TestEngineer vX%"**
 
@@ -183,9 +183,9 @@ ls docs/stories/STORY-XXX-qa-report*.md 2>/dev/null
 | ...-qa-report.md | docs/stories/STORY-XXX-qa-report-r2.md |
 | ...-qa-report.md + ...-r2.md | docs/stories/STORY-XXX-qa-report-r3.md |
 
-### 7. Final Notification
+### 7. Final Output
 
-Notify **TechLead** and **CodeReviewer** with saved report path and final status.
+Return the saved report path and final Status (PASSED / REQUIRES FIXES) as the agent's final message. **Do NOT call any other agent** — QAAnalyst is a subagent and has no agency to delegate. TechLead reads the checkpoint + report and decides the next step (CodeReviewer on PASSED, fix cycle on REQUIRES FIXES).
 
 ---
 
@@ -253,8 +253,8 @@ Notify **TechLead** and **CodeReviewer** with saved report path and final status
 - All critical and major bugs resolved or reassigned
 - Acceptance criteria validated with real data
 - QA report saved to docs/stories/STORY-XXX-qa-report[-rN].md
-- TechLead and CodeReviewer notified with report path
-- PM notified of test outcomes for business verification
+- Checkpoint updated: `[x] QA` with Status
+- Final agent message includes report path + Status (TechLead reads it)
 
 ---
 

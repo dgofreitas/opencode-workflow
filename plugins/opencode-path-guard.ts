@@ -44,6 +44,40 @@ function loadConfig(directory: string, worktree: string): PathGuardConfig {
 
 const HOME = homedir();
 
+// Matches any rtk passthrough tee log, e.g. ~/.local/share/rtk/tee/NNNN_jest_run.log
+const RTK_TEE_RE = /rtk[\\/]+tee[\\/]/i;
+
+// Tools that read file content and can hang forever on an rtk/tee log
+const READ_LIKE_TOOLS = new Set(["read", "grep", "glob", "list", "view", "cat"]);
+
+function expandTilde(p: string): string {
+  if (p === "~") return HOME;
+  if (p.startsWith("~/")) return HOME + p.slice(1);
+  return p;
+}
+
+// Collect every plausible path/pattern/command string from the (API-variant) args
+function collectPathStrings(...sources: any[]): string[] {
+  const out: string[] = [];
+  for (const src of sources) {
+    if (!src || typeof src !== "object") continue;
+    const bag = src.args && typeof src.args === "object" ? src.args : src;
+    for (const key of ["filePath", "path", "pattern", "command", "query", "SearchPath"]) {
+      const v = bag?.[key];
+      if (typeof v === "string" && v) out.push(v);
+    }
+  }
+  return out;
+}
+
+function resolveToolName(...sources: any[]): string {
+  for (const src of sources) {
+    if (typeof src === "string" && src) return src.toLowerCase();
+    if (src && typeof src === "object" && typeof src.tool === "string") return src.tool.toLowerCase();
+  }
+  return "";
+}
+
 export const PathGuardPlugin: Plugin = async ({ client, directory, worktree }: any) => {
   const config = loadConfig(directory, worktree);
   if (config.enabled === false) return {};
@@ -63,6 +97,27 @@ export const PathGuardPlugin: Plugin = async ({ client, directory, worktree }: a
 
   return {
     "tool.execute.before": async (ctx: any, toolName: string, params: any) => {
+      // ── RTK/TEE HARD BLOCK ──────────────────────────────────────────────
+      // The rtk passthrough writes failed-parse output to ~/.local/share/rtk/tee/*.log
+      // and tells the model to read it. The opencode `read` tool hangs forever on
+      // these files, and permission `deny` is unreliable (tilde paths / glob order).
+      // Throwing here runs BEFORE the permission check and turns the infinite stall
+      // into an instant, model-recoverable error — independent of engine behavior.
+      const tool = resolveToolName(toolName, ctx);
+      if (!tool || READ_LIKE_TOOLS.has(tool)) {
+        for (const raw of collectPathStrings(params, ctx, toolName)) {
+          if (RTK_TEE_RE.test(expandTilde(raw))) {
+            log("warn", "RTK_TEE_BLOCKED", { tool: tool || "unknown", path: raw });
+            throw new Error(
+              "BLOCKED: reading rtk/tee passthrough logs is forbidden (causes infinite stall). " +
+              "Do NOT read this file. Re-run the original command WITHOUT rtk and pipe the tail, " +
+              "e.g. `npx jest <files> 2>&1 | tail -50`.",
+            );
+          }
+        }
+      }
+      // ────────────────────────────────────────────────────────────────────
+
       const filePath: string = params?.filePath || params?.path || '';
       if (!filePath || typeof filePath !== 'string') return params;
 

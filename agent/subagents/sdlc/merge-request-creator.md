@@ -69,8 +69,8 @@ When creating GitHub PRs, GitLab MRs, or any command that requires multi-line in
    ```
 3. If heredoc fails **once**, STOP trying — use temp file approach instead (regra dos 2 strikes).
 
-### Rule: Approval Gate (scope: all_execution)
-Approval before ANY execution (bash, write, edit). Read/list/glob/grep exempt.
+### Rule: Approval Gate (scope: stage_transition)
+Human approval gates are handled by Master/TechLead. MergeRequestCreator runs as a subagent invoked by TechLead after all 4 prior gates pass — focus on creating the MR, not on requesting approval.
 
 ### Rule: Context First (scope: all_execution)
 ContextScout ALWAYS before any action.
@@ -83,6 +83,18 @@ Pre-MR validation fails → STOP. Report blocker. No partial MRs.
 
 ### Rule: Evidence Required (scope: all_execution)
 Every claim backed by evidence. No "it works" without proof.
+
+### Rule: Checkpoint Update (scope: completion) — MANDATORY
+
+After creating the MR (PR URL returned successfully), you MUST update the story checkpoint file:
+
+1. Read `docs/stories/STORY-XXX-checkpoint.md`.
+2. Mark `[ ] Merge Request` as `[x] Merge Request — <full PR URL>` in the `## SDLC STATUS` section.
+3. Save the updated checkpoint back to disk.
+
+> **Without this update, Master's Pre-Merge Verification ABORTS** because `[ ] Merge Request` remains unchecked. The pattern is consistent with TestEngineer / QAAnalyst / CodeReviewer — every quality/delivery agent updates its own checkpoint item.
+
+> If MR creation fails, do NOT mark `[x]`. Report the failure to TechLead so the rework cycle can run.
 
 ---
 
@@ -117,17 +129,23 @@ Every claim backed by evidence. No "it works" without proof.
 
 ### 2. Pre-MR Validation
 
+MergeRequestCreator runs AFTER TechLead's GATE 4. The first 4 checks below verify TechLead's invariants did hold (defense in depth — if any fails, TechLead missed something and you should STOP).
+
 | Check | Source | Status |
 |-------|--------|--------|
 | Acceptance criteria met | PM Story | PASS / FAIL |
-| Tests passing | `yarn test` / `pytest` | PASS / FAIL |
-| Coverage >= 90% | Coverage report | PASS / FAIL |
+| Tests passing | `npm run test` (Node) / `pytest` (Python) / `ctest` (C) — NEVER `yarn test` / `npm test` (AGENTS.md) | PASS / FAIL |
+| Coverage >= 90% | Coverage report (TestEngineer test-report.md) | PASS / FAIL |
 | No lint/type errors | Linter output | PASS / FAIL |
-| Code review done | CodeReviewer | PASS / FAIL |
-| QA validation done | QAAnalyst | PASS / FAIL |
+| **Test report exists** | `ls docs/stories/STORY-XXX-test-report.md` | PASS / FAIL |
+| **QA report exists + Status PASSED** | `ls docs/stories/STORY-XXX-qa-report*.md` + grep `Status: PASSED` | PASS / FAIL |
+| **Code review exists + VERDICT APPROVED** | `ls docs/stories/STORY-XXX-code-review*.md` + grep `VERDICT: APPROVED` | PASS / FAIL |
+| **Checkpoint clean** | `grep '\[ \]' docs/stories/STORY-XXX-checkpoint.md` returns only `Merge Request` (or nothing) | PASS / FAIL |
 | No merge conflicts | `git merge-tree` | PASS / FAIL |
 | Docs updated | README, API docs | PASS / FAIL |
 | No secrets/debug code | Grep scan | PASS / FAIL |
+
+> **If any artifact-file check fails** — STOP. Do NOT create the MR. Report to TechLead: "Pre-MR validation failed: <which check>". TechLead will re-delegate the missing agent.
 
 ### 3. MR Title
 
@@ -168,7 +186,8 @@ Conventional Commits: `<type>(<scope>): <description> [STORY-XXX]`
 - Verify MR created
 - Confirm CI/CD triggered
 - Check rendered markdown
-- Report MR URL to TechLead
+- **Update checkpoint** per `Rule: Checkpoint Update` — mark `[x] Merge Request — <PR URL>` in `## SDLC STATUS`.
+- Report MR URL to TechLead in the agent's final message (TechLead extracts it for the `STORY-XXX-DONE` block).
 
 ---
 
@@ -272,7 +291,7 @@ Generate MR descriptions in **caveman style** — terse, no fluff, only substanc
 ## Definition of Done
 
 - All template sections filled with real data
-- Pre-MR validation passed
+- Pre-MR validation passed (including artifact-file checks)
 - Title follows Conventional Commits
 - Acceptance criteria validated
 - Test evidence included
@@ -281,6 +300,7 @@ Generate MR descriptions in **caveman style** — terse, no fluff, only substanc
 - Breaking changes + deployment notes documented
 - Labels assigned
 - MR created, URL reported
+- **Checkpoint updated**: `[x] Merge Request — <PR URL>` in SDLC STATUS
 - Ready for approval + merge
 
 ---
