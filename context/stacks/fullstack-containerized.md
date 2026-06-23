@@ -168,11 +168,9 @@ services:
   frontend:
     image: myapp/frontend:dev            # ← swap to dev image (node + vite)
     volumes:
-      - ./frontend/src:/app/src:delegated
-      - ./frontend/public:/app/public:delegated
-      - ./frontend/index.html:/app/index.html:delegated
-      - ./shared:/app/shared:delegated
-      # NÃO montar vite.config.js — Vite grava .timestamp ao lado e quebra com user non-root
+      - ./frontend:/app
+      - ./shared:/app/shared
+      - /app/node_modules          # anônimo — protege deps do container (não shadora host)
     environment:
       - NODE_ENV=development
       - VITE_API_URL=http://localhost:8088/api   # Vite dev server lê process.env em runtime
@@ -181,8 +179,9 @@ services:
   backend:
     image: myapp/backend:dev              # ← swap to dev image (node + devDeps)
     volumes:
-      - ./backend/src:/app/src:delegated
-      - ./shared:/shared:delegated
+      - ./backend:/app
+      - ./shared:/shared
+      - /app/node_modules          # anônimo
     environment:
       - NODE_ENV=development
     command: ["npm", "run", "dev"]        # nodemon
@@ -206,6 +205,16 @@ docker build --target development -t myapp/backend:dev  -f backend/Dockerfile .
 ```bash
 docker build --target production --build-arg VITE_API_URL=$URL -t myapp/frontend:1.0.0 -f frontend/Dockerfile .
 docker build --target production                          -t myapp/backend:1.0.0  -f backend/Dockerfile .
+```
+
+### .gitignore for Vite artifacts
+
+Bind-mount da pasta inteira significa que o Vite grava `.timestamp-*` e `.vite/`
+no diretório do host. Adicione ao `.gitignore` do frontend:
+
+```
+.vite/
+.timestamp-*
 ```
 
 ### Vite vars in dev vs prod
