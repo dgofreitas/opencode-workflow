@@ -1,4 +1,4 @@
-<!-- Context: stacks/fullstack-containerized | Priority: high | Version: 1.0 | Updated: 2026-05-07 -->
+<!-- Context: stacks/fullstack-containerized | Priority: high | Version: 2.0 | Updated: 2026-06-21 -->
 
 # Fullstack Containerized Blueprint
 
@@ -140,6 +140,88 @@ docker-compose.prod.yml         # Explicit prod overrides (CI/CD)
 **Start prod**: `docker compose -f docker-compose.yml -f docker-compose.prod.yml up`
 
 Nunca: `.yml.bak` no repo. Use git para versioning.
+
+---
+
+## Dev Workflow — Two-Target Pattern (default)
+
+Two pre-built images per service: `<service>:dev` (dev) and `<service>:<version>` (prod). The override swaps `image:` to `:dev`, adds bind mounts, and overrides `command:` when needed.
+
+### docker-compose.yml (base, prod-ready)
+
+```yaml
+services:
+  frontend:
+    image: myapp/frontend:${FRONTEND_VERSION:-1.0.0}
+    expose: ["80"]
+    # VITE_* NÃO aqui — build-arg na imagem de prod
+
+  backend:
+    image: myapp/backend:${BACKEND_VERSION:-1.0.0}
+    expose: ["8000"]
+```
+
+### docker-compose.override.yml (auto-loaded in dev)
+
+```yaml
+services:
+  frontend:
+    image: myapp/frontend:dev            # ← swap to dev image (node + vite)
+    volumes:
+      - ./frontend/src:/app/src:delegated
+      - ./frontend/public:/app/public:delegated
+      - ./frontend/index.html:/app/index.html:delegated
+      - ./shared:/app/shared:delegated
+      # NÃO montar vite.config.js — Vite grava .timestamp ao lado e quebra com user non-root
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:8088/api   # Vite dev server lê process.env em runtime
+    # CMD já é `vite` no stage development — não precisa override de command
+
+  backend:
+    image: myapp/backend:dev              # ← swap to dev image (node + devDeps)
+    volumes:
+      - ./backend/src:/app/src:delegated
+      - ./shared:/shared:delegated
+    environment:
+      - NODE_ENV=development
+    command: ["npm", "run", "dev"]        # nodemon
+
+  mongodb:
+    ports:
+      - "27017:27017"   # Expose for Compass/mongosh
+```
+
+### Build commands
+
+**Dev images** (rebuild only when `package.json`/`package-lock.json` muda):
+
+```bash
+docker build --target development -t myapp/frontend:dev -f frontend/Dockerfile .
+docker build --target development -t myapp/backend:dev  -f backend/Dockerfile .
+```
+
+**Prod images** (release flow):
+
+```bash
+docker build --target production --build-arg VITE_API_URL=$URL -t myapp/frontend:1.0.0 -f frontend/Dockerfile .
+docker build --target production                          -t myapp/backend:1.0.0  -f backend/Dockerfile .
+```
+
+### Vite vars in dev vs prod
+
+| Env | VITE_API_URL | Por quê |
+|-----|--------------|---------|
+| Dev | runtime env em `docker-compose.override.yml` | Vite dev server lê `process.env` em tempo de request |
+| Prod | `--build-arg VITE_API_URL=...` no build | Vite bakes env no bundle; runtime não tem efeito |
+
+---
+
+## Alternative: Unified-Image Pattern
+
+Quando o custo de manter 2 imagens por serviço pesa mais que o tamanho da imagem de prod (ex.: muitos microserviços, deploys frequentes, você aceita devDeps em prod). Ver `standards/dockerfile-patterns.md` → Unified-Image Pattern.
+
+Com unified-image, o `docker-compose.override.yml` **não** troca `image:` — só faz override de `command:` e adiciona `volumes`. Mesma imagem em dev e prod.
 
 ---
 

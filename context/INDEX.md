@@ -31,7 +31,7 @@
 - `standards/security.md` | tags: security, patterns, auth | summary: Security best practices and review checklist.
 - `standards/documentation.md` | tags: docs, writing | summary: Documentation standards.
 - `standards/code-analysis.md` | tags: analysis, code, debugging | summary: Code analysis approaches for debugging and review.
-- `standards/dockerfile-patterns.md` | tags: docker, dockerfile, multi-stage, non-root, healthcheck, dumb-init | summary: Production-grade Dockerfile patterns — multi-stage builds, non-root user, signal handling, build-args.
+- `standards/dockerfile-patterns.md` | tags: docker, dockerfile, multi-stage, non-root, healthcheck, dumb-init, two-target, unified-image | summary: Production-grade Dockerfile patterns — Two-Target (default) vs Unified-Image (alt), non-root, dumb-init, build-args.
 
 ## workflows/ — Processes to follow
 
@@ -53,7 +53,7 @@
 - `stacks/frontend.md` | tags: frontend, delegation, when-to-use | summary: When to delegate UI tasks to FrontendDeveloper.
 - `stacks/ui-styling.md` | tags: styling, ui, tailwind, flowbite, css, standards | summary: UI styling standards — Tailwind + Flowbite + responsive.
 - `stacks/design-systems.md` | tags: design-systems, themes, oklch, css, templates | summary: Reference theme templates (Neo-Brutalism, Modern Dark Mode) and design tokens.
-- `stacks/fullstack-containerized.md` | tags: docker, compose, nginx, mongo, redis, blueprint, architecture | summary: Fullstack blueprint — nginx + Node + React + Mongo + Redis with network isolation.
+- `stacks/fullstack-containerized.md` | tags: docker, compose, nginx, mongo, redis, blueprint, architecture, override | summary: Fullstack blueprint — nginx + Node + React + Mongo + Redis, network isolation + compose override dev workflow.
 - `stacks/mastra-ai.md` | tags: mastra, ai, agents, workflows, tools, storage | summary: Mastra AI complete reference — core, agents, workflows, storage, testing.
 
 ## meta/ — About the context system
