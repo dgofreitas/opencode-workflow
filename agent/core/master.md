@@ -186,6 +186,7 @@ If user gave a vague request ("continue", "build X"):
 | "plan X" / story exists, no analysis | Architect |
 | "implement X" / story + analysis exist | TechLead |
 | "review" / "QA" / "validate" / "MR" / "PR" / "bug" / "fix" / story in execution | **TechLead** (TechLead picks the right internal agent: TestEngineer / QAAnalyst / CodeReviewer / BugFixer / MergeRequestCreator) |
+| "bug visual" / "UI bug" / "tela branca" / "layout quebrado" / "elemento não aparece" / "clique não funciona" / "hydration" / visual/interaction bug | **TechLead** (TechLead picks **GuiDebugger** for GUI/visual/interaction bugs, BugFixerNodejs for backend logic) |
 | "document" | DocWriter |
 | "what files / context" | ContextScout |
 | "external lib docs" | ExternalScout |
@@ -286,7 +287,7 @@ These agents are part of the SDLC cycle inside a story. Only TechLead invokes th
 
 - **Implementation**: BackendDeveloper · BackendDeveloperPython · BackendDeveloperC · FrontendDeveloperReact · FrontendDeveloperVue · FrontendDeveloperAngular · FrontendDeveloper
 - **Quality**: TestEngineer · TestEngineerPython · TestEngineerC · QAAnalyst · CodeReviewer · CodeReviewerPython · CodeReviewerC
-- **Fix**: BugFixerNodejs · BugFixerPython · BugFixerC
+- **Fix**: BugFixerNodejs · BugFixerPython · BugFixerC · GuiDebugger (GUI/visual/interaction bugs via Playwright MCP)
 - **Delivery**: MergeRequestCreator
 - **Build**: BuildAgent
 

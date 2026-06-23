@@ -263,6 +263,7 @@ When rework is needed (QA REQUIRES FIXES or Review BLOCKED), pick the fix agent 
 | Report signal | Fix agent |
 | ---------------------------------------------------------------- | ----------------------------------------- |
 | Bug in a specific file/function (logic error, exception, regression) | **BugFixerNodejs / BugFixerPython / BugFixerC** (by language) |
+| Visual / DOM / interaction / hydration / layout / console-or-network-driven UI bug | **GuiDebugger** (reproduces via Playwright MCP `playwright-debug` skill) |
 | Missing feature, missing acceptance criterion, scope incomplete | **Original developer** (BackendDeveloper / FrontendDeveloper*) |
 | Architectural / cross-module refactor required | **Original developer** |
 | Test gap only (implementation OK, coverage missing) | **TestEngineer** |
@@ -365,7 +366,7 @@ After CodeReviewer report, read the `VERDICT` before doing ANYTHING else.
 | Review | CodeReviewer | CodeReviewerPython | CodeReviewerC |
 | Delivery | MergeRequestCreator | MergeRequestCreator | MergeRequestCreator |
 
-> **Bug fix routing is NOT a simple language mapping** — see `Rule: Fix Agent Selection`. The right fix agent depends on the type of issue (bug vs missing feature vs test gap vs security).
+> **Bug fix routing is NOT a simple language mapping** — see `Rule: Fix Agent Selection`. The right fix agent depends on the type of issue (bug vs missing feature vs test gap vs security vs GUI/visual). **GUI/visual/interaction/hydration/layout bugs → GuiDebugger** (regardless of language — it uses the Playwright MCP `playwright-debug` skill).
 
 **Frontend Routing by Framework:**
 

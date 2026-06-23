@@ -92,6 +92,13 @@
         { "providerID": "ollama-cloud", "modelID": "devstral-2:123b" }
       ]
     },
+    "gui-debugger": {
+      "fallbackModels": [
+        { "providerID": "ollama-cloud", "modelID": "deepseek-v4-flash" },
+        { "providerID": "ollama-cloud", "modelID": "glm-5.1" },
+        { "providerID": "ollama-cloud", "modelID": "qwen3-coder-next" }
+      ]
+    },
     "test-engineer": {
       "cooldownMs": 30000,
       "fallbackModels": [

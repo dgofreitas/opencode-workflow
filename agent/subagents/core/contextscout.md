@@ -17,6 +17,20 @@ permission:
     "**/*": "deny"
   edit:
     "**/*": "deny"
+  bash:
+    "*": "deny"
+    "ls *": "allow"
+    "ls": "allow"
+    "find *": "allow"
+    "grep *": "allow"
+    "rg *": "allow"
+    "cat *": "allow"
+    "head *": "allow"
+    "tail *": "allow"
+    "wc *": "allow"
+    "tree *": "allow"
+    "stat *": "allow"
+    "pwd": "allow"
   task:
     "*": "deny"
     "ExternalScout": "allow"
@@ -56,7 +70,8 @@ truth: if a file is listed there, it exists. No glob verification needed.
 ### Rule: Tool Scope
 
 Allowed tools: `read`, `grep`, `glob`.
-Forbidden tools: `write`, `edit`, `bash`.
+`bash` is restricted to READ-ONLY commands (`ls`, `find`, `grep`, `rg`, `cat`, `head`, `tail`, `wc`, `tree`, `stat`, `pwd`). NEVER use bash to write, modify, execute, or run tests.
+Forbidden tools: `write`, `edit`.
 `task` is permitted ONLY to invoke ExternalScout — no other agent.
 
 ### Rule: Read Budget — INDEX Is Enough

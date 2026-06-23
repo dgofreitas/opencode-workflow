@@ -234,15 +234,29 @@ Tier 1 always overrides Tier 2/3. If speed conflicts with positive+negative → 
 
 ## ContextScout — Your First Move
 
+**Send this prompt VERBATIM. Do NOT expand, reword, or add a list of sources.**
+
 ```
 task(subagent_type="ContextScout", description="Find testing standards", prompt="Find testing standards, TDD patterns, coverage requirements, and test structure conventions for this project.")
 ```
 
+### ⚠️ HARD RULE — ContextScout scope is `.opencode/context/` ONLY
+
+ContextScout's ONLY job is to RECOMMEND context files from `.opencode/context/`. It returns paths + one-line summaries — never file contents.
+
+**NEVER ask ContextScout to:**
+- Read `package.json`, `vitest.config.*`, `jest.config.*`, `CLAUDE.md`, or any file outside `.opencode/context/`
+- Search `backend/`, `frontend/`, `docs/`, or root config files
+- "Return the full contents" of any file
+
+Those are YOUR job. ContextScout points; YOU read.
+
 After ContextScout returns:
-1. **Read** every recommended file
-2. **Read the PM story** (`docs/stories/STORY-XXX.md`) — extract acceptance criteria AND NFRs
-3. **Apply** testing conventions — file naming, assertion style, mock patterns
-4. **Structure test plan** to match project conventions
+1. **Read** every recommended context file yourself
+2. **Read project test config YOURSELF** — use your own `read`/`bash` to inspect `package.json` test scripts, `vitest.config.*`, `jest.config.*`, and existing test files. This is NOT ContextScout's job.
+3. **Read the PM story** (`docs/stories/STORY-XXX.md`) — extract acceptance criteria AND NFRs
+4. **Apply** testing conventions — file naming, assertion style, mock patterns
+5. **Structure test plan** to match project conventions
 
 **NFR Test Generation:**
 When the PM story contains NFRs (performance, security, scalability, compliance):
