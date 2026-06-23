@@ -492,7 +492,7 @@ graph TD
 │   └── project/                           # Específico do projeto: living-notes, decisions
 │
 ├── plugins/                               # 4 plugins TypeScript
-├── skills/                                # 8 skills (task-management, context7, caveman, etc)
+├── skills/                                # 12 skills (task-management, context7, caveman, node-version-guard, etc)
 ├── tool/env/                              # Loader de variáveis de ambiente
 ├── package.json   opencode.json   instructions.md
 └── node_modules/                          # gitignored

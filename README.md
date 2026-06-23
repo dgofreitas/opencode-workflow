@@ -207,9 +207,9 @@ Coordena impl → test → QA → review → MR delegando para specialists. Sepa
 **Utilitários:**
 `/commit` `/test` `/context` `/add-context` `/clean` `/caveman*` (4 variantes)
 
-### 🛠️ 8 Skills + 🔌 4 Plugins
+### 🛠️ 12 Skills + 🔌 4 Plugins
 
-**Skills:** `task-management` `context7` `caveman` (+ 3 variantes) `compress` `cove`
+**Skills:** `task-management` `context7` `caveman` (+ 3 variantes) `compress` `cove` `node-version-guard` `playwright-debug` `tavily` `test-execution`
 
 **Plugins:** `opencode-agent-fallback` `opencode-background` `opencode-token-logger` `rtk`
 
