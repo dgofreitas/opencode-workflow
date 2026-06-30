@@ -13,7 +13,7 @@ description: |
 
   **When NOT to use this skill:**
   - Pure logic / backend bug with no UI surface → use BugFixerNodejs / BugFixerPython / BugFixerC
-  - Authoring/running E2E test suites → use the `test-execution` skill (`rtk playwright test` is for CI suites, NOT interactive debug)
+  - Authoring/running E2E test suites → use the `test-execution` skill (the CI test runner is for CI suites, NOT interactive debug)
   - Reading huge log files → see Anti-Patterns below
 
   **Tool source:** Microsoft `@playwright/mcp` (local server, registered in `opencode.json` → `mcp.playwright`). Surfaced to agents as `browser_*` tools.
@@ -40,8 +40,8 @@ tags:
 
 ## 🛑 What NOT to Do (Anti-Patterns)
 
-1. **NEVER use `rtk playwright test` for debug.** That wrapper is for CI test-suite output filtering (90%+ token savings on PASS logs). Interactive debug needs the MCP `browser_*` tools, not the test runner.
-2. **NEVER read `~/.local/share/rtk/tee/*.log`** or any raw rtk tee file — the `read` tool hangs forever on these and freezes the pipeline (same rule as `test-execution`).
+1. **NEVER use the CI test runner for debug.** That runner is for CI test-suite output filtering. Interactive debug needs the MCP `browser_*` tools, not the test runner.
+2. **NEVER read `tee/*.log` files** — the `read` tool hangs forever on these and freezes the pipeline (same rule as `test-execution`).
 3. **NEVER navigate without `--isolated` semantics in a dirty profile.** The MCP server config uses `--isolated` for a clean profile per session; do not assume cookies/localStorage from a previous run persist. Set them explicitly via `browser_evaluate` / `browser_type` if reproduction depends on state.
 4. **NEVER screenshot-blind.** A screenshot alone rarely shows the root cause. Always pair `browser_take_screenshot` with `browser_snapshot` (a11y/DOM tree) and `browser_console_messages` + `browser_network_requests`.
 5. **NEVER skip reproduction.** RCA before fix is non-negotiable: reproduce the bug in the live browser first, then hypothesize. Do not patch from a stack trace alone when a UI surface is involved.
@@ -164,5 +164,5 @@ Once a flow completes with the expected outcome:
 2. **Four tools together** — screenshot + snapshot + console + network. Never just one.
 3. **Save evidence** to `.opencode/.debug/<STORY>/` — feeds the Bug Fix Report.
 4. **Isolate by removal**, not by adding more code. Confirm hypothesis before patching.
-5. **No `rtk` here** — this skill uses MCP tools, not the RTK test wrapper.
-6. **Never read rtk/tee logs** — same hard rule as `test-execution`.
+5. **No CI test runner here** — this skill uses MCP tools, not the test runner.
+6. **Never read `tee/*.log` files** — same hard rule as `test-execution`.

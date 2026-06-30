@@ -28,6 +28,7 @@ This repo **is not a runnable app**. It is the *source of truth* for a multi-age
 ## RTK plugin (token-saving bash proxy)
 
 - `plugins/rtk.ts` intercepts `bash` tool calls and rewrites them via `rtk rewrite`. The binary is at `bin/rtk` and must be in `PATH`.
+- **Anti-loop is built into the plugin** (infrastructure, not prompt rules): if the same command fails 3x in a row with the same error signature, the plugin disables RTK rewriting for that command for the rest of the session and lets it run natively (using the project's local binary). Do not add prompt-level RTK fallback rules to agents/skills.
 - **Critical rule from `instructions.md`:** Always use `npm run <script>`. Short forms (`npm test`, `npm start`, `npm build`) break the rewrite.
 - Do **not** add pipes like `| tail` or `| head` to RTK-supported commands; RTK already filters output.
 

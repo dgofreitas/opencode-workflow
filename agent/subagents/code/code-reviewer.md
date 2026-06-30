@@ -22,7 +22,7 @@ permission:
     "ContextScout": "allow"
   read:
     "*": "allow"
-    "**/rtk/tee/**": "deny"
+    "**/tee/**": "deny"
 ---
 
 # CodeReviewer
@@ -91,23 +91,15 @@ The final line of EVERY report MUST be one of:
 **`VERDICT: BLOCKED — requires rework`** — one or more Critical or Major issues.
 When BLOCKED, include a **Rework Delegation** section with exact agent, issue, file:line for each fix.
 
-## ⚠️ HARD STOP — Never Read rtk/tee Logs (HIGHEST PRIORITY)
+## ⚠️ HARD STOP — Never Read tool log files (HIGHEST PRIORITY)
 
-When a command runs through `rtk` and parsing fails, rtk prints something like:
+When a tool writes a `[full output: .../tee/NNNN_*.log]` pointer, **NEVER read,
+cat, grep, or open that log file.** The `read` tool hangs on these huge files and
+freezes the pipeline for hours. Any path containing `tee/` is forbidden — no exceptions.
 
-```text
-[RTK:PASSTHROUGH] jest parser: All parsing tiers failed [full output: ~/.local/share/rtk/tee/NNNN_jest_run.log]
-```
-
-**NEVER read, cat, grep, or open that `rtk/tee/*.log` file.** The `read` tool hangs forever on these files and freezes the entire pipeline for hours.
-
-Instead, when you need the full test output:
-
-1. Re-run the SAME command WITHOUT rtk and tail it: `npx jest <files> 2>&1 | tail -50`
-2. Or add `--reporters=default` and pipe to `tail`.
-3. If output is still unreadable after 2 attempts → mark `[BLOCKED]` per the 2-Strike Rule and move on.
-
-Any path containing `rtk/tee/` is forbidden to read — no exceptions.
+Your frontmatter permissions already block these paths; this section is a reminder.
+If you need the full output, re-run with a focused file or a bail flag (see the
+`test-execution` skill). Do NOT pipe `| tail`.
 
 ---
 

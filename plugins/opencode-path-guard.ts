@@ -44,8 +44,8 @@ function loadConfig(directory: string, worktree: string): PathGuardConfig {
 
 const HOME = homedir();
 
-// Matches any rtk passthrough tee log, e.g. ~/.local/share/rtk/tee/NNNN_jest_run.log
-const RTK_TEE_RE = /rtk[\\/]+tee[\\/]/i;
+// Matches any tool tee log, e.g. ~/.local/share/rtk/tee/NNNN_jest_run.log
+const RTK_TEE_RE = /[\\/]+tee[\\/]/i;
 
 // Tools that read file content and can hang forever on an rtk/tee log
 const READ_LIKE_TOOLS = new Set(["read", "grep", "glob", "list", "view", "cat"]);
@@ -97,21 +97,21 @@ export const PathGuardPlugin: Plugin = async ({ client, directory, worktree }: a
 
   return {
     "tool.execute.before": async (ctx: any, toolName: string, params: any) => {
-      // ── RTK/TEE HARD BLOCK ──────────────────────────────────────────────
-      // The rtk passthrough writes failed-parse output to ~/.local/share/rtk/tee/*.log
-      // and tells the model to read it. The opencode `read` tool hangs forever on
-      // these files, and permission `deny` is unreliable (tilde paths / glob order).
-      // Throwing here runs BEFORE the permission check and turns the infinite stall
-      // into an instant, model-recoverable error — independent of engine behavior.
+      // ── TEE LOG HARD BLOCK ──────────────────────────────────────────────
+      // Tooling may write failed-parse output to .../tee/*.log and tell the model
+      // to read it. The opencode `read` tool hangs forever on these files, and
+      // permission `deny` is unreliable (tilde paths / glob order). Throwing here
+      // runs BEFORE the permission check and turns the infinite stall into an
+      // instant, model-recoverable error — independent of engine behavior.
       const tool = resolveToolName(toolName, ctx);
       if (!tool || READ_LIKE_TOOLS.has(tool)) {
         for (const raw of collectPathStrings(params, ctx, toolName)) {
           if (RTK_TEE_RE.test(expandTilde(raw))) {
-            log("warn", "RTK_TEE_BLOCKED", { tool: tool || "unknown", path: raw });
+            log("warn", "TEE_LOG_BLOCKED", { tool: tool || "unknown", path: raw });
             throw new Error(
-              "BLOCKED: reading rtk/tee passthrough logs is forbidden (causes infinite stall). " +
-              "Do NOT read this file. Re-run the original command WITHOUT rtk and pipe the tail, " +
-              "e.g. `npx jest <files> 2>&1 | tail -50`.",
+              "BLOCKED: reading tee log files is forbidden (causes infinite stall). " +
+              "Do NOT read this file. Re-run the original command with a focused file " +
+              "or a bail flag to get a smaller, readable output.",
             );
           }
         }

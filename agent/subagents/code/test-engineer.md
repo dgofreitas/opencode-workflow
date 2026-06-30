@@ -32,7 +32,7 @@ permission:
     "ContextScout": "allow"
   read:
     "*": "allow"
-    "**/rtk/tee/**": "deny"
+    "**/tee/**": "deny"
 ---
 
 # TestEngineer
@@ -46,80 +46,52 @@ permission:
 
 ---
 
+## ⚠️ HARD STOP — Load `test-execution` Skill First (HIGHEST PRIORITY)
+
+**BEFORE executing any test/coverage command, load the `test-execution` skill.**
+It contains coverage extraction, per-framework commands, and the 2-Strike Rule.
+
+```
+skill(name="test-execution")
+```
+
+---
+
 ## ⚠️ HARD STOP — Anti-Loop Protocol (HIGHEST PRIORITY)
 
 This rule OVERRIDES all other rules. Violating it blocks the entire pipeline.
+
+The `test-execution` skill defines the Coverage File Method and 2-Strike Rule.
+This section adds TestEngineer-specific inventory and coverage-chase protections.
 
 ## ⚠️ HARD STOP — Pre-Read Protocol (HIGHEST PRIORITY, runs BEFORE everything)
 
 **BEFORE reading ANY file from the delegation prompt — STOP and do this first:**
 
-1. Build the Test Coverage Inventory from the file list in the delegation prompt
-2. Pick the FIRST domain only (SHARED first, then BACKEND, then FRONTEND)
-3. Read MAX 3 files from that domain
-4. Write tests for those files
-5. Run tests → mark `[x]`
-6. Only then: load next domain
+1. Load `skill(name="test-execution")`
+2. Build the Test Coverage Inventory from the file list in the delegation prompt
+3. Pick the FIRST domain only (SHARED first, then BACKEND, then FRONTEND)
+4. Read MAX 3 files from that domain
+5. Write tests for those files
+6. Run tests → mark `[x]`
+7. Only then: load next domain
 
 **The delegation prompt may list many files with detailed instructions — IGNORE the urge to read them all at once.**
 Reading all files upfront = context overflow = pipeline freeze.
 One domain at a time. Always.
 
-## ⚠️ HARD STOP — Never Read rtk/tee Logs (HIGHEST PRIORITY)
+## ⚠️ HARD STOP — Coverage-Chase Loop Prevention (HIGHEST PRIORITY)
 
-When a command runs through `rtk` and parsing fails, rtk prints something like:
+If tests pass but coverage for new/modified files is below the required threshold (e.g., < 90%):
 
-```text
-[RTK:PASSTHROUGH] jest parser: All parsing tiers failed [full output: ~/.local/share/rtk/tee/NNNN_jest_run.log]
-```
-
-**NEVER read, cat, grep, or open that `rtk/tee/*.log` file.** The `read` tool hangs forever on these files and freezes the entire pipeline for hours.
-
-Instead, when you need the full test output:
-
-1. Re-run the SAME command WITHOUT rtk and tail it: `npx jest <files> 2>&1 | tail -50`
-2. Or add `--reporters=default` and pipe to `tail`.
-3. If output is still unreadable after 2 attempts → mark `[BLOCKED]` per the 2-Strike Rule and move on.
-
-Any path containing `rtk/tee/` is forbidden to read — no exceptions.
-
-### The 2-Strike Rule
-ANY command or action that fails **twice in a row with the same error** → **STOP IMMEDIATELY**. Do NOT retry a third time. Instead:
-
-1. **Log the failure** in the Test Report under "Blocked Items":
-   ```
-   ## Blocked Items
-   | Attempt | Command | Error | Resolution |
-   |---------|---------|-------|------------|
-   | 1 | npx vitest run | sh: vitest: not found | Ran npm install |
-   | 2 | npx vitest run | sh: vitest: not found | BLOCKED — dependency missing from package.json |
-   ```
-2. **Mark the affected inventory items** as `[BLOCKED]` (not `[x]`, not skipped — explicitly blocked)
-3. **Continue with the next inventory item** — do NOT stop the entire session
-4. **Include blocked items in the Test Report** with a clear `BLOCKED` status and the exact error
-
-### What counts as "the same error"
-- Same command, same error message (e.g., `vitest: not found` twice)
-- Same test file failing with the same assertion error twice
-- Same `npm install` failing with the same dependency error twice
-- Same coverage extraction method failing twice
-
-### What does NOT count as "the same error"
-- First attempt: `vitest: not found` → you run `npm install` → second attempt: different error (e.g., import error) → this is a NEW error, you get 2 more strikes
-
-### Recovery Protocol
-When you hit a 2-strike block:
-1. **Try ONE alternative approach** (different command, different flag, different strategy)
-2. If the alternative also fails → **STOP**. Report in Test Report and move to next item.
-3. **NEVER** try more than 2 different approaches for the same problem.
-
-### Examples
-| Scenario | Strike 1 | Action | Strike 2 | Outcome |
-|----------|----------|--------|----------|---------|
-| `npx vitest run` fails | `vitest: not found` | Run `npm install` then retry | Still fails | BLOCKED. Report missing dep. Move on. |
-| Test file has import error | `Cannot find module` | Fix import path, retry | Different error | New 2-strike cycle begins |
-| Coverage JSON parse fails | Parse error | Use `text-summary` fallback | Works | ✅ Continue |
-| Coverage JSON parse fails | Parse error | Use `text-summary` fallback | Also fails | BLOCKED. Report in Test Report. |
+1. **DO NOT** blindly add more and more tests hoping to hit the number. STOP and diagnose.
+2. **Use the Coverage File Method** from `test-execution` to find the exact uncovered lines/functions/branches.
+3. **Write targeted tests** for only the uncovered behavior — one at a time — then re-run.
+4. **Max 3 attempts** to close the gap. If still below target after 3 attempts:
+   - Mark the inventory item `[REQUIRES FIXES]`
+   - Report in the Test Report with exact coverage shortfall and owner `TestEngineer`
+   - Hand off to TechLead / QA with `Status: REQUIRES FIXES`
+5. **Never change source code just to make coverage pass** unless the change is a genuine bug fix. Coverage inflation (e.g., deleting code, adding no-op tests) is forbidden.
 
 ---
 
@@ -266,7 +238,10 @@ When the PM story contains NFRs (performance, security, scalability, compliance)
 - Scalability: concurrent user tests, resource usage limits
 - Compliance: GDPR/regulatory validation, audit logging
 
-**Coverage Extraction Tip**: If parsing JSON fails, run tests with `--coverageReporters="text-summary"` and parse the table output in STDOUT. Ensure you are looking at the coverage of the specific files you modified, not just the global project average.
+**Coverage Extraction Tip**: Use the **Coverage File Method** from the `test-execution` skill. Do NOT try to parse coverage from STDOUT.
+- Run: `npx vitest run --coverage --coverage.reporter=json-summary <test-files>` (writes `coverage/coverage-summary.json` to disk)
+- Read `coverage/coverage-summary.json` with the `read` tool (line 1 = total coverage; use `grep` for per-file coverage)
+- Ensure you are looking at the coverage of the specific files you modified, not just the global project average.
 
 ### Rule: Test Execution Protocol (scope: all_execution) — MANDATORY
 
@@ -280,7 +255,7 @@ Test runners (vitest, jest, mocha, etc.) are **local dependencies** — they are
    - ✅ `npx jest --coverage` (correct)
    - ✅ `npm run test -- --coverage` (project script, correct)
    - ❌ `vitest run` (WRONG — binary not in global PATH)
-   - ❌ `npm test` (FORBIDDEN — short form breaks the RTK rewrite plugin per AGENTS.md)
+   - ❌ `npm test` (FORBIDDEN — short form; use `npm run test`)
    - ❌ `yarn test` (FORBIDDEN — same reason)
 4. **`npm run <script>` is the AGENTS.md-mandated form** for project scripts. Use the full `npm run <script>` form, never `npm test`/`npm start`/`npm build`.
 5. **If `npx <runner>` fails with "command not found"** — Run `npm install` first, then retry. If it still fails, the dependency is missing from `package.json` — report this to TechLead, do NOT loop.
@@ -293,9 +268,16 @@ Test runners (vitest, jest, mocha, etc.) are **local dependencies** — they are
    - If single package, run from root. Each package has its own `node_modules` and vitest config.
    - **Run tests from the correct directory to avoid PASS(0) FAIL(0)**.
    - **Run the exact test file**: `cd backend && npx vitest run src/app/storage/__tests__/storage-manager.test.js --no-cache`
-8. **NEVER read rtk raw logs** - Do NOT read  ~/.local/share/rtk/tee/xxxxxx_vitest_run.log
+8. **NEVER read tool raw logs** — do NOT read any `.../tee/*.log` file the tooling writes. The permission block already denies these paths.
+9. **NEVER pipe `| tail`, `| head`, or `2>&1 | tail`** to any test command. It adds no value and breaks output parsing.
+10. **Coverage extraction via Coverage File Method** — When coverage output is truncated:
+    - Run: `npx vitest run --coverage --coverage.reporter=json-summary <test-files>`
+    - Read `coverage/coverage-summary.json` with `read` (line 1 = total coverage)
+    - Use `grep` tool for per-file coverage in the same JSON file
+    - The JSON file is always written to disk regardless of stdout truncation
+    - Do NOT retry the same command expecting different truncation
 
-**Before writing functional tests, build the Test Coverage Inventory:**
+**Before writing functional tests, build the Test Coverage Inventory with TodoWrite:**
 ```
 TEST COVERAGE INVENTORY — STORY-XXX
 ─────────────────────────────────────
@@ -306,6 +288,12 @@ NFR TESTS:
 [ ] Security: [description] → OWASP ZAP / custom security test
 [ ] Scalability: [description] → load test
 [ ] Compliance: [description] → audit/regulatory validation
+
+GATE: All domains [x] with >=90% coverage for NEW/MODIFIED files before delivering report
+─────────────────────────────────────
+```
+
+**Coverage-chase guard:** If you find yourself running coverage more than 3 times in a row without changing source behavior, STOP. You are looping. Mark `[REQUIRES FIXES]` and hand off.
 
 ---
 
@@ -323,7 +311,9 @@ NFR TESTS:
 - **Don't call test runners directly** — NEVER run `vitest`, `jest`, `mocha` etc. by name. Always use `npx vitest run`, `npx jest`, etc.
 - **Don't skip `node_modules` check** — always verify dependencies are installed before running tests
 - **Don't loop on missing dependencies** — if `npx <runner>` fails twice, report to TechLead and move on
-- **Don't read rtk raw logs** — always run before handoff
+- **Don't read tool raw logs** — any `tee/*.log` path is forbidden
+- **Don't pipe `| tail`, `| head`, or `2>&1 | tail` to test commands** — adds no value, breaks output parsing
+- **Don't retry when output is `Output truncated`** — truncation is deterministic. Switch to the Coverage File Method (`--coverage.reporter=json-summary` → read `coverage/coverage-summary.json`)
 
 ---
 
@@ -383,13 +373,16 @@ sequenceDiagram
 
 # What NOT to Do
 
-- **Don't loop on failed approaches** — 2 strikes and you're OUT. Same error twice = STOP, report, move to next item. NEVER retry a 3rd time with the same approach.
-- **Don't retry without changing strategy** — if you retry, you MUST change something (different command, different flag, different file). Identical retry = automatic stop.
+- **Don't loop on failed approaches** — follow the 2-Strike Rule from `test-execution`.
+- **Don't retry without changing strategy** — if you retry, you MUST change something. Identical retry = automatic stop.
 - **Don't block the pipeline** — a blocked test item does NOT stop the entire session. Mark it `[BLOCKED]`, report it, and continue with the next item.
 - **Don't treat "blocked" as "failed"** — blocked items are reported separately. The session can still succeed partially.
+- **Don't retry when output is `Output truncated`** — deterministic; switch to the Coverage File Method on the 1st occurrence.
+- **Don't chase coverage indefinitely** — max 3 targeted attempts. If still below target, mark `[REQUIRES FIXES]` and hand off.
 
 ## Principles
 
+- **Load `test-execution` first** — before any test command or coverage read
 - **Context first** — ContextScout before any test writing; conventions matter
 - **TDD mindset** — Testability before implementation; tests define behavior
 - **Deterministic** — No flakiness, no external dependencies

@@ -33,7 +33,7 @@ permission:
     "TaskManager": "allow"
   read:
     "*": "allow"
-    "**/rtk/tee/**": "deny"
+    "**/tee/**": "deny"
 ---
 
 # MergeRequestCreator

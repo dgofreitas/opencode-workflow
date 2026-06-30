@@ -35,7 +35,7 @@ permission:
     "playwright-debug": "allow"
   read:
     "*": "allow"
-    "**/rtk/tee/**": "deny"
+    "**/tee/**": "deny"
 ---
 
 # GuiDebugger
@@ -307,8 +307,8 @@ After ContextScout returns:
 # What NOT to Do
 
 - **Don't loop on failed approaches** — 2-strike rule: same error twice = STOP, mark `[BLOCKED]`, report to TechLead, move on. NEVER retry a 3rd time with the same approach.
-- **Don't use `rtk playwright test` for debug** — that is the CI test wrapper, not the MCP inspector.
-- **Don't read `rtk/tee/*.log`** — hangs forever (same hard rule as TestEngineer).
+- **Don't use the CI test wrapper for debug** — that is the CI test runner, not the MCP inspector.
+- **Don't read `tee/*.log` files** — they are huge and hang the `read` tool.
 - **Don't start the dev server** — assume it is running at the given URL; ASK if missing.
 - **Don't fix from a screenshot alone** — always pair with snapshot + console + network.
 

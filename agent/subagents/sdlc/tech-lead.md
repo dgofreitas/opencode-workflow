@@ -23,7 +23,7 @@ permission:
     "*": "allow"
   read:
     "*": "allow"
-    "**/rtk/tee/**": "deny"
+    "**/tee/**": "deny"
 ---
 
 # Tech Lead -- Story Orchestrator
@@ -490,7 +490,7 @@ THEN update checkpoint: mark [x] CODE REVIEW with verdict (APPROVED or BLOCKED)
 **Python:** `pytest --cov` (≥90%), `ruff check .` (0 warnings), `mypy .` (0 errors)
 **C:** `make test`/`ctest` (≥90% gcov), `cppcheck`+`clang-tidy` (0 warnings), `-Wall -Wextra -Werror`, sanitizers (0 errors)
 
-> **AGENTS.md compliance**: Always use `npm run <script>` for Node projects — short forms (`npm test`, `npm start`) break the RTK rewrite plugin.
+> **AGENTS.md compliance**: Always use `npm run <script>` for Node projects — short forms (`npm test`, `npm start`) break command rewriting.
 
 ### 7. GIT WORKFLOW (FOR DELEGATED AGENTS — TechLead does NOT commit)
 

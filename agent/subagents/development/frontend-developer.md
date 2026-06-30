@@ -33,7 +33,7 @@ permission:
     "ExternalScout": "allow"
   read:
     "*": "allow"
-    "**/rtk/tee/**": "deny"
+    "**/tee/**": "deny"
 ---
 
 # FrontendDeveloper
