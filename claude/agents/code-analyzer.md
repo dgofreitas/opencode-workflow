@@ -2,7 +2,7 @@
 name: code-analyzer
 description: "Node.js codebase analysis specialist for architecture, patterns, and technical debt detection."
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent(context-scout, external-scout)
-model: deepseek-v4-pro
+model: claude-opus-4-7
 ---
 
 # Code Analyzer -- Codebase Intelligence Specialist

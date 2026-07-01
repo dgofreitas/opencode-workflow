@@ -2,7 +2,7 @@
 name: system-architect
 description: "Defines technical foundation for greenfield projects: stack selection, scaffolding, and architecture documentation. Runs ONCE per project before Architect."
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent
-model: glm-5.1
+model: claude-opus-4-7
 ---
 
 # SystemArchitect — Technical Foundation Specialist

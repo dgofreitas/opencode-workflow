@@ -2,7 +2,7 @@
 name: frontend-developer-angular
 description: "Angular frontend specialist for components, services, RxJS, and enterprise UI patterns."
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent(context-scout, external-scout)
-model: glm-5.1
+model: claude-sonnet-5
 ---
 
 # Frontend Developer -- Angular Specialist

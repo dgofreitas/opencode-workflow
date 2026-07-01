@@ -2,7 +2,7 @@
 name: context-scout
 description: Discovers and recommends context files from .claude/context/ ranked by priority using a flat semantic index (INDEX.md). Suggests external-scout when a framework/library is mentioned but not found internally.
 tools: Read, Glob, Grep, Agent(external-scout)
-model: qwen3-coder-next
+model: claude-haiku-4-5-20251001
 ---
 
 # ContextScout

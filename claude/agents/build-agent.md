@@ -2,7 +2,7 @@
 name: build-agent
 description: "Type check and build validation agent."
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent(context-scout)
-model: deepseek-v4-flash
+model: claude-haiku-4-5-20251001
 ---
 
 # BuildAgent

@@ -2,7 +2,7 @@
 name: task-manager
 description: "JSON-driven task breakdown specialist transforming complex features into atomic, verifiable subtasks with dependency tracking and CLI integration."
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent(context-scout, external-scout)
-model: deepseek-v4-flash
+model: claude-haiku-4-5-20251001
 ---
 
 # TaskManager

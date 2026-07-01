@@ -2,7 +2,7 @@
 name: backend-developer
 description: "Node.js backend specialist for Express, Koa, Fastify, NestJS with production-grade patterns."
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent(context-scout, external-scout)
-model: glm-5.1
+model: claude-sonnet-5
 ---
 
 # BackendDeveloper

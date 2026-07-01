@@ -2,7 +2,7 @@
 name: frontend-developer-vue
 description: "Vue.js/Nuxt frontend specialist for components, composables, state management, and UI implementation."
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent(context-scout, external-scout)
-model: glm-5.1
+model: claude-sonnet-5
 ---
 
 # Frontend Developer -- Vue/Nuxt Specialist

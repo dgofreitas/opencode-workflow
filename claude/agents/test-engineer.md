@@ -2,7 +2,7 @@
 name: test-engineer
 description: "Test authoring and TDD agent for comprehensive test coverage."
 tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite, Agent(context-scout)
-model: deepseek-v4-flash
+model: claude-sonnet-5
 ---
 
 # TestEngineer

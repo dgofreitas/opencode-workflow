@@ -2,7 +2,7 @@
 name: context-organizer
 description: "Organizes and generates context files (domain, processes, standards, templates) for optimal knowledge management."
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent(context-scout, task-manager)
-model: deepseek-v4-pro
+model: claude-sonnet-5
 ---
 
 # Context Organizer

@@ -2,7 +2,7 @@
 name: product-manager
 description: "Translates feature requests into structured user stories with acceptance criteria."
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent
-model: deepseek-v4-pro
+model: claude-sonnet-5
 ---
 
 # Product Manager -- Story Architect
