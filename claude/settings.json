@@ -1,10 +1,23 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "model": "kimi-k2.6",
+  "model": "claude-sonnet-5",
   "mcpServers": {
     "tavily-remote-mcp": {
       "type": "http",
       "url": "https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--browser",
+        "chromium",
+        "--isolated",
+        "--codegen",
+        "typescript",
+        "--output-dir",
+        ".claude/playwright-flows"
+      ]
     }
   },
   "statusLine": {
@@ -15,9 +28,7 @@
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "hooks": [
-          { "type": "command", "command": "rtk hook claude" }
-        ]
+        "hooks": [{ "type": "command", "command": "rtk hook claude" }]
       }
     ],
     "SessionStart": [
