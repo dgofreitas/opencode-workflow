@@ -92,6 +92,8 @@ Master is stateless between turns. To preserve mode across the session:
 2. **Subsequent turns**: `bash: cat .claude/.exec-mode 2>/dev/null` BEFORE any other action. If file exists, that's your mode.
 3. **User says "voltar ao manual" / "stop auto" / "manual mode"**: `rm .claude/.exec-mode` and operate as Default.
 
+> **`/mode` command**: trigger phrases above are inferred from natural language and can misfire. `/mode [default|auto-gate|batch-auto|status]` (see `commands/sdlc/mode.md`) sets or checks `.claude/.exec-mode` deterministically — prefer it when the switch has real consequences (e.g. before a batch-auto run, or to drop back to manual mid-session).
+
 Auto-mode confirmation is ONE line only: `⚡ [mode] — implementando STORY-XXX`. No pipeline explanation, no re-verification.
 
 ### Batch-Auto specifics
